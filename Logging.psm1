@@ -1,6 +1,6 @@
 Function Write-Log {
     <#
-    .SYNOPSYS
+    .SYNOPSIS
     This function for unified logging
 
     .DESCRIPTION
@@ -104,7 +104,7 @@ Function Format-String {
     param(
         [string]$Message,
         [string]$Level,
-        [string]$Formatter = "[%{DATETIME:-10}] [%{LEVEL:-7}] %{MESSAGE}"
+        [string]$Formatter = '[%{DATETIME:-10}] [%{LEVEL:-7}] %{MESSAGE}'
     )
     $replace = @{
         'MESSAGE'  = $Message
