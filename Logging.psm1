@@ -20,7 +20,7 @@ Function Write-Log {
 
     function Foo  {
         param(
-		    [string]$Message,
+            [string]$Message,
             [string]$Level,
             [hashtable]$Configuration
         )
@@ -43,10 +43,10 @@ Function Write-Log {
 
     [CmdletBinding()]
     Param(
-		[ValidateNotNullOrEmpty()]
+        [ValidateNotNullOrEmpty()]
         [Parameter(Mandatory=$true,
                    ValueFromPipeline=$true)]
-		[string[]]$Message,
+        [string[]]$Message,
         [ValidateSet('ERROR','WARN','INFO','DEBUG')]
         [string]$Level = 'WARN'
     )
@@ -83,7 +83,7 @@ Function Write-Log {
 
 Function Logging-Console {
     param(
-		[string]$Message,
+        [string]$Message,
         [string]$Level,
         [hashtable]$Configuration
     )
@@ -93,7 +93,7 @@ Function Logging-Console {
 
 Function Logging-File {
     param(
-		[string]$Message,
+        [string]$Message,
         [string]$Level,
         [hashtable]$Configuration
     )
@@ -111,7 +111,7 @@ Function Format-String {
         'LEVEL'    = $Level
         'DATETIME' = Get-Date -Format 'dd/MM/yyyy HH:mm'
     }
-    
+
     foreach ($token in $replace.Keys) {
         $regex = [regex]"%{$token(:(?<len>-?\d+))?}"
         $Formatter -match $regex | Out-Null
