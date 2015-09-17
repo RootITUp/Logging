@@ -97,7 +97,13 @@ Function Logging-File {
         [string]$Level,
         [hashtable]$Configuration
     )
-    Out-File -FilePath $Configuration.Path -InputObject $Message -Encoding unicode -Append
+    $mtx = New-Object System.Threading.Mutex($false, 'Write-Log')
+    if ($mtx.WaitOne(1000)) {
+        Out-File -FilePath $Configuration.Path -InputObject $Message -Encoding unicode -Append
+        [void] $mtx.ReleaseMutex()
+    } else {
+        Write-Warning 'Timed out acquiring mutex on log file.'
+    }
 }
 
 Function Format-String {
