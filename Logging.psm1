@@ -115,7 +115,7 @@ Function Format-String {
     $replace = @{
         'MESSAGE'  = $Message
         'LEVEL'    = $Level
-        'DATETIME' = Get-Date -Format 'dd/MM/yyyy HH:mm'
+        'DATETIME' = Get-Date -Format 'yyyy-MM-ddTHH:mm:ss.fff'
     }
 
     foreach ($token in $replace.Keys) {
