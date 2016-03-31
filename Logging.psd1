@@ -12,7 +12,7 @@
 RootModule = 'Logging.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.9.0'
+ModuleVersion = '2.0.0'
 
 # ID used to uniquely identify this module
 GUID = '25a60f1d-85dd-4ad6-9efc-35fd3894f6c1'
@@ -66,7 +66,7 @@ FormatsToProcess = @()
 # NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = 'Write-Log'
+# FunctionsToExport = @()
 
 # Cmdlets to export from this module
 CmdletsToExport = @()

@@ -1,133 +1,154 @@
 Function Write-Log {
-    <#
-    .SYNOPSIS
-    This function for unified logging
-
-    .DESCRIPTION
-    Write-Log function support multiple handler to log messages to different destinations.
-    Each handler support own log level and formatter to specify the layout of the log.
-
-    To use logging functionality you need to define $Global:Logging:
-    $Global:Logging['Destinations'] += @{Console = @{Level = 'DEBUG'; Formatter = "%{MESSAGE}"}}
-
-    In this case we use only one handler, Console, with a DEBUG level and a custom formatter.
-
-    To also log to file we could write:
-    $Global:Logging['Destinations'] += @{File = @{Level = 'INFO', Path = 'C:\TEMP\powershell.log'}}
-
-    Inside the module are already defined two handlers: Console and File.
-    To define your own handler this is the signature of the functions getting called:
-
-    function Foo  {
-        param(
-            [string]$Message,
-            [string]$Level,
-            [hashtable]$Configuration
-        )
-    }
-
-    Inside $Configuration you have access to the global handler configuration, for example the path for the File handler.
-
-    And to activate it:
-    $Global:Logging['Handlers'] += @{Foo = 'Foo'}
-    $Global:Logging['Destinations']['Foo'] = @{Level = 'WARN'}
-
-    .PARAMETER Message
-    .PARAMETER Level
-
-    .EXAMPLE
-    Write to defined handlers only if destination level is greater or equal than INFO:
-    Write-Log "Hello World!" -Level INFO
-
-    #>
-
-    [CmdletBinding()]
-    Param(
-        [ValidateNotNullOrEmpty()]
-        [Parameter(Mandatory=$true,
-                   ValueFromPipeline=$true)]
-        [string[]]$Message,
-        [ValidateSet('ERROR','WARN','INFO','DEBUG')]
-        [string]$Level = 'WARN'
+    param(
+        [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR')]
+        [string] $Level = 'WARNING',
+        [object] $Message
     )
-    BEGIN {
-        $levels = @{'DEBUG' = 10; 'INFO' = 20; 'WARN' = 30; 'ERROR' = 40}
-        $handlers = @{
-            'Console' = 'Logging-Console';
-            'File'    = 'Logging-File';
-        }
-
-        if ($Global:Logging -is [Hashtable] -and $Global:Logging['Handlers'] -is [Hashtable]) {
-            $handlers += $Global:Logging['Handlers']
+    
+    if ($Message -isnot [hashtable]) {
+        $Message = @{
+            title = $Message
+            body = @{}
         }
     }
 
-    PROCESS {
-        if ($Global:Logging -is [Hashtable]) {
-            foreach ($Msg in $Message) {
-                foreach ($handler in $Global:Logging['Destinations'].Keys) {
-                    $conf = $Global:Logging['Destinations'][$handler]
-                    if ($levels[$Level] -ge $levels[$conf.Level]) {
-                        $splattable = @{}
-                        if ($conf.Formatter) {
-                            $splattable['Formatter'] = $conf.Formatter
-                        }
-                        $txt = Format-String -Message $Msg -Level $Level @splattable
-                        &$handlers[$handler] -Message $txt -Level $Level -Configuration $conf
-                    }
-                }
+    [void] $MessageQueue.Add(
+        [hashtable] @{
+            timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
+            level = $Level
+            msg = $Message
+        }
+    )
+}
+
+Function Replace-Tokens {
+    param(
+        [string] $String,
+        [object] $Source
+    )
+    $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmt>(?:%[YmdHMS].*?)+))?(?::(?<padding>-?\d+))?}'
+    $re.Replace($String, {
+        param($match)
+        $token = $match.Groups['token'].value
+        $datefmt = $match.Groups['datefmt'].value
+        $padding = $match.Groups['padding'].value
+        
+        if ($token -and -not $datefmt) {
+            $var = $Source.$token
+        } elseif ($token -and $datefmt) {
+            $var = Get-Date $Source.$token -UFormat $datefmt
+        } elseif ($datefmt -and -not $token) {
+            $var = Get-Date -UFormat $datefmt
+        }
+        
+        if ($padding) {
+            $tpl = "{0,$padding}"
+        } else {
+            $tpl = '{0}'
+        }
+        
+        return ($tpl -f $var)        
+    })    
+}
+
+New-Variable -Name ScriptRoot -Value (Split-Path $MyInvocation.MyCommand.Path) -Option AllScope, ReadOnly -Scope Global
+New-Variable -Name Dispatcher -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
+New-Variable -Name LevelNames -Option AllScope, ReadOnly -Scope Global
+New-Variable -Name LogTargets -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
+New-Variable -Name Logging -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
+New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option AllScope, ReadOnly -Scope Global
+
+$DEBUG = 10
+$INFO = 20
+$WARNING = 30
+$ERROR_ = 40
+
+$LevelNames = [hashtable]::Synchronized(@{
+    $ERROR_ = 'ERROR'
+    $WARNING = 'WARNING'
+    $INFO = 'INFO'
+    $DEBUG = 'DEBUG'
+    'ERROR' = $ERROR_
+    'WARN' = $WARNING
+    'WARNING' = $WARNING
+    'INFO' = $INFO
+    'DEBUG' = $DEBUG
+})
+
+$InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+$SessionStateFunction = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)
+$InitialSessionState.Commands.Add($SessionStateFunction)
+
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ScriptRoot', $ScriptRoot, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'Dispatcher', $Dispatcher, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'LevelNames', $LevelNames, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'LogTargets', $LogTargets, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'Logging', $Logging, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'MessageQueue', $MessageQueue, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
+
+$ScriptBlock = {
+    foreach ($Target in (Get-ChildItem "$ScriptRoot\targets" -Filter *.ps1)) {
+        $Module = . $Target.FullName
+        $LogTargets[$Module.Name] = $Module.Logger
+    }
+    
+    if ($Logging.CustomTargets) {
+        if (Test-Path $Logging.CustomTargets) {
+            foreach ($Target in (Get-ChildItem $Logging.CustomTargets -Filter *.ps1)) {
+                $Module = . $Target.FullName
+                $LogTargets[$Module.Name] = $Module.Logger
             }
         }
     }
-}
-
-Function Logging-Console {
-    param(
-        [string]$Message,
-        [string]$Level,
-        [hashtable]$Configuration
-    )
-    $colors = @{'DEBUG' = 'Blue'; 'INFO' = 'Green'; 'WARN' = 'Yellow'; 'ERROR' = 'Red'}
-    Write-Host -Object $Message -ForegroundColor $colors[$Level]
-}
-
-Function Logging-File {
-    param(
-        [string]$Message,
-        [string]$Level,
-        [hashtable]$Configuration
-    )
-    $mtx = New-Object System.Threading.Mutex($false, 'Write-Log')
-    if ($mtx.WaitOne(1000)) {
-        Out-File -FilePath $Configuration.Path -InputObject $Message -Encoding unicode -Append
-        [void] $mtx.ReleaseMutex()
-    } else {
-        Write-Warning 'Timed out acquiring mutex on log file.'
+    
+    $i = 0
+    while ($Dispatcher.Flag) {
+        if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
+        if ($MessageQueue.Count -gt 0) {
+            foreach ($Message in $MessageQueue) {
+                foreach ($TargetName in $Logging.Targets.Keys) {
+                    $Target = $Logging.Targets[$TargetName]
+                    $LoggerLevel = if ($Target.Level) {$Target.Level} else {$Logging.Level}
+                    $Format = if ($Target.Format) {$Target.Format} else {$Logging.Format}
+                    if ($LevelNames[$Message.Level] -ge $LevelNames[$LoggerLevel]) {
+                        & $LogTargets[$TargetName] $Message $Format $Target
+                    }
+                    # $LogTargets | ConvertTo-Json | Out-String | Out-File -FilePath D:\Tools\log\test.log -Append
+                }
+                $MessageQueue.Remove($Message)
+            }
+        }
+        $i++
+        Start-Sleep -Milliseconds 50
     }
 }
 
-Function Format-String {
-    param(
-        [string]$Message,
-        [string]$Level,
-        [string]$Formatter = '[%{DATETIME:-10}] [%{LEVEL:-7}] %{MESSAGE}'
-    )
-    $replace = @{
-        'MESSAGE'  = $Message
-        'LEVEL'    = $Level
-        'DATETIME' = Get-Date -Format 'yyyy-MM-ddTHH:mm:ss.fff'
-    }
+$Dispatcher.Flag = $true
+$Dispatcher.Host = $Host
+$Dispatcher.RunspacePool = [runspacefactory]::CreateRunspacePool($InitialSessionState)
+$Dispatcher.RunspacePool.Open()
+$Dispatcher.Powershell = [powershell]::Create().AddScript($ScriptBlock)
+$Dispatcher.Powershell.RunspacePool = $Dispatcher.RunspacePool
+$Dispatcher.Handle = $Dispatcher.Powershell.BeginInvoke()
 
-    foreach ($token in $replace.Keys) {
-        $regex = [regex]"%{$token(:(?<len>-?\d+))?}"
-        $Formatter -match $regex | Out-Null
-        if ($matches['len']) { $tpl = "{0,$($matches['len'])}" }
-        else { $tpl = "{0}" }
-        $str = $tpl -f $replace[$token]
-        $Formatter = $Formatter -replace $regex, $str
+#region Handle Module Removal
+$ExecutionContext.SessionState.Module.OnRemove ={
+    $Dispatcher.Flag = $False
+    #Let sit for a second to make sure it has had time to stop
+    Start-Sleep -Seconds 1
+    if ($Dispatcher.Handle) {
+        $Dispatcher.PowerShell.EndInvoke($Dispatcher.Handle)
+        $Dispatcher.PowerShell.Dispose()    
     }
-
-    return $Formatter
+    Remove-Variable -Name Dispatcher -Scope Global -Force
+    Remove-Variable -Name MessageQueue -Scope Global -Force
+    Remove-Variable -Name Logging -Scope Global -Force
+    Remove-Variable -Name LogTargets -Scope Global -Force
+    Remove-Variable -Name LevelNames -Scope Global -Force
+    Remove-Variable -Name ScriptRoot -Scope Global -Force
+    [System.GC]::Collect()
 }
+#endregion Handle Module Removal
 
 Export-ModuleMember -Function Write-Log
