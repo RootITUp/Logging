@@ -51,6 +51,26 @@ Function Replace-Tokens {
     })    
 }
 
+$NOTSET = 0
+$DEBUG = 10
+$INFO = 20
+$WARNING = 30
+$ERROR_ = 40
+
+$LevelNames = [hashtable]::Synchronized(@{
+    $NOTSET = 'NOTSET'
+    $ERROR_ = 'ERROR'
+    $WARNING = 'WARNING'
+    $INFO = 'INFO'
+    $DEBUG = 'DEBUG'
+    'NOTSET' = $NOTSET
+    'ERROR' = $ERROR_
+    'WARN' = $WARNING
+    'WARNING' = $WARNING
+    'INFO' = $INFO
+    'DEBUG' = $DEBUG
+})
+
 New-Variable -Name ScriptRoot -Value (Split-Path $MyInvocation.MyCommand.Path) -Option AllScope, ReadOnly -Scope Global
 New-Variable -Name Dispatcher -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
 New-Variable -Name LevelNames -Option AllScope, ReadOnly -Scope Global
@@ -58,22 +78,8 @@ New-Variable -Name LogTargets -Value ([hashtable]::Synchronized(@{})) -Option Al
 New-Variable -Name Logging -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
 New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option AllScope, ReadOnly -Scope Global
 
-$DEBUG = 10
-$INFO = 20
-$WARNING = 30
-$ERROR_ = 40
-
-$LevelNames = [hashtable]::Synchronized(@{
-    $ERROR_ = 'ERROR'
-    $WARNING = 'WARNING'
-    $INFO = 'INFO'
-    $DEBUG = 'DEBUG'
-    'ERROR' = $ERROR_
-    'WARN' = $WARNING
-    'WARNING' = $WARNING
-    'INFO' = $INFO
-    'DEBUG' = $DEBUG
-})
+$Logging.Level = $NOTSET
+$Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 $SessionStateFunction = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)
