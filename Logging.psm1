@@ -107,8 +107,11 @@ $ScriptBlock = {
         if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
         if ($MessageQueue.Count -gt 0) {
             foreach ($Message in $MessageQueue) {
-                foreach ($TargetName in $Logging.Targets.Keys) {
-                    $Target = $Logging.Targets[$TargetName]
+                if ($Logging.Targets) {$Targets = $Logging.Targets}
+                elseif ($Logging.Destinations) {$Targets = $Logging.Destinations}
+                else {$Targets = $null}
+                foreach ($TargetName in $Targets.Keys) {
+                    $Target = $Targets[$TargetName]
                     $LoggerLevel = if ($Target.Level) {$Target.Level} else {$Logging.Level}
                     $Format = if ($Target.Format) {$Target.Format} else {$Logging.Format}
                     if ($LevelNames[$Message.Level] -ge $LevelNames[$LoggerLevel]) {
