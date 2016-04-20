@@ -2,6 +2,7 @@ Function Write-Log {
     param(
         [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR')]
         [string] $Level = 'WARNING',
+        [Parameter(Position=1)]
         [object] $Message
     )
     
@@ -12,13 +13,35 @@ Function Write-Log {
         }
     }
 
+    $LevelNo = Check-Level -Level $Level
+    
     [void] $MessageQueue.Add(
         [hashtable] @{
             timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
-            level = $Level
+            levelno = $LevelNo
+            level = Get-LevelName -Level $LevelNo
             msg = $Message
         }
     )
+}
+
+Function Check-Level {
+    param(
+        $Level
+    )
+    if ($Level -is [int]) {return $Level}
+    elseif ([string] $Level -eq $Level) {return $LevelNames[$Level]}
+    else {throw ('Level not a valid integer or a valid string: {0}' -f $Level)}    
+}
+
+Function Get-LevelName {
+    param(
+        $Level
+    )
+    
+    $l = $LevelNames[$Level]
+    if ($l) {return $l}
+    else {return ('Level {0}' -f $Level)}
 }
 
 Function Replace-Tokens {
@@ -80,6 +103,7 @@ New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchron
 
 $Logging.Level = $NOTSET
 $Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+$Logging.Targets = @{}
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 $SessionStateFunction = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)
@@ -113,17 +137,24 @@ $ScriptBlock = {
         if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
         if ($MessageQueue.Count -gt 0) {
             foreach ($Message in $MessageQueue) {
-                if ($Logging.Targets) {$Targets = $Logging.Targets}
-                elseif ($Logging.Destinations) {$Targets = $Logging.Destinations}
+                if ($Logging.Targets.Count -and -not $Logging.Destinations) {$Targets = $Logging.Targets}
+                elseif (-not $Logging.Targets.Count -and $Logging.Destinations) {$Targets = $Logging.Destinations}
                 else {$Targets = $null}
                 foreach ($TargetName in $Targets.Keys) {
+                    $LoggerFormat = $Logging.Format
+                    $LoggerLevel = Check-Level -Level $Logging.Level
+
                     $Target = $Targets[$TargetName]
-                    $LoggerLevel = if ($Target.Level) {$Target.Level} else {$Logging.Level}
-                    $Format = if ($Target.Format) {$Target.Format} else {$Logging.Format}
-                    if ($LevelNames[$Message.Level] -ge $LevelNames[$LoggerLevel]) {
-                        & $LogTargets[$TargetName] $Message $Format $Target
+                    
+                    if ($Target) {
+                        if ($Target.Level) {$LoggerLevel = $Target.Level}
+                        if ($Target.Format) {$LoggerFormat = $Target.Format}
+                        $Configuration = $Target
                     }
-                    # $LogTargets | ConvertTo-Json | Out-String | Out-File -FilePath D:\Tools\log\test.log -Append
+                                        
+                    if ($Message.Level -ge $LoggerLevel) {
+                        & $LogTargets[$TargetName] $Message $LoggerFormat $Configuration
+                    }
                 }
                 $MessageQueue.Remove($Message)
             }
