@@ -68,9 +68,9 @@ The Log object has a number of attributes that are replaced in the format string
 | Format         | Description |
 | -------------- | ----------- |
 | `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (2016-04-20 14:22:45+02). Take a look at the [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter |
-| `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*) |
-| `%{levelno}`   | Numeric logging level for the message (10, 20, 30, 40) |
-| `%{message}`   | The logged message |
+| `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*)
+| `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*)
+| `%{message}`   | The logged message
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
@@ -168,4 +168,4 @@ It lets define a folder to load custom targets. `Doc WIP`
 ## Notes
 
 * The dispatcher thread starts the first time a `Write-Log` command is executed and keeps running in the background to dispatch new messages until the module is removed.
-* The runspace code is inspired by the work and research of @proxb.
+* The runspace code is inspired by the work and research of Boe Prox (@proxb).
