@@ -1,3 +1,5 @@
+#requires -Version 4
+
 Function Write-Log {
     [CmdletBinding()]
     param(
