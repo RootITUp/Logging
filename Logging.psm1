@@ -200,4 +200,14 @@ $ExecutionContext.SessionState.Module.OnRemove ={
 }
 #endregion Handle Module Removal
 
+# Aliases and exports
+Function debug      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level DEBUG -Message $Message }
+Function info       { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level INFO -Message $Message }
+Function warning    { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level WARNING -Message $Message }
+Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level ERROR -Message $Message }
+
 Export-ModuleMember -Function Write-Log
+Export-ModuleMember -Function debug
+Export-ModuleMember -Function info
+Export-ModuleMember -Function warning
+Export-ModuleMember -Function error
