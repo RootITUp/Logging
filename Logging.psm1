@@ -1,28 +1,35 @@
 Function Write-Log {
+    [CmdletBinding()]
     param(
+        [Parameter(Position=1, 
+                   Mandatory=$true, 
+                   ValueFromPipeline=$true)]
+        [Object] $Message,        
         [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR')]
-        [string] $Level = 'WARNING',
-        [Parameter(Position=1)]
-        [object] $Message
+        [string] $Level = 'WARNING'
     )
     
-    if ($Message -isnot [hashtable]) {
-        $Message = @{
-            title = $Message
-            body = @{}
-        }
-    }
+    PROCESS {
+        foreach ($msg in $Message) {
+            if ($msg -isnot [hashtable]) {
+                $msg = @{
+                    title = $msg
+                    body = [hashtable] @{}
+                }
+            }
 
-    $LevelNo = Check-Level -Level $Level
-    
-    [void] $MessageQueue.Add(
-        [hashtable] @{
-            timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
-            levelno = $LevelNo
-            level = Get-LevelName -Level $LevelNo
-            msg = $Message
+            $LevelNo = Check-Level -Level $Level
+        
+            [void] $MessageQueue.Add(
+                [hashtable] @{
+                    timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
+                    levelno = $LevelNo
+                    level = Get-LevelName -Level $LevelNo
+                    msg = $msg
+                }
+            )
         }
-    )
+    }    
 }
 
 Function Check-Level {
@@ -103,7 +110,7 @@ New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchron
 
 $Logging.Level = $NOTSET
 $Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
-$Logging.Targets = @{}
+$Logging.Targets = [hashtable] @{}
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 $SessionStateFunction = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)
