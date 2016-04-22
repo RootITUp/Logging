@@ -18,7 +18,7 @@ Function Write-Log {
                 }
             }
 
-            $LevelNo = Check-Level -Level $Level
+            $LevelNo = Get-LevelNumber -Level $Level
         
             [void] $MessageQueue.Add(
                 [hashtable] @{
@@ -32,7 +32,7 @@ Function Write-Log {
     }    
 }
 
-Function Check-Level {
+Function Get-LevelNumber {
     param(
         $Level
     )
@@ -79,6 +79,19 @@ Function Replace-Tokens {
         
         return ($tpl -f $var)        
     })    
+}
+
+Function Set-LoggingDefaultLevel {
+    param(
+        [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR')]
+        [string] $Level = 'WARNING'
+    )
+    
+    $Logging.Level = Get-LevelNumber -Level $Level
+}
+
+Function Get-LoggingDefaultLevel {
+    return $Logging.Level
 }
 
 $NOTSET = 0
@@ -149,7 +162,7 @@ $ScriptBlock = {
                 else {$Targets = $null}
                 foreach ($TargetName in $Targets.Keys) {
                     $LoggerFormat = $Logging.Format
-                    $LoggerLevel = Check-Level -Level $Logging.Level
+                    $LoggerLevel = Get-LevelNumber -Level $Logging.Level
 
                     $Target = $Targets[$TargetName]
                     
