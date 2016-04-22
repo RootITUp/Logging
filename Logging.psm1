@@ -219,6 +219,8 @@ Function info       { param([Parameter(Position=1, Mandatory=$true, ValueFromPip
 Function warning    { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level WARNING -Message $Message }
 Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level ERROR -Message $Message }
 
+Export-ModuleMember -Function Set-LoggingDefaultLevel
+Export-ModuleMember -Function Get-LoggingDefaultLevel
 Export-ModuleMember -Function Write-Log
 Export-ModuleMember -Function debug
 Export-ModuleMember -Function info
