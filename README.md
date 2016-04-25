@@ -161,6 +161,18 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 }
 ```
 
+#### Slack
+
+```powershell
+> $Logging.Targets += @{
+    Slack = @{
+        ServerURI = <NOTSET>    # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
+        Channel   = <NOTSET>    # <Not required> Overrides the default channel of the Webhook (eg. '@username' or '#other-channel')
+        BotName   = <NOTSET>    # <Not required> Overrides the default name of the bot (eg. 'PoshLogging')
+    }
+}
+```
+
 ### `$Logging.CustomTargets`
 
 It lets define a folder to load custom targets. `Doc WIP`
