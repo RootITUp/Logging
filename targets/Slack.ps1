@@ -38,6 +38,6 @@
         {
             $text.Add("icon_emoji",":exclamation:")
         }
-        Invoke-RestMethod -Method Post -Uri $Uri -Body ($text|ConvertTo-Json)
+        Invoke-RestMethod -Method Post -Uri $Uri -Body ($text|ConvertTo-Json)|out-null
     }
 }
