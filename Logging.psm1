@@ -141,7 +141,7 @@ Function Get-LoggingDefaultLevel {
     [CmdletBinding()]
     param()
     
-    return $Logging.Level
+    return Get-LevelName -Level $Logging.Level
 }
 
 

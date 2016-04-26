@@ -10,13 +10,9 @@
 ## TL;DR
 
 ```powershell
-$Logging.Level = 'WARNING'
-$Logging.Targets = @{
-    Console = $null             # we accept default values so no need to pass an hashtable
-    File = @{
-        Path = 'C:\Temp\example_%{+%Y%m%d}.log'
-    }
-}
+Set-LoggingDefaultLevel -Level 'WARNING'
+Add-LoggingTarget -Name Console
+Add-LoggingTarget -Name File -Configuration @{Path = 'C:\Temp\example_%{+%Y%m%d}.log'}
 
 $Level = 'DEBUG', 'INFO', 'WARNING', 'ERROR'
 foreach ($i in 1..100) {
@@ -29,37 +25,37 @@ foreach ($i in 1..100) {
 
 The following section describe how to configure the Logging module.
 
-### The global `$Logging` variable
-
-* `$Logging.Level`
-* `$Logging.Format`
-* `$Logging.Targets`
-* `$Logging.CustomTargets`
+* Level
+* Format
+* Targets
+* CustomTargets
     
-#### `$Logging.Level`
+#### Level
 
-The *Level* property of the `$Logging` variable defines the default logging level.
+The *Level* property defines the default logging level.
 Valid values are:
-* NOTSET    (0)
+
+```powershell
+* NOTSET    ( 0)
 * DEBUG     (10)
 * INFO      (20)
 * WARNING   (30)
 * ERROR     (40)
-
-It's possible to use both string or numeric value.
+```
 
 For example:
 
 ```powershell
-> $Logging.Level                # Default Value
-0                               # NOTSET level
-> $Logging.Level = 'ERROR'      # Set default level to ERROR
-> $Logging.Level = 40           # Same as above
+> Get-LoggingDefaultLevel                       # Get the default value
+NOTSET                                          # NOTSET level
+> Set-LoggingDefaultLevel -Level 'ERROR'        # Set default level to ERROR
+> Get-LoggingDefaultLevel                       # Get the current global level
+ERROR
 ```
 
-#### `$Logging.Format`
+#### Format
 
-The *Format* property of the `$Logging` variable defines how the message is rendered.
+The *Format* property defines how the message is rendered.
 
 The default value is: `[%{timestamp}] [%{level:-7}] %{message}`
 
@@ -79,7 +75,7 @@ After the placeholder name you can pass a padding or a date format string separa
 If the padding value is negative, the field will be left aligned and padded with spaces on the right:
 
 ```powershell
-> $Logging.Format = '[%{level:-7}]'
+> Set-LoggingDefaultFormat -Format '[%{level:-7}]'
 [DEBUG  ]
 [INFO   ]
 [WARNING]
@@ -89,7 +85,7 @@ If the padding value is negative, the field will be left aligned and padded with
 If the padding value is positive, the field will be right aligned and padded with spaces on the left:
 
 ```powershell
-> $Logging.Format = '[%{level:7}]'
+> Set-LoggingDefaultFormat -Format '[%{level:7}]'
 [  DEBUG]
 [   INFO]
 [WARNING]
@@ -101,20 +97,17 @@ If the padding value is positive, the field will be right aligned and padded wit
 The date format string starts with a plus sign (`+`) followed by **UFormat** parameters. See [here](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) for available formats.
 
 ```powershell
-> $Logging.Format = '%{timestamp}'
+> Set-LoggingDefaultFormat -Format '%{timestamp}'
 2016-04-20 13:31:12+02
-> $Logging.Format = '%{timestamp:+%A, %B %d, %Y}'
+> Set-LoggingDefaultFormat -Format '%{timestamp:+%A, %B %d, %Y}'
 Wednesday, April 20, 2016
-> $Logging.Format = '[%{timestamp:+%T:12}]'   # You could also use padding and date format string at the same time
+> Set-LoggingDefaultFormat -Format '[%{timestamp:+%T:12}]'   # You could also use padding and date format string at the same time
 [   13:31:12]
 ```
 
-### `$Logging.Targets`
+### Targets
 
-The *Targets* property of the `$Logging` variable stores the used logging targets, it's where you define where to route your messages.
-It's an *hastable* and by deafult is not configured.
-
-For backward compatibility with module version 1.x you could also use `$Logging.Destinations`
+The *Targets* property stores the used logging targets, it's where you define where to route your messages.
 
 Keys of the hashtable depends on the target you are configuring. The module ships with 3 targets but you can write your own for specific usage.
 
@@ -126,62 +119,66 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 #### Console
 
 ```powershell
-> $Logging.Targets += @{
-    Console = @{
-        Level       = <NOTSET>          # <Not required> Sets the logging level for this target
-        Format      = <NOTSET>          # <Not required> Sets the logging format for this target
-    }
+> Add-LoggingTarget -Name Console -Configuration @{
+    Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+    Format      = <NOTSET>          # <Not required> Sets the logging format for this target
 }
 ```
 
 #### File
 
 ```powershell
-> $Logging.Targets += @{
-    File = @{
-        Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
-                                        #            It supports templating like $Logging.Format 
-        Level       = <NOTSET>          # <Not required> Sets the logging level for this target
-        Format      = <NOTSET>          # <Not required> Sets the logging format for this target
-    }
+> Add-LoggingTarget -Name File -Configuration @{
+    Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
+                                    #            It supports templating like $Logging.Format 
+    Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+    Format      = <NOTSET>          # <Not required> Sets the logging format for this target
 }
 ```
 
 #### ElasticSearch
 
 ```powershell
-> $Logging.Targets += @{
-    ElasticSearch = @{
-        ServerName  = <NOTSET>          # <Required> Sets the ES server name (eg. 'localhost')
-        ServerPort  = <NOTSET>          # <Required> Sets the ES server port (eg. 9200)
-        Index       = <NOTSET>          # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
-                                        #            It supports templating like $Logging.Format         
-        Type        = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
-        Level       = <NOTSET>          # <Not required> Sets the logging format for this target
-    }
+> Add-LoggingTarget -Name ElasticSearch -Configuration @{
+    ServerName  = <NOTSET>          # <Required> Sets the ES server name (eg. 'localhost')
+    ServerPort  = <NOTSET>          # <Required> Sets the ES server port (eg. 9200)
+    Index       = <NOTSET>          # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
+                                    #            It supports templating like $Logging.Format         
+    Type        = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
+    Level       = <NOTSET>          # <Not required> Sets the logging format for this target
 }
 ```
 
 #### Slack
 
 ```powershell
-> $Logging.Targets += @{
-    Slack = @{
-        ServerURI   = <NOTSET>          # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
-        Channel     = <NOTSET>          # <Not required> Overrides the default channel of the Webhook (eg. '@username' or '#other-channel')
-        BotName     = <NOTSET>          # <Not required> Overrides the default name of the bot (eg. 'PoshLogging')
-        Level       = <NOTSET>          # <Not required> Sets the logging format for this target
-    }
+> Add-LoggingTarget -Name Slack -Configuration @{
+    ServerURI   = <NOTSET>          # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
+    Channel     = <NOTSET>          # <Not required> Overrides the default channel of the Webhook (eg. '@username' or '#other-channel')
+    BotName     = <NOTSET>          # <Not required> Overrides the default name of the bot (eg. 'PoshLogging')
+    Level       = <NOTSET>          # <Not required> Sets the logging format for this target
 }
 ```
 
-### `$Logging.CustomTargets`
+### CustomTargets
 
-It lets define a folder to load custom targets. `Doc WIP`
+It lets define a folder to load custom targets. 
+
+```powershell
+> Set-LoggingCustomTargets -Path 'C:\temp\'
+> Get-LoggingTargetAvailable
+Name                           Value
+----                           -----
+Console                        {Configuration, ParamsRequired, Logger}
+ElasticSearch                  {Configuration, ParamsRequired, Logger}
+File                           {Configuration, ParamsRequired, Logger}
+Slack                          {Configuration, ParamsRequired, Logger}
+MyCustomTarget                 {Configuration, ParamsRequired, Logger}
+```
 
 ## Contributing
 
-Please use issues system or GitHub pull requests to contribute to the project.
+Please use [issues](https://github.com/EsOsO/Logging/issues) system or GitHub pull requests to contribute to the project.
 
 For more information, see [CONTRIBUTING](CONTRIBUTING.md)
 
