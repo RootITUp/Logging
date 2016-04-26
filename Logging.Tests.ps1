@@ -1,4 +1,4 @@
-﻿Set-LoggingDefaultLevel -Level 'WARNING'
+Set-LoggingDefaultLevel -Level 'WARNING'
 Add-LoggingTarget -Name Console
 
 Write-Log -Level 'DEBUG' -Message 'Starting...'

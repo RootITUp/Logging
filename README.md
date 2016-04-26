@@ -67,7 +67,7 @@ The Log object has a number of attributes that are replaced in the format string
 
 | Format         | Description |
 | -------------- | ----------- |
-| `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (2016-04-20 14:22:45+02). Take a look at the [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter |
+| `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 14:22:45+02*). Take a look at the [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter |
 | `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*)
 | `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*)
 | `%{message}`   | The logged message
@@ -121,14 +121,15 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * Console
 * File
 * ElasticSearch
+* Slack
 
 #### Console
 
 ```powershell
 > $Logging.Targets += @{
     Console = @{
-        Level = <NOTSET>        # <Not required> Sets the logging level for this target
-        Format = <NOTSET>       # <Not required> Sets the logging format for this target
+        Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+        Format      = <NOTSET>          # <Not required> Sets the logging format for this target
     }
 }
 ```
@@ -138,10 +139,10 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 ```powershell
 > $Logging.Targets += @{
     File = @{
-        Path = <NOTSET>         # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
-                                #            It supports templating like $Logging.Format 
-        Level = <NOTSET>        # <Not required> Sets the logging level for this target
-        Format = <NOTSET>       # <Not required> Sets the logging format for this target
+        Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
+                                        #            It supports templating like $Logging.Format 
+        Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+        Format      = <NOTSET>          # <Not required> Sets the logging format for this target
     }
 }
 ```
@@ -151,12 +152,25 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 ```powershell
 > $Logging.Targets += @{
     ElasticSearch = @{
-        ServerName = <NOTSET>   # <Required> Sets the ES server name (eg. 'localhost')
-        ServerPort = <NOTSET>   # <Required> Sets the ES server port (eg. 9200)
-        Index = <NOTSET>        # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
-                                #            It supports templating like $Logging.Format         
-        Type = <NOTSET>         # <Required> Sets the ES type for the message (eg. 'log')
-        Level = <NOTSET>        # <Not required> Sets the logging format for this target
+        ServerName  = <NOTSET>          # <Required> Sets the ES server name (eg. 'localhost')
+        ServerPort  = <NOTSET>          # <Required> Sets the ES server port (eg. 9200)
+        Index       = <NOTSET>          # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
+                                        #            It supports templating like $Logging.Format         
+        Type        = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
+        Level       = <NOTSET>          # <Not required> Sets the logging format for this target
+    }
+}
+```
+
+#### Slack
+
+```powershell
+> $Logging.Targets += @{
+    Slack = @{
+        ServerURI   = <NOTSET>          # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
+        Channel     = <NOTSET>          # <Not required> Overrides the default channel of the Webhook (eg. '@username' or '#other-channel')
+        BotName     = <NOTSET>          # <Not required> Overrides the default name of the bot (eg. 'PoshLogging')
+        Level       = <NOTSET>          # <Not required> Sets the logging format for this target
     }
 }
 ```
@@ -164,6 +178,12 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 ### `$Logging.CustomTargets`
 
 It lets define a folder to load custom targets. `Doc WIP`
+
+## Contributing
+
+Please use issues system or GitHub pull requests to contribute to the project.
+
+For more information, see [CONTRIBUTING](CONTRIBUTING.md)
 
 ## Notes
 
