@@ -145,6 +145,16 @@ Function Get-LoggingDefaultLevel {
 }
 
 
+Function Set-LoggingDefaultFormat {
+    [CmdletBinding()]
+    param(
+        [string] $Format
+    )
+    
+    $Logging.Format = $Format
+}
+
+
 Function Get-LoggingTargetAvailable {
     [CmdletBinding()]
     param()
@@ -333,6 +343,7 @@ Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPip
 
 Export-ModuleMember -Function Set-LoggingDefaultLevel
 Export-ModuleMember -Function Get-LoggingDefaultLevel
+Export-ModuleMember -Function Set-LoggingDefaultFormat
 Export-ModuleMember -Function Set-LoggingCustomTargets
 Export-ModuleMember -Function Get-LoggingTargetAvailable
 Export-ModuleMember -Function Get-LoggingTarget
