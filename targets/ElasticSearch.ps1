@@ -1,5 +1,13 @@
 @{
     Name = 'ElasticSearch'
+    Configuration = @{
+        Index =         @{Required = $true; Type = [string]}
+        Type =          @{Required = $true; Type = [string]}
+        ServerName =    @{Required = $true; Type = [string]}
+        ServerPort =    @{Required = $true; Type = [int]}
+        Level =         @{Required = $false; Type = [string]}
+        Format =        @{Required = $false; Type = [string]}
+    }
     Logger = {
         param(
             $Log, 

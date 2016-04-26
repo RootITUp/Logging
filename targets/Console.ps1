@@ -1,5 +1,9 @@
 ﻿@{
     Name = 'Console'
+    Configuration = @{
+        Level = @{Required = $false; Type = [string]}
+        Format = @{Required = $false; Type = [string]}
+    }
     Logger = {
         param(
             $Log, 

@@ -1,5 +1,10 @@
 ﻿@{
     Name = 'File'
+    Configuration = @{
+        Path = @{Required = $true; Type = [string]}
+        Level = @{Required = $false; Type = [string]}
+        Format = @{Required = $false; Type = [string]}
+    }
     Logger = {
         param(
             $Log, 
