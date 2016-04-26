@@ -115,8 +115,8 @@ $Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
 $Logging.Targets = [hashtable] @{}
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
-$SessionStateFunction = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)
-$InitialSessionState.Commands.Add($SessionStateFunction)
+$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)))
+$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Check-Level', (Get-Content Function:\Check-Level)))
 
 $InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ScriptRoot', $ScriptRoot, ''))
 $InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'Dispatcher', $Dispatcher, ''))
@@ -156,12 +156,12 @@ $ScriptBlock = {
                     $Target = $Targets[$TargetName]
                     
                     if ($Target) {
-                        if ($Target.Level) {$LoggerLevel = $Target.Level}
+                        if ($Target.Level) {$LoggerLevel = Check-Level -Level $Target.Level}
                         if ($Target.Format) {$LoggerFormat = $Target.Format}
                         $Configuration = $Target
                     }
                                         
-                    if ($Message.Level -ge $LoggerLevel) {
+                    if ($Message.LevelNo -ge $LoggerLevel) {
                         & $LogTargets[$TargetName] $Message $LoggerFormat $Configuration
                     }
                 }
@@ -200,4 +200,14 @@ $ExecutionContext.SessionState.Module.OnRemove ={
 }
 #endregion Handle Module Removal
 
+# Aliases and exports
+Function debug      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level DEBUG -Message $Message }
+Function info       { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level INFO -Message $Message }
+Function warning    { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level WARNING -Message $Message }
+Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level ERROR -Message $Message }
+
 Export-ModuleMember -Function Write-Log
+Export-ModuleMember -Function debug
+Export-ModuleMember -Function info
+Export-ModuleMember -Function warning
+Export-ModuleMember -Function error
