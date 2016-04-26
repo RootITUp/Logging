@@ -1,39 +1,10 @@
-﻿$Global:Logging.Level = 'WARNING'
-$Global:Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
-$Global:Logging.Targets = @{
-    Console = @{
-        Level = 'DEBUG'
-    }
-    File = @{
-        Path = 'D:\Tools\log\%{+%Y%m%d}.log'
-        Level = 'INFO'
-    }
-    ElasticSearch = @{
-        Level = 'INFO'
-        ServerName = 'localhost'
-        ServerPort = 9200
-        Index = 'cics-%{+%Y.%m.%d}'
-        Type = 'log'
-    }
-}
+﻿Set-LoggingDefaultLevel -Level 'WARNING'
+Add-LoggingTarget -Name Console
 
-Write-Log -Level DEBUG -Message 'Hello world!'
-Write-Log -Level INFO -Message 'Hello world!'
-Write-Log -Level WARNING -Message 'Hello world!'
-Write-Log -Level ERROR -Message 'Hello world!'
-Write-Log -Level INFO -Message @{
-    body = @{
-        field1 = ''
-        field2 = ''
-    }
-    src = ''
-}
+Write-Log -Level 'DEBUG' -Message 'Starting...'
 
-Write-Log -Level ERROR -Message @{
-    error = @{
-        line = 22
-        function = 'Get-Something'
-        message = 'Unable to find something'
-    }
-    foo = 'bar'
+$Level = 'DEBUG', 'INFO', 'WARNING', 'ERROR'
+foreach ($i in 1..5) {
+    Write-Log -Level ($Level | Get-Random) -Message ('Message n.{0}' -f $i)
+    Start-Sleep -Milliseconds (Get-Random -Min 100 -Max 1000) 
 }

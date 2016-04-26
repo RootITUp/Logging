@@ -1,5 +1,39 @@
 #requires -Version 4
 
+$NOTSET = 0
+$DEBUG = 10
+$INFO = 20
+$WARNING = 30
+$ERROR_ = 40
+
+$LN = [hashtable]::Synchronized(@{
+    $NOTSET = 'NOTSET'
+    $ERROR_ = 'ERROR'
+    $WARNING = 'WARNING'
+    $INFO = 'INFO'
+    $DEBUG = 'DEBUG'
+    'NOTSET' = $NOTSET
+    'ERROR' = $ERROR_
+    'WARN' = $WARNING
+    'WARNING' = $WARNING
+    'INFO' = $INFO
+    'DEBUG' = $DEBUG
+})
+
+New-Variable -Name Dispatcher   -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
+New-Variable -Name LevelNames   -Value $LN -Option ReadOnly
+New-Variable -Name Logging      -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
+New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
+New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option ReadOnly
+New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option ReadOnly
+
+$Logging.Level = $NOTSET
+$Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+$Logging.Targets = [hashtable] @{}
+
+<#
+
+#>
 Function Write-Log {
     [CmdletBinding()]
     param(
@@ -34,16 +68,21 @@ Function Write-Log {
     }    
 }
 
+
 Function Get-LevelNumber {
+    [CmdletBinding()]
     param(
         $Level
     )
+
     if ($Level -is [int]) {return $Level}
     elseif ([string] $Level -eq $Level) {return $LevelNames[$Level]}
     else {throw ('Level not a valid integer or a valid string: {0}' -f $Level)}    
 }
 
+
 Function Get-LevelName {
+    [CmdletBinding()]
     param(
         $Level
     )
@@ -53,11 +92,14 @@ Function Get-LevelName {
     else {return ('Level {0}' -f $Level)}
 }
 
+
 Function Replace-Tokens {
+    [CmdletBinding()]
     param(
         [string] $String,
         [object] $Source
     )
+    
     $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmt>(?:%[YmdHMS].*?)+))?(?::(?<padding>-?\d+))?}'
     $re.Replace($String, {
         param($match)
@@ -83,7 +125,9 @@ Function Replace-Tokens {
     })    
 }
 
+
 Function Set-LoggingDefaultLevel {
+    [CmdletBinding()]
     param(
         [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR')]
         [string] $Level = 'WARNING'
@@ -92,54 +136,26 @@ Function Set-LoggingDefaultLevel {
     $Logging.Level = Get-LevelNumber -Level $Level
 }
 
+
 Function Get-LoggingDefaultLevel {
+    [CmdletBinding()]
+    param()
+    
     return $Logging.Level
 }
 
-$NOTSET = 0
-$DEBUG = 10
-$INFO = 20
-$WARNING = 30
-$ERROR_ = 40
 
-$LevelNames = [hashtable]::Synchronized(@{
-    $NOTSET = 'NOTSET'
-    $ERROR_ = 'ERROR'
-    $WARNING = 'WARNING'
-    $INFO = 'INFO'
-    $DEBUG = 'DEBUG'
-    'NOTSET' = $NOTSET
-    'ERROR' = $ERROR_
-    'WARN' = $WARNING
-    'WARNING' = $WARNING
-    'INFO' = $INFO
-    'DEBUG' = $DEBUG
-})
+Function Get-LoggingTargetsAvailables {
+    [CmdletBinding()]
+    param()
+    
+    return $LogTargets
+}
 
-New-Variable -Name ScriptRoot -Value (Split-Path $MyInvocation.MyCommand.Path) -Option AllScope, ReadOnly -Scope Global
-New-Variable -Name Dispatcher -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
-New-Variable -Name LevelNames -Option AllScope, ReadOnly -Scope Global
-New-Variable -Name LogTargets -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
-New-Variable -Name Logging -Value ([hashtable]::Synchronized(@{})) -Option AllScope, ReadOnly -Scope Global
-New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option AllScope, ReadOnly -Scope Global
-
-$Logging.Level = $NOTSET
-$Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
-$Logging.Targets = [hashtable] @{}
-
-$InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
-$SessionStateFunction = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)
-$InitialSessionState.Commands.Add($SessionStateFunction)
-
-$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ScriptRoot', $ScriptRoot, ''))
-$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'Dispatcher', $Dispatcher, ''))
-$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'LevelNames', $LevelNames, ''))
-$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'LogTargets', $LogTargets, ''))
-$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'Logging', $Logging, ''))
-$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'MessageQueue', $MessageQueue, ''))
-$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
-
-$ScriptBlock = {
+Function Initialize-LoggingTargets {
+    [CmdletBinding()]
+    param()
+    
     foreach ($Target in (Get-ChildItem "$ScriptRoot\targets" -Filter *.ps1)) {
         $Module = . $Target.FullName
         $LogTargets[$Module.Name] = $Module.Logger
@@ -153,10 +169,73 @@ $ScriptBlock = {
             }
         }
     }
+}
+
+
+Function Set-LoggingCustomTargets {
+    [CmdletBinding()]
+    param(
+        [ValidateScript({Test-Path -Path $_})]
+        [string] $Path
+    )
     
+    $Logging.CustomTargets = $Path
+}
+
+
+Function Add-LoggingTarget {
+    [CmdletBinding()]
+    param()
+    
+    DynamicParam {
+        $attributes = New-Object System.Management.Automation.ParameterAttribute
+        $attributes.ParameterSetName = '__AllParameterSets'
+        $attributes.Mandatory = $false
+        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LogTargets.Keys)
+
+        $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
+        $attributeCollection.Add($attributes)
+        $attributeCollection.Add($ValidateSetAttribute)
+
+        $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Name', [string], $attributeCollection)
+            
+        $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+        $paramDictionary.Add('Name', $dynParam1)
+        return $paramDictionary
+    }
+    
+    Process {
+        $Logging.Targets[$PSBoundParameters.Name] = [hashtable] @{}
+    }
+}
+
+
+$InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)))
+$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Initialize-LoggingTargets', (Get-Content Function:\Initialize-LoggingTargets)))
+
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ScriptRoot', $ScriptRoot, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'Dispatcher', $Dispatcher, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'LevelNames', $LevelNames, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'LogTargets', $LogTargets, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'Logging', $Logging, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'MessageQueue', $MessageQueue, ''))
+$InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
+
+$ScriptBlock = {
+    $CustomTargets = $Logging.CustomTargets
+    
+    Initialize-LoggingTargets
+
     $i = 0
     while ($Dispatcher.Flag) {
+        if ($CustomTargets -ne $Logging.CustomTargets) {
+            $CustomTargets = $Logging.CustomTargets
+            Initialize-LoggingTargets
+        }
+        
         if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
+        
         if ($MessageQueue.Count -gt 0) {
             foreach ($Message in $MessageQueue) {
                 if ($Logging.Targets.Count -and -not $Logging.Destinations) {$Targets = $Logging.Targets}
@@ -169,12 +248,12 @@ $ScriptBlock = {
                     $Target = $Targets[$TargetName]
                     
                     if ($Target) {
-                        if ($Target.Level) {$LoggerLevel = $Target.Level}
+                        if ($Target.Level) {$LoggerLevel = Get-LevelNumber -Level $Target.Level}
                         if ($Target.Format) {$LoggerFormat = $Target.Format}
                         $Configuration = $Target
                     }
                                         
-                    if ($Message.Level -ge $LoggerLevel) {
+                    if ($Message.LevelNo -ge $LoggerLevel) {
                         & $LogTargets[$TargetName] $Message $LoggerFormat $Configuration
                     }
                 }
@@ -203,12 +282,6 @@ $ExecutionContext.SessionState.Module.OnRemove ={
         $Dispatcher.PowerShell.EndInvoke($Dispatcher.Handle)
         $Dispatcher.PowerShell.Dispose()    
     }
-    Remove-Variable -Name Dispatcher -Scope Global -Force
-    Remove-Variable -Name MessageQueue -Scope Global -Force
-    Remove-Variable -Name Logging -Scope Global -Force
-    Remove-Variable -Name LogTargets -Scope Global -Force
-    Remove-Variable -Name LevelNames -Scope Global -Force
-    Remove-Variable -Name ScriptRoot -Scope Global -Force
     [System.GC]::Collect()
 }
 #endregion Handle Module Removal
@@ -221,6 +294,9 @@ Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPip
 
 Export-ModuleMember -Function Set-LoggingDefaultLevel
 Export-ModuleMember -Function Get-LoggingDefaultLevel
+Export-ModuleMember -Function Set-LoggingCustomTargets
+Export-ModuleMember -Function Get-LoggingTargetsAvailables
+Export-ModuleMember -Function Add-LoggingTarget
 Export-ModuleMember -Function Write-Log
 Export-ModuleMember -Function debug
 Export-ModuleMember -Function info
