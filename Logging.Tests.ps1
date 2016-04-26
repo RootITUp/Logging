@@ -2,18 +2,11 @@
 $Global:Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
 $Global:Logging.Targets = @{
     Console = @{
-        Level = 'DEBUG'
+        Level = 'ERROR'
     }
     File = @{
         Path = 'D:\Tools\log\%{+%Y%m%d}.log'
         Level = 'INFO'
-    }
-    ElasticSearch = @{
-        Level = 'INFO'
-        ServerName = 'localhost'
-        ServerPort = 9200
-        Index = 'cics-%{+%Y.%m.%d}'
-        Type = 'log'
     }
 }
 
