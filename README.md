@@ -121,14 +121,15 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * Console
 * File
 * ElasticSearch
+* Slack
 
 #### Console
 
 ```powershell
 > $Logging.Targets += @{
     Console = @{
-        Level = <NOTSET>        # <Not required> Sets the logging level for this target
-        Format = <NOTSET>       # <Not required> Sets the logging format for this target
+        Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+        Format      = <NOTSET>          # <Not required> Sets the logging format for this target
     }
 }
 ```
@@ -138,10 +139,10 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 ```powershell
 > $Logging.Targets += @{
     File = @{
-        Path = <NOTSET>         # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
-                                #            It supports templating like $Logging.Format 
-        Level = <NOTSET>        # <Not required> Sets the logging level for this target
-        Format = <NOTSET>       # <Not required> Sets the logging format for this target
+        Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
+                                        #            It supports templating like $Logging.Format 
+        Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+        Format      = <NOTSET>          # <Not required> Sets the logging format for this target
     }
 }
 ```
@@ -151,12 +152,12 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 ```powershell
 > $Logging.Targets += @{
     ElasticSearch = @{
-        ServerName = <NOTSET>   # <Required> Sets the ES server name (eg. 'localhost')
-        ServerPort = <NOTSET>   # <Required> Sets the ES server port (eg. 9200)
-        Index = <NOTSET>        # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
-                                #            It supports templating like $Logging.Format         
-        Type = <NOTSET>         # <Required> Sets the ES type for the message (eg. 'log')
-        Level = <NOTSET>        # <Not required> Sets the logging format for this target
+        ServerName  = <NOTSET>          # <Required> Sets the ES server name (eg. 'localhost')
+        ServerPort  = <NOTSET>          # <Required> Sets the ES server port (eg. 9200)
+        Index       = <NOTSET>          # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
+                                        #            It supports templating like $Logging.Format         
+        Type        = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
+        Level       = <NOTSET>          # <Not required> Sets the logging format for this target
     }
 }
 ```
@@ -166,9 +167,10 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 ```powershell
 > $Logging.Targets += @{
     Slack = @{
-        ServerURI = <NOTSET>    # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
-        Channel   = <NOTSET>    # <Not required> Overrides the default channel of the Webhook (eg. '@username' or '#other-channel')
-        BotName   = <NOTSET>    # <Not required> Overrides the default name of the bot (eg. 'PoshLogging')
+        ServerURI   = <NOTSET>          # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
+        Channel     = <NOTSET>          # <Not required> Overrides the default channel of the Webhook (eg. '@username' or '#other-channel')
+        BotName     = <NOTSET>          # <Not required> Overrides the default name of the bot (eg. 'PoshLogging')
+        Level       = <NOTSET>          # <Not required> Sets the logging format for this target
     }
 }
 ```
