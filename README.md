@@ -179,6 +179,12 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 
 It lets define a folder to load custom targets. `Doc WIP`
 
+## Contributing
+
+Please use issues system or GitHub pull requests to contribute to the project.
+
+For more information, see [CONTRIBUTING](CONTRIBUTING.md)
+
 ## Notes
 
 * The dispatcher thread starts the first time a `Write-Log` command is executed and keeps running in the background to dispatch new messages until the module is removed.
