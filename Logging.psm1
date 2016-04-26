@@ -27,9 +27,9 @@ New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option 
 New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option ReadOnly
 New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option ReadOnly
 
-$Logging.Level = $NOTSET
-$Logging.Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
-$Logging.Targets = [hashtable] @{}
+$Logging.Level      = $NOTSET
+$Logging.Format     = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+$Logging.Targets    = [hashtable] @{}
 
 <#
 
@@ -145,7 +145,7 @@ Function Get-LoggingDefaultLevel {
 }
 
 
-Function Get-LoggingTargetsAvailables {
+Function Get-LoggingTargetAvailable {
     [CmdletBinding()]
     param()
     
@@ -153,23 +153,32 @@ Function Get-LoggingTargetsAvailables {
 }
 
 
+Function Get-LoggingTarget {
+    [CmdletBinding()]
+    param()
+
+    return $Logging.Targets
+}
+
 Function Initialize-LoggingTargets {
     [CmdletBinding()]
     param()
     
-    foreach ($Target in (Get-ChildItem "$ScriptRoot\targets" -Filter *.ps1)) {
-        $Module = . $Target.FullName
-        $LogTargets[$Module.Name] = $Module.Logger
-    }
-    
+    $Targets = Get-ChildItem "$ScriptRoot\targets" -Filter '*.ps1'
     if ($Logging.CustomTargets) {
         if (Test-Path $Logging.CustomTargets) {
-            foreach ($Target in (Get-ChildItem $Logging.CustomTargets -Filter *.ps1)) {
-                $Module = . $Target.FullName
-                $LogTargets[$Module.Name] = $Module.Logger
-            }
+            $Targets += Get-ChildItem $Logging.CustomTargets -Filter '*.ps1'
         }
     }
+
+    foreach ($Target in $Targets) {
+        $Module = . $Target.FullName
+        $LogTargets[$Module.Name] = @{
+            Logger = $Module.Logger
+            Configuration = $Module.Configuration
+            ParamsRequired = $Module.Configuration.GetEnumerator() | ?{$_.Value.Required -eq $true} | select -exp Name
+        } 
+    }    
 }
 
 
@@ -184,9 +193,35 @@ Function Set-LoggingCustomTargets {
 }
 
 
+Function Assert-LoggingTargetConfiguration {
+    [CmdletBinding()]
+    param(
+        $Target,
+        $Configuration
+    )
+    
+    $TargetName = $Target
+    $TargetConf = $LogTargets[$Target]
+    
+    foreach ($Param in $TargetConf.ParamsRequired) {
+        if ($Param -notin $Configuration.Keys) {
+            throw ('Configuration {0} is required for target {2}; please provide one of type {1}' -f $Param, $TargetConf.Configuration[$Param].Type, $TargetName)
+        }
+    }
+    
+    foreach ($Conf in $Configuration.Keys) {
+        if ($Configuration[$Conf] -isnot $TargetConf.Configuration[$Conf].Type) {
+            throw ('Configuration {0} has to be of type {1} for target {2}' -f $Conf, $TargetConf.Configuration[$Conf].Type, $TargetName)
+        }
+    }
+}
+
+
 Function Add-LoggingTarget {
     [CmdletBinding()]
-    param()
+    param(
+        [hashtable] $Configuration = @{}
+    )
     
     DynamicParam {
         $attributes = New-Object System.Management.Automation.ParameterAttribute
@@ -206,7 +241,9 @@ Function Add-LoggingTarget {
     }
     
     Process {
-        $Logging.Targets[$PSBoundParameters.Name] = [hashtable] @{}
+        Assert-LoggingTargetConfiguration -Target $PSBoundParameters.Name -Configuration $Configuration
+        $Logging.Targets[$PSBoundParameters.Name] = $Configuration
+        
     }
 }
 
@@ -256,7 +293,7 @@ $ScriptBlock = {
                     }
                                         
                     if ($Message.LevelNo -ge $LoggerLevel) {
-                        & $LogTargets[$TargetName] $Message $LoggerFormat $Configuration
+                        & $LogTargets[$TargetName].Logger $Message $LoggerFormat $Configuration
                     }
                 }
                 $MessageQueue.Remove($Message)
@@ -297,7 +334,8 @@ Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPip
 Export-ModuleMember -Function Set-LoggingDefaultLevel
 Export-ModuleMember -Function Get-LoggingDefaultLevel
 Export-ModuleMember -Function Set-LoggingCustomTargets
-Export-ModuleMember -Function Get-LoggingTargetsAvailables
+Export-ModuleMember -Function Get-LoggingTargetAvailable
+Export-ModuleMember -Function Get-LoggingTarget
 Export-ModuleMember -Function Add-LoggingTarget
 Export-ModuleMember -Function Write-Log
 Export-ModuleMember -Function debug

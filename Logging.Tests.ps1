@@ -1,5 +1,6 @@
 Set-LoggingDefaultLevel -Level 'WARNING'
 Add-LoggingTarget -Name Console
+Add-LoggingTarget -Name Slack -Configuration @{ServerUri = ''; Level = 'DEBUG'}
 
 Write-Log -Level 'DEBUG' -Message 'Starting...'
 
