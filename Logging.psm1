@@ -142,14 +142,44 @@ Function Replace-Tokens {
 }
 
 
-Function Set-LoggingDefaultLevel {
+Function Add-LoggingLevel {
     [CmdletBinding()]
     param(
-        [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR')]
-        [string] $Level = 'WARNING'
+        [Parameter(Mandatory)]
+        [int] $Level,
+        [Parameter(Mandatory)]
+        [string] $LevelName
     )
     
-    $Logging.Level = Get-LevelNumber -Level $Level
+    $LevelNames[$Level] = $LevelName.ToUpper()
+    $LevelNames[$LevelName] = $Level
+}
+
+Function Set-LoggingDefaultLevel {
+    [CmdletBinding()]
+    param()
+    
+    DynamicParam {
+        $attributes = New-Object System.Management.Automation.ParameterAttribute
+        $attributes.ParameterSetName = '__AllParameterSets'
+        $attributes.Mandatory = $false
+        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LevelNames.Keys)
+
+        $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
+        $attributeCollection.Add($attributes)
+        $attributeCollection.Add($ValidateSetAttribute)
+
+        $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $attributeCollection)
+        $dynParam1.Value = 'VERBOSE'
+        
+        $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+        $paramDictionary.Add('Level', $dynParam1)
+        return $paramDictionary
+    }
+    
+    Process {
+        $Logging.Level = Get-LevelNumber -Level $Level
+    }
 }
 
 
@@ -357,6 +387,7 @@ Function info       { param([Parameter(Position=1, Mandatory=$true, ValueFromPip
 Function warning    { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level WARNING -Message $Message }
 Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level ERROR -Message $Message }
 
+Export-ModuleMember -Function Add-LoggingLevel
 Export-ModuleMember -Function Set-LoggingDefaultLevel
 Export-ModuleMember -Function Get-LoggingDefaultLevel
 Export-ModuleMember -Function Set-LoggingDefaultFormat
