@@ -17,12 +17,6 @@
             'WARNING' = 'Yellow'
             'ERROR' = 'Red'
         }
-                
-        if ($Log.Msg.Title) {
-            $Log.Message = $Log.Msg.Title
-        } else {
-            $Log.Message = $Log.Msg | ConvertTo-Json -Compress | Out-String
-        }
         
         $Text = Replace-Tokens -String $Format -Source $Log
         $OldColor = $ParentHost.UI.RawUI.ForegroundColor

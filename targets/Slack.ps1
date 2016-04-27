@@ -14,11 +14,9 @@
         )
                 
         $Text = @{
-            Text = '{0}' -f $Log.msg.Title
+            Text = Replace-Tokens -String $Format -Source $Log
         }
-        
-        if ($Log.msg.Body.Count -ne 0) { $Text.Text += ': {0}' -f $Log.msg.Body | ConvertTo-Json}
-        
+                
         if ($Configuration.BotName) { $Text['username'] = $Configuration.BotName }
         
         if ($Configuration.Channel) { $Text['channel'] = $Configuration.Channel }
