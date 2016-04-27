@@ -40,10 +40,26 @@ Function Write-Log {
         [Parameter(Position=1, 
                    Mandatory=$true, 
                    ValueFromPipeline=$true)]
-        [Object] $Message,        
-        [ValidateSet('DEBUG', 'INFO', 'WARNING', 'ERROR')]
-        [string] $Level = 'WARNING'
+        [Object] $Message    
     )
+
+    DynamicParam {
+        $attributes = New-Object System.Management.Automation.ParameterAttribute
+        $attributes.ParameterSetName = '__AllParameterSets'
+        $attributes.Mandatory = $false
+        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LevelNames.Keys)
+
+        $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
+        $attributeCollection.Add($attributes)
+        $attributeCollection.Add($ValidateSetAttribute)
+
+        $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $attributeCollection)
+        $dynParam1.Value = 'VERBOSE'
+        
+        $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+        $paramDictionary.Add('Level', $dynParam1)
+        return $paramDictionary
+    }
     
     PROCESS {
         foreach ($msg in $Message) {
@@ -54,7 +70,7 @@ Function Write-Log {
                 }
             }
 
-            $LevelNo = Get-LevelNumber -Level $Level
+            $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
         
             [void] $MessageQueue.Add(
                 [hashtable] @{
