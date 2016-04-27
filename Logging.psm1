@@ -14,7 +14,6 @@ $LN = [hashtable]::Synchronized(@{
     $DEBUG = 'DEBUG'
     'NOTSET' = $NOTSET
     'ERROR' = $ERROR_
-    'WARN' = $WARNING
     'WARNING' = $WARNING
     'INFO' = $INFO
     'DEBUG' = $DEBUG
@@ -37,51 +36,53 @@ $Logging.Targets    = [hashtable] @{}
 Function Write-Log {
     [CmdletBinding()]
     param(
-        [Parameter(Position=1, 
-                   Mandatory=$true, 
-                   ValueFromPipeline=$true)]
-        [Object] $Message    
+        [Parameter(Position = 1, 
+                   Mandatory = $true)]
+        [string] $Message,
+        [Parameter(Position = 2,
+                   Mandatory = $false)]
+        [hashtable] $Body
     )
 
     DynamicParam {
         $attributes = New-Object System.Management.Automation.ParameterAttribute
         $attributes.ParameterSetName = '__AllParameterSets'
         $attributes.Mandatory = $false
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LevelNames.Keys)
+        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute(Get-LevelsName)
 
         $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
         $attributeCollection.Add($attributes)
         $attributeCollection.Add($ValidateSetAttribute)
 
         $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $attributeCollection)
-        $dynParam1.Value = 'VERBOSE'
         
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
         $paramDictionary.Add('Level', $dynParam1)
         return $paramDictionary
     }
     
-    PROCESS {
-        foreach ($msg in $Message) {
-            if ($msg -isnot [hashtable]) {
-                $msg = @{
-                    title = $msg
-                    body = [hashtable] @{}
-                }
+    End {
+        $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
+    
+        [void] $MessageQueue.Add(
+            [hashtable] @{
+                timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
+                levelno = $LevelNo
+                level = Get-LevelName -Level $LevelNo
+                message = if ($Message) {$Message} else {$null}
+                body = if ($Body) {$Body} else {$null}
+                body_json = if ($Body) {$Body | ConvertTo-Json} else {$null}
             }
-
-            $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
-        
-            [void] $MessageQueue.Add(
-                [hashtable] @{
-                    timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
-                    levelno = $LevelNo
-                    level = Get-LevelName -Level $LevelNo
-                    msg = $msg
-                }
-            )
-        }
+        )
     }    
+}
+
+
+Function Get-LevelsName {
+    [CmdletBinding()]
+    param()
+    
+    return $LevelNames.Keys | ?{$_ -isnot [int]} | sort
 }
 
 
@@ -137,7 +138,7 @@ Function Replace-Tokens {
             $tpl = '{0}'
         }
         
-        return ($tpl -f $var)        
+        return ($tpl -f $var)
     })    
 }
 
@@ -163,7 +164,7 @@ Function Set-LoggingDefaultLevel {
         $attributes = New-Object System.Management.Automation.ParameterAttribute
         $attributes.ParameterSetName = '__AllParameterSets'
         $attributes.Mandatory = $false
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LevelNames.Keys)
+        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute(Get-LevelsName)
 
         $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
         $attributeCollection.Add($attributes)
@@ -177,8 +178,8 @@ Function Set-LoggingDefaultLevel {
         return $paramDictionary
     }
     
-    Process {
-        $Logging.Level = Get-LevelNumber -Level $Level
+    End {
+        $Logging.Level = Get-LevelNumber -Level $PSBoundParameters.Level
     }
 }
 
@@ -188,6 +189,14 @@ Function Get-LoggingDefaultLevel {
     param()
     
     return Get-LevelName -Level $Logging.Level
+}
+
+
+Function Get-LoggingDefaultFormat {
+    [CmdletBinding()]
+    param()
+    
+    return $Logging.Format
 }
 
 
@@ -296,7 +305,7 @@ Function Add-LoggingTarget {
         return $paramDictionary
     }
     
-    Process {
+    End {
         Assert-LoggingTargetConfiguration -Target $PSBoundParameters.Name -Configuration $Configuration
         $Logging.Targets[$PSBoundParameters.Name] = $Configuration
         
@@ -391,6 +400,7 @@ Export-ModuleMember -Function Add-LoggingLevel
 Export-ModuleMember -Function Set-LoggingDefaultLevel
 Export-ModuleMember -Function Get-LoggingDefaultLevel
 Export-ModuleMember -Function Set-LoggingDefaultFormat
+Export-ModuleMember -Function Get-LoggingDefaultFormat
 Export-ModuleMember -Function Set-LoggingCustomTargets
 Export-ModuleMember -Function Get-LoggingTargetAvailable
 Export-ModuleMember -Function Get-LoggingTarget

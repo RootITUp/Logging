@@ -67,6 +67,8 @@ The Log object has a number of attributes that are replaced in the format string
 | `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*)
 | `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*)
 | `%{message}`   | The logged message
+| `%{body}`      | The logged body
+| `%{body_json}` | The logged body converted to Json
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
