@@ -68,7 +68,7 @@ The Log object has a number of attributes that are replaced in the format string
 | `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*)
 | `%{message}`   | The logged message
 | `%{body}`      | The logged body
-| `%{body_json}` | The logged body converted to Json
+| `%{body_json}` | The logged body converted to Json (not pretty printed)
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
@@ -133,6 +133,9 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 > Add-LoggingTarget -Name File -Configuration @{
     Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
                                     #            It supports templating like $Logging.Format 
+    PrintBody   = $false            # <Not required> Prints body message too
+    Append      = $true             # <Not required> Append to log file
+    Encoding    = 'ascii'           # <Not required> Sets the log file encoding
     Level       = <NOTSET>          # <Not required> Sets the logging level for this target
     Format      = <NOTSET>          # <Not required> Sets the logging format for this target
 }
