@@ -275,7 +275,7 @@ Function Assert-LoggingTargetConfiguration {
     }
     
     foreach ($Conf in $Configuration.Keys) {
-        if ($Configuration[$Conf] -isnot $TargetConf.Configuration[$Conf].Type) {
+        if ($TargetConf.Configuration[$Conf] -and $Configuration[$Conf] -isnot $TargetConf.Configuration[$Conf].Type) {
             throw ('Configuration {0} has to be of type {1} for target {2}' -f $Conf, $TargetConf.Configuration[$Conf].Type, $TargetName)
         }
     }
