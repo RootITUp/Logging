@@ -71,7 +71,7 @@ Function Write-Log {
                 level = Get-LevelName -Level $LevelNo
                 message = if ($Message) {$Message} else {$null}
                 body = if ($Body) {$Body} else {$null}
-                body_json = if ($Body) {$Body | ConvertTo-Json} else {$null}
+                body_json = if ($Body) {$Body | ConvertTo-Json -Compress} else {$null}
             }
         )
     }    
