@@ -41,7 +41,7 @@ Function Write-Log {
         [string] $Message,
         [Parameter(Position = 2,
                    Mandatory = $false)]
-        [hashtable] $Body
+        [object] $Body
     )
 
     DynamicParam {
