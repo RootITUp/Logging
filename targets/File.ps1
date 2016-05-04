@@ -21,7 +21,7 @@
         $Text = Replace-Tokens -String $Format -Source $Log
         
         if ($Configuration.PrintBody -and $Log.Body) {
-            $Text += ': {0}' -f $Log.Body
+            $Text += ': {0}' -f ($Log.Body | ConvertTo-Json -Compress)
         }
         
         if (-not $Configuration.ContainsKey('Append')) {$Params['Append'] = $true}

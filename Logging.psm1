@@ -71,7 +71,7 @@ Function Write-Log {
                 message = $Message
         }
         
-        if ($Body) { $mess['body'] = $Body | ConvertTo-Json -Compress }
+        if ($Body) { $mess['body'] = $Body }
         
         [void] $MessageQueue.Add($mess)
     }    
