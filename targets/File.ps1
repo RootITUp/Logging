@@ -20,8 +20,8 @@
         $Params['FilePath'] = Replace-Tokens -String $Configuration.Path -Source $Log
         $Text = Replace-Tokens -String $Format -Source $Log
         
-        if ($Configuration.PrintBody -and $Log.body_json) {
-            $Text += ': {0}' -f $Log.body_json
+        if ($Configuration.PrintBody -and $Log.Body) {
+            $Text += ': {0}' -f $Log.Body
         }
         
         if (-not $Configuration.ContainsKey('Append')) {$Params['Append'] = $true}

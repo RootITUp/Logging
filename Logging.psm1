@@ -332,7 +332,7 @@ $ScriptBlock = {
     Initialize-LoggingTargets
 
     $i = 0
-    while ($Dispatcher.Flag) {
+    while ($Dispatcher.Flag -or $MessageQueue.Count -gt 0) {
         if ($CustomTargets -ne $Logging.CustomTargets) {
             $CustomTargets = $Logging.CustomTargets
             Initialize-LoggingTargets
@@ -365,7 +365,7 @@ $ScriptBlock = {
             }
         }
         $i++
-        Start-Sleep -Milliseconds 50
+        Start-Sleep -Milliseconds 10
     }
 }
 
@@ -378,8 +378,8 @@ $Dispatcher.Powershell.RunspacePool = $Dispatcher.RunspacePool
 $Dispatcher.Handle = $Dispatcher.Powershell.BeginInvoke()
 
 #region Handle Module Removal
-$ExecutionContext.SessionState.Module.OnRemove ={
-    $Dispatcher.Flag = $False
+$ExecutionContext.SessionState.Module.OnRemove = {
+    $Dispatcher.Flag = $false
     #Let sit for a second to make sure it has had time to stop
     Start-Sleep -Seconds 1
     if ($Dispatcher.Handle) {
