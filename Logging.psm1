@@ -63,17 +63,17 @@ Function Write-Log {
     
     End {
         $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
-    
-        [void] $MessageQueue.Add(
-            [hashtable] @{
+        
+        $mess = [hashtable] @{
                 timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
                 levelno = $LevelNo
                 level = Get-LevelName -Level $LevelNo
-                message = if ($Message) {$Message} else {$null}
-                body = if ($Body) {$Body} else {$null}
-                body_json = if ($Body) {$Body | ConvertTo-Json -Compress} else {$null}
-            }
-        )
+                message = $Message
+        }
+        
+        if ($Body) { $mess['body'] = $Body | ConvertTo-Json -Compress }
+        
+        [void] $MessageQueue.Add($mess)
     }    
 }
 
