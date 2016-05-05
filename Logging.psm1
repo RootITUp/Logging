@@ -312,7 +312,7 @@ Function Add-LoggingTarget {
     }
 }
 
-Function Stop-Logging {
+Function Wait-Logging {
     [CmdletBinding()]
     param()
     
