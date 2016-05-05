@@ -415,7 +415,7 @@ Export-ModuleMember -Function Get-LoggingTargetAvailable
 Export-ModuleMember -Function Get-LoggingTarget
 Export-ModuleMember -Function Add-LoggingTarget
 Export-ModuleMember -Function Write-Log
-Export-ModuleMember -Function Stop-Logging
+Export-ModuleMember -Function Wait-Logging
 Export-ModuleMember -Function debug
 Export-ModuleMember -Function info
 Export-ModuleMember -Function warning
