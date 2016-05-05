@@ -25,7 +25,7 @@ Wait-Logging        # See Note
 
 ### NOTE
 
-When used in *unattended* scripts (scheduled tasks, spawned process) you need to call Wait-Logging to avoid loosing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you'll lose it)
+When used in *unattended* scripts (scheduled tasks, spawned process) you need to call Wait-Logging to avoid losing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you'll lose it)
 
 ## Configuration
 
