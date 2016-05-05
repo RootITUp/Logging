@@ -312,6 +312,15 @@ Function Add-LoggingTarget {
     }
 }
 
+Function Stop-Logging {
+    [CmdletBinding()]
+    param()
+    
+    while ($MessageQueue.Count -gt 0) {
+        Start-Sleep -Milliseconds 50
+    }
+}
+
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)))
@@ -406,6 +415,7 @@ Export-ModuleMember -Function Get-LoggingTargetAvailable
 Export-ModuleMember -Function Get-LoggingTarget
 Export-ModuleMember -Function Add-LoggingTarget
 Export-ModuleMember -Function Write-Log
+Export-ModuleMember -Function Stop-Logging
 Export-ModuleMember -Function debug
 Export-ModuleMember -Function info
 Export-ModuleMember -Function warning
