@@ -317,7 +317,7 @@ Function Stop-Logging {
     param()
     
     while ($MessageQueue.Count -gt 0) {
-        Start-Sleep -Milliseconds 50
+        Start-Sleep -Milliseconds 10
     }
 }
 
@@ -347,7 +347,7 @@ $ScriptBlock = {
             Initialize-LoggingTargets
         }
         
-        if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
+        # if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
         
         if ($MessageQueue.Count -gt 0) {
             foreach ($Message in $MessageQueue) {
@@ -374,7 +374,7 @@ $ScriptBlock = {
             }
         }
         $i++
-        Start-Sleep -Milliseconds 10
+        Start-Sleep -Milliseconds 5
     }
 }
 
