@@ -5,8 +5,8 @@
         Type =          @{Required = $true; Type = [string]}
         ServerName =    @{Required = $true; Type = [string]}
         ServerPort =    @{Required = $true; Type = [int]}
+        Flatten =       @{Required = $false; Type = [bool]}
         Level =         @{Required = $false; Type = [string]}
-        Format =        @{Required = $false; Type = [string]}
     }
     Logger = {
         param(
@@ -14,10 +14,35 @@
             $Format, 
             $Configuration
         )
-        
+
+        Function ConvertTo-FlatterHashTable {
+            [CmdletBinding()]
+            param(
+                [hashtable] $Object
+            )
+            
+            $ht = [hashtable] @{}
+            
+            foreach ($key in $Object.Keys) {
+                if ($Object[$key] -is [hashtable]) {
+                    ConvertTo-FlatterHashTable -Object $Object[$key]
+                } else {
+                    $ht[$key] = $Object[$key]
+                }
+            }
+            
+            return $ht
+        }
+
         $Index = Replace-Tokens -String $Configuration.Index -Source $Log
         $Uri = 'http://{0}:{1}/{2}/{3}' -f  $Configuration.ServerName, $Configuration.ServerPort, $Index, $Configuration.Type
-        # $Uri | Out-File -FilePath D:\Tools\log\test.log -Append
-        Invoke-RestMethod -Method Post -Uri $Uri -Body ($Log | ConvertTo-Json) | Out-Null
+        
+        if ($Configuration.Flatten) {            
+            $Message = ConvertTo-FlatterHashTable $Log | ConvertTo-Json
+        } else {
+            $Message = $Log | ConvertTo-Json
+        }
+        
+        Invoke-RestMethod -Method Post -Uri $Uri -Body $Message | Out-Null
     }
 }
