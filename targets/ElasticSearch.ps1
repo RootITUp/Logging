@@ -25,7 +25,7 @@
             
             foreach ($key in $Object.Keys) {
                 if ($Object[$key] -is [hashtable]) {
-                    ConvertTo-FlatterHashTable -Object $Object[$key]
+                    $ht += ConvertTo-FlatterHashTable -Object $Object[$key]
                 } else {
                     $ht[$key] = $Object[$key]
                 }
