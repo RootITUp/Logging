@@ -65,7 +65,7 @@ Function Write-Log {
         $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
         
         $mess = [hashtable] @{
-                timestamp = Get-Date -UFormat '%Y-%m-%d %T%Z'
+                timestamp = Get-Date -UFormat '%Y-%m-%dT%T%Z'
                 levelno = $LevelNo
                 level = Get-LevelName -Level $LevelNo
                 message = $Message
