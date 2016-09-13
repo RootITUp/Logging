@@ -124,6 +124,8 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * Slack
 
 #### Console
+From version 2.3.3 it supports acquiring lock for issues with git prompt that sometimes gets splitted during output.
+The mutex name to acquire is ```ConsoleMtx```
 
 ```powershell
 > Add-LoggingTarget -Name Console -Configuration @{
