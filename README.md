@@ -17,7 +17,7 @@ Add-LoggingTarget -Name File -Configuration @{Path = 'C:\Temp\example_%{+%Y%m%d}
 $Level = 'DEBUG', 'INFO', 'WARNING', 'ERROR'
 foreach ($i in 1..100) {
     Write-Log -Level ($Level | Get-Random) ('Message n.{0}' -f $i)
-    Start-Sleep -Milliseconds (Get-Random -Min 100 -Max 1000) 
+    Start-Sleep -Milliseconds (Get-Random -Min 100 -Max 1000)
 }
 
 Wait-Logging        # See Note

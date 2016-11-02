@@ -41,6 +41,9 @@ Function Write-Log {
         [string] $Message,
         [Parameter(Position = 2,
                    Mandatory = $false)]
+        [array] $Arguments,
+        [Parameter(Position = 3,
+                   Mandatory = $false)]
         [object] $Body
     )
 
@@ -63,12 +66,17 @@ Function Write-Log {
     
     End {
         $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
-        
+        if ($Arguments) {
+            $text = $Message -f $Arguments
+        } else {
+            $text = $Message
+        }
+
         $mess = [hashtable] @{
-                timestamp = Get-Date -UFormat '%Y-%m-%dT%T%Z'
-                levelno = $LevelNo
-                level = Get-LevelName -Level $LevelNo
-                message = $Message
+            timestamp = Get-Date -UFormat '%Y-%m-%dT%T%Z'
+            levelno = $LevelNo
+            level = Get-LevelName -Level $LevelNo
+            message = $text
         }
         
         if ($Body) { $mess['body'] = $Body }
@@ -392,8 +400,8 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     #Let sit for a second to make sure it has had time to stop
     Start-Sleep -Seconds 1
     if ($Dispatcher.Handle) {
-        $Dispatcher.PowerShell.EndInvoke($Dispatcher.Handle)
-        $Dispatcher.PowerShell.Dispose()    
+        [void] $Dispatcher.PowerShell.EndInvoke($Dispatcher.Handle)
+        [void] $Dispatcher.PowerShell.Dispose()    
     }
     [System.GC]::Collect()
 }
