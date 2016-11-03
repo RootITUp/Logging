@@ -27,7 +27,36 @@ Author = 'Massimo Bonvicini'
 Copyright = '(c) 2015 Massimo Bonvicini. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Module to provide advanced logging to powershell.'
+Description = @'
+# Powershell Logging Module
+
+## Features
+
+* Separate thread that dispatch messages to targets to avoid bottleneck in the main script
+* Extensible with new targets
+* Custom formatting
+* Each target can have his own logging level
+
+## TL;DR
+
+```powershell
+Set-LoggingDefaultLevel -Level 'WARNING'
+Add-LoggingTarget -Name Console
+Add-LoggingTarget -Name File -Configuration @{Path = 'C:\Temp\example_%{+%Y%m%d}.log'}
+
+$Level = 'DEBUG', 'INFO', 'WARNING', 'ERROR'
+foreach ($i in 1..100) {
+    Write-Log -Level ($Level | Get-Random) ('Message n.{0}' -f $i)
+    Start-Sleep -Milliseconds (Get-Random -Min 100 -Max 1000)
+}
+
+Wait-Logging        # See Note
+```
+
+### NOTE
+
+When used in *unattended* scripts (scheduled tasks, spawned process) you need to call Wait-Logging to avoid losing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you'll lose it)
+'@
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
