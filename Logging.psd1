@@ -12,7 +12,7 @@
 RootModule = 'Logging.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.3.5'
+ModuleVersion = '2.3.6'
 
 # ID used to uniquely identify this module
 GUID = '25a60f1d-85dd-4ad6-9efc-35fd3894f6c1'
@@ -28,18 +28,17 @@ Copyright = '(c) 2015 Massimo Bonvicini. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = @'
-# Powershell Logging Module
+Powershell Logging Module
 
-## Features
+Features
 
 * Separate thread that dispatch messages to targets to avoid bottleneck in the main script
 * Extensible with new targets
 * Custom formatting
 * Each target can have his own logging level
 
-## TL;DR
+TL;DR
 
-```powershell
 Set-LoggingDefaultLevel -Level 'WARNING'
 Add-LoggingTarget -Name Console
 Add-LoggingTarget -Name File -Configuration @{Path = 'C:\Temp\example_%{+%Y%m%d}.log'}
@@ -51,9 +50,8 @@ foreach ($i in 1..100) {
 }
 
 Wait-Logging        # See Note
-```
 
-### NOTE
+NOTE
 
 When used in *unattended* scripts (scheduled tasks, spawned process) you need to call Wait-Logging to avoid losing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you'll lose it)
 '@
