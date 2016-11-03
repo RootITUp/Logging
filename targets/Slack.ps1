@@ -1,10 +1,10 @@
 @{
     Name = 'Slack'
     Configuration = @{
-        ServerUri = @{Required = $true; Type = [string]}
-        BotName = @{Required = $false; Type = [string]}
-        Channel = @{Required = $false; Type = [string]}
-        Level = @{Required = $false; Type = [string]}
+        ServerUri   = @{Required = $true;   Type = [string]}
+        BotName     = @{Required = $false;  Type = [string]}
+        Channel     = @{Required = $false;  Type = [string]}
+        Level       = @{Required = $false;  Type = [string]}
     }
     Logger = {
         param(

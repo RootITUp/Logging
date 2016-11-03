@@ -1,12 +1,12 @@
 ﻿@{
     Name = 'File'
     Configuration = @{
-        Path = @{Required = $true; Type = [string]}
-        PrintBody = @{Required = $false; Type = [bool]}
-        Append = @{Required = $false; Type = [bool]}
-        Encoding = @{Required = $false; Type = [string]}
-        Level = @{Required = $false; Type = [string]}
-        Format = @{Required = $false; Type = [string]}
+        Path        = @{Required = $true;   Type = [string]}
+        PrintBody   = @{Required = $false;  Type = [bool]}
+        Append      = @{Required = $false;  Type = [bool]}
+        Encoding    = @{Required = $false;  Type = [string]}
+        Level       = @{Required = $false;  Type = [string]}
+        Format      = @{Required = $false;  Type = [string]}
     }
     Logger = {
         param(
