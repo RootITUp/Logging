@@ -172,6 +172,19 @@ The mutex name to acquire is ```ConsoleMtx```
 }
 ```
 
+### Email
+
+```powershell
+> Add-LoggingTarget -Name Email -Configuration @{
+    SMTPServer  = <NOTSET>          # <Required> SMTP server FQDN
+    From        = <NOTSET>          # <Required> From address
+    To          = @(<NOTSET>)       # <Required> An array of recipients. NB: @() are needed around the value
+    Subject     = '[%{level:-7}] %{message}'    # <Not required> Email subject. Supports formatting and expansion
+    Credential  = <NOTSET>          # <Not required> If your server uses authentication
+    Level       = <NOTSET>          # <Not required> Sets the logging format for this target
+}
+```
+
 ### CustomTargets
 
 It lets define a folder to load custom targets. 
