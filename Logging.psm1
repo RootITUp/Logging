@@ -26,8 +26,12 @@ New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option 
 New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option ReadOnly
 New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option ReadOnly
 
+$Defaults = @{
+    Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+}
+
 $Logging.Level      = $NOTSET
-$Logging.Format     = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+$Logging.Format     = $Defaults.Format
 $Logging.Targets    = [hashtable] @{}
 
 <#
@@ -211,7 +215,7 @@ Function Get-LoggingDefaultFormat {
 Function Set-LoggingDefaultFormat {
     [CmdletBinding()]
     param(
-        [string] $Format
+        [string] $Format = $Defaults.Format
     )
     
     $Logging.Format = $Format
