@@ -3,7 +3,7 @@
     Configuration = @{
         SMTPServer  = @{Required = $true;   Type = [string]}
         From        = @{Required = $true;   Type = [string]}
-        To          = @{Required = $true;   Type = [array]}
+        To          = @{Required = $true;   Type = [string]}
         Subject     = @{Required = $false;  Type = [string]}
         Credential  = @{Required = $false;  Type = [pscredential]}
         Level       = @{Required = $false;  Type = [string]}
