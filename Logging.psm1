@@ -26,8 +26,12 @@ New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option 
 New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option ReadOnly
 New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option ReadOnly
 
+$Defaults = @{
+    Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+}
+
 $Logging.Level      = $NOTSET
-$Logging.Format     = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+$Logging.Format     = $Defaults.Format
 $Logging.Targets    = [hashtable] @{}
 
 <#
@@ -211,7 +215,7 @@ Function Get-LoggingDefaultFormat {
 Function Set-LoggingDefaultFormat {
     [CmdletBinding()]
     param(
-        [string] $Format
+        [string] $Format = $Defaults.Format
     )
     
     $Logging.Format = $Format
@@ -354,14 +358,12 @@ $ScriptBlock = {
             $CustomTargets = $Logging.CustomTargets
             Initialize-LoggingTargets
         }
-        
-        # if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
-        
+                
         if ($MessageQueue.Count -gt 0) {
             foreach ($Message in $MessageQueue) {
-                if ($Logging.Targets.Count -and -not $Logging.Destinations) {$Targets = $Logging.Targets}
-                elseif (-not $Logging.Targets.Count -and $Logging.Destinations) {$Targets = $Logging.Destinations}
+                if ($Logging.Targets.Count) {$Targets = $Logging.Targets}
                 else {$Targets = $null}
+
                 foreach ($TargetName in $Targets.Keys) {
                     $LoggerFormat = $Logging.Format
                     $LoggerLevel = Get-LevelNumber -Level $Logging.Level
@@ -382,7 +384,7 @@ $ScriptBlock = {
             }
         }
         $i++
-        Start-Sleep -Milliseconds 5
+        # Start-Sleep -Milliseconds 5
     }
 }
 
