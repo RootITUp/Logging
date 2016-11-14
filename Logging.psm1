@@ -358,14 +358,12 @@ $ScriptBlock = {
             $CustomTargets = $Logging.CustomTargets
             Initialize-LoggingTargets
         }
-        
-        # if ($i -gt 1000) {$i = 0; [System.GC]::Collect()}
-        
+                
         if ($MessageQueue.Count -gt 0) {
             foreach ($Message in $MessageQueue) {
-                if ($Logging.Targets.Count -and -not $Logging.Destinations) {$Targets = $Logging.Targets}
-                elseif (-not $Logging.Targets.Count -and $Logging.Destinations) {$Targets = $Logging.Destinations}
+                if ($Logging.Targets.Count) {$Targets = $Logging.Targets}
                 else {$Targets = $null}
+
                 foreach ($TargetName in $Targets.Keys) {
                     $LoggerFormat = $Logging.Format
                     $LoggerLevel = Get-LevelNumber -Level $Logging.Level
@@ -386,7 +384,7 @@ $ScriptBlock = {
             }
         }
         $i++
-        Start-Sleep -Milliseconds 5
+        # Start-Sleep -Milliseconds 5
     }
 }
 
