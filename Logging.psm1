@@ -352,7 +352,6 @@ $ScriptBlock = {
     
     Initialize-LoggingTargets
 
-    $i = 0
     while ($Dispatcher.Flag -or $MessageQueue.Count -gt 0) {
         if ($CustomTargets -ne $Logging.CustomTargets) {
             $CustomTargets = $Logging.CustomTargets
@@ -383,8 +382,7 @@ $ScriptBlock = {
                 $MessageQueue.Remove($Message)
             }
         }
-        $i++
-        # Start-Sleep -Milliseconds 5
+        Start-Sleep -Milliseconds 10
     }
 }
 
