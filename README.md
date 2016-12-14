@@ -107,7 +107,7 @@ The Log object has a number of attributes that are replaced in the format string
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
-##### Padding 
+##### Padding
 
 If the padding value is negative, the field will be left aligned and padded with spaces on the right:
 
@@ -152,6 +152,7 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * File
 * ElasticSearch
 * Slack
+* Email
 
 #### Console
 From version 2.3.3 it supports acquiring lock for issues with git prompt that sometimes gets splitted during output.
@@ -202,7 +203,7 @@ The mutex name to acquire is ```ConsoleMtx```
 }
 ```
 
-### Email
+#### Email
 
 ```powershell
 > Add-LoggingTarget -Name Email -Configuration @{
