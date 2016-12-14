@@ -217,7 +217,7 @@ Function Set-LoggingDefaultFormat {
     param(
         [string] $Format = $Defaults.Format
     )
-    
+    Wait-Logging
     $Logging.Format = $Format
 }
 
@@ -265,7 +265,7 @@ Function Set-LoggingCustomTargets {
         [ValidateScript({Test-Path -Path $_})]
         [string] $Path
     )
-    
+    Wait-Logging
     $Logging.CustomTargets = $Path
 }
 
@@ -407,12 +407,7 @@ $ExecutionContext.SessionState.Module.OnRemove = {
 }
 #endregion Handle Module Removal
 
-# Aliases and exports
-Function debug      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level DEBUG -Message $Message }
-Function info       { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level INFO -Message $Message }
-Function warning    { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level WARNING -Message $Message }
-Function error      { param([Parameter(Position=1, Mandatory=$true, ValueFromPipeline=$true)] [Object] $Message) Write-Log -Level ERROR -Message $Message }
-
+# Exports
 Export-ModuleMember -Function Add-LoggingLevel
 Export-ModuleMember -Function Set-LoggingDefaultLevel
 Export-ModuleMember -Function Get-LoggingDefaultLevel
@@ -424,7 +419,3 @@ Export-ModuleMember -Function Get-LoggingTarget
 Export-ModuleMember -Function Add-LoggingTarget
 Export-ModuleMember -Function Write-Log
 Export-ModuleMember -Function Wait-Logging
-Export-ModuleMember -Function debug
-Export-ModuleMember -Function info
-Export-ModuleMember -Function warning
-Export-ModuleMember -Function error
