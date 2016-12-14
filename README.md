@@ -1,4 +1,4 @@
-# Powershell Logging Module
+# Powershell Logging Module v2.3.9
 
 ## Features
 
@@ -6,6 +6,36 @@
 * Extensible with new targets
 * Custom formatting
 * Each target can have his own logging level
+
+## Installation
+
+### PowerShell Gallery
+
+```powershell
+> Install-Module Logging
+> Import-Module Logging
+```
+
+### GitHub
+
+#### Clone Repo
+
+```terminal
+> git clone https://github.com/EsOsO/Logging.git
+> Import-Module .\Logging\Logging.psm1
+
+```
+
+#### Download Repo
+
+* Download [the zip](https://github.com/EsOsO/Logging/archive/master.zip)
+* Unzip the content of "Logging-master" to:
+* C:\Program Files\WindowsPowerShell\Modules\Logging [System wide]
+* D:\Users\<username>\Documents\WindowsPowerShell\Modules\Logging [User only]
+
+```powershell
+> Import-Module Logging
+```
 
 ## TL;DR
 

@@ -12,7 +12,7 @@
 RootModule = 'Logging.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.3.5'
+ModuleVersion = '2.3.9'
 
 # ID used to uniquely identify this module
 GUID = '25a60f1d-85dd-4ad6-9efc-35fd3894f6c1'
