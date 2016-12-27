@@ -40,7 +40,7 @@ $Logging.Targets    = [hashtable] @{}
 Function Write-Log {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 1, 
+        [Parameter(Position = 1,
                    Mandatory = $true)]
         [string] $Message,
         [Parameter(Position = 2,
@@ -62,12 +62,12 @@ Function Write-Log {
         $attributeCollection.Add($ValidateSetAttribute)
 
         $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $attributeCollection)
-        
+
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
         $paramDictionary.Add('Level', $dynParam1)
         return $paramDictionary
     }
-    
+
     End {
         $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
         if ($Arguments) {
@@ -82,18 +82,18 @@ Function Write-Log {
             level = Get-LevelName -Level $LevelNo
             message = $text
         }
-        
+
         if ($Body) { $mess['body'] = $Body }
-        
+
         [void] $MessageQueue.Add($mess)
-    }    
+    }
 }
 
 
 Function Get-LevelsName {
     [CmdletBinding()]
     param()
-    
+
     return $LevelNames.Keys | ?{$_ -isnot [int]} | sort
 }
 
@@ -106,7 +106,7 @@ Function Get-LevelNumber {
 
     if ($Level -is [int]) {return $Level}
     elseif ([string] $Level -eq $Level) {return $LevelNames[$Level]}
-    else {throw ('Level not a valid integer or a valid string: {0}' -f $Level)}    
+    else {throw ('Level not a valid integer or a valid string: {0}' -f $Level)}
 }
 
 
@@ -115,27 +115,27 @@ Function Get-LevelName {
     param(
         $Level
     )
-    
+
     $l = $LevelNames[$Level]
     if ($l) {return $l}
     else {return ('Level {0}' -f $Level)}
 }
 
 
-Function Replace-Tokens {
+Function Replace-Token {
     [CmdletBinding()]
     param(
         [string] $String,
         [object] $Source
     )
-    
+
     $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmt>(?:%[YmdHMS].*?)+))?(?::(?<padding>-?\d+))?}'
     $re.Replace($String, {
         param($match)
         $token = $match.Groups['token'].value
         $datefmt = $match.Groups['datefmt'].value
         $padding = $match.Groups['padding'].value
-        
+
         if ($token -and -not $datefmt) {
             $var = $Source.$token
         } elseif ($token -and $datefmt) {
@@ -143,15 +143,15 @@ Function Replace-Tokens {
         } elseif ($datefmt -and -not $token) {
             $var = Get-Date -UFormat $datefmt
         }
-        
+
         if ($padding) {
             $tpl = "{0,$padding}"
         } else {
             $tpl = '{0}'
         }
-        
+
         return ($tpl -f $var)
-    })    
+    })
 }
 
 
@@ -163,7 +163,7 @@ Function Add-LoggingLevel {
         [Parameter(Mandatory)]
         [string] $LevelName
     )
-    
+
     $LevelNames[$Level] = $LevelName.ToUpper()
     $LevelNames[$LevelName] = $Level
 }
@@ -171,7 +171,7 @@ Function Add-LoggingLevel {
 Function Set-LoggingDefaultLevel {
     [CmdletBinding()]
     param()
-    
+
     DynamicParam {
         $attributes = New-Object System.Management.Automation.ParameterAttribute
         $attributes.ParameterSetName = '__AllParameterSets'
@@ -184,12 +184,12 @@ Function Set-LoggingDefaultLevel {
 
         $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $attributeCollection)
         $dynParam1.Value = 'VERBOSE'
-        
+
         $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
         $paramDictionary.Add('Level', $dynParam1)
         return $paramDictionary
     }
-    
+
     End {
         $Logging.Level = Get-LevelNumber -Level $PSBoundParameters.Level
     }
@@ -199,7 +199,7 @@ Function Set-LoggingDefaultLevel {
 Function Get-LoggingDefaultLevel {
     [CmdletBinding()]
     param()
-    
+
     return Get-LevelName -Level $Logging.Level
 }
 
@@ -207,7 +207,7 @@ Function Get-LoggingDefaultLevel {
 Function Get-LoggingDefaultFormat {
     [CmdletBinding()]
     param()
-    
+
     return $Logging.Format
 }
 
@@ -225,7 +225,7 @@ Function Set-LoggingDefaultFormat {
 Function Get-LoggingTargetAvailable {
     [CmdletBinding()]
     param()
-    
+
     return $LogTargets
 }
 
@@ -240,7 +240,7 @@ Function Get-LoggingTarget {
 Function Initialize-LoggingTargets {
     [CmdletBinding()]
     param()
-    
+
     $Targets = Get-ChildItem "$ScriptRoot\targets" -Filter '*.ps1'
     if ($Logging.CustomTargets) {
         if (Test-Path $Logging.CustomTargets) {
@@ -254,12 +254,12 @@ Function Initialize-LoggingTargets {
             Logger = $Module.Logger
             Configuration = $Module.Configuration
             ParamsRequired = $Module.Configuration.GetEnumerator() | ?{$_.Value.Required -eq $true} | select -exp Name
-        } 
-    }    
+        }
+    }
 }
 
 
-Function Set-LoggingCustomTargets {
+Function Set-LoggingCustomTarget {
     [CmdletBinding()]
     param(
         [ValidateScript({Test-Path -Path $_})]
@@ -276,16 +276,16 @@ Function Assert-LoggingTargetConfiguration {
         $Target,
         $Configuration
     )
-    
+
     $TargetName = $Target
     $TargetConf = $LogTargets[$Target]
-    
+
     foreach ($Param in $TargetConf.ParamsRequired) {
         if ($Param -notin $Configuration.Keys) {
             throw ('Configuration {0} is required for target {2}; please provide one of type {1}' -f $Param, $TargetConf.Configuration[$Param].Type, $TargetName)
         }
     }
-    
+
     foreach ($Conf in $Configuration.Keys) {
         if ($TargetConf.Configuration[$Conf] -and $Configuration[$Conf] -isnot $TargetConf.Configuration[$Conf].Type) {
             throw ('Configuration {0} has to be of type {1} for target {2}' -f $Conf, $TargetConf.Configuration[$Conf].Type, $TargetName)
@@ -300,7 +300,7 @@ Function Add-LoggingTarget {
         [Parameter(Position = 2, Mandatory = $true)]
         [hashtable] $Configuration = @{}
     )
-    
+
     DynamicParam {
         $attributes = New-Object System.Management.Automation.ParameterAttribute
         $attributes.ParameterSetName = '__AllParameterSets'
@@ -313,24 +313,24 @@ Function Add-LoggingTarget {
         $attributeCollection.Add($ValidateSetAttribute)
 
         $NameParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Name', [string], $attributeCollection)
-            
+
         $DynParams = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
         $DynParams.Add('Name', $NameParam)
-        
+
         return $DynParams
     }
-    
+
     End {
         Assert-LoggingTargetConfiguration -Target $PSBoundParameters.Name -Configuration $Configuration
         $Logging.Targets[$PSBoundParameters.Name] = $Configuration
-        
+
     }
 }
 
 Function Wait-Logging {
     [CmdletBinding()]
     param()
-    
+
     while ($MessageQueue.Count -gt 0) {
         Start-Sleep -Milliseconds 10
     }
@@ -338,7 +338,7 @@ Function Wait-Logging {
 
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
-$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Tokens', (Get-Content Function:\Replace-Tokens)))
+$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Token', (Get-Content Function:\Replace-Token)))
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Initialize-LoggingTargets', (Get-Content Function:\Initialize-LoggingTargets)))
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Get-LevelNumber', (Get-Content Function:\Get-LevelNumber)))
 
@@ -352,7 +352,7 @@ $InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runs
 
 $ScriptBlock = {
     $CustomTargets = $Logging.CustomTargets
-    
+
     Initialize-LoggingTargets
 
     while ($Dispatcher.Flag -or $MessageQueue.Count -gt 0) {
@@ -360,7 +360,7 @@ $ScriptBlock = {
             $CustomTargets = $Logging.CustomTargets
             Initialize-LoggingTargets
         }
-                
+
         if ($MessageQueue.Count -gt 0) {
             foreach ($Message in $MessageQueue) {
                 if ($Logging.Targets.Count) {$Targets = $Logging.Targets}
@@ -371,13 +371,13 @@ $ScriptBlock = {
                     $LoggerLevel = Get-LevelNumber -Level $Logging.Level
 
                     $Target = $Targets[$TargetName]
-                    
+
                     if ($Target) {
                         if ($Target.Level) {$LoggerLevel = Get-LevelNumber -Level $Target.Level}
                         if ($Target.Format) {$LoggerFormat = $Target.Format}
                         $Configuration = $Target
                     }
-                                        
+
                     if ($Message.LevelNo -ge $LoggerLevel) {
                         & $LogTargets[$TargetName].Logger $Message $LoggerFormat $Configuration
                     }
@@ -404,7 +404,7 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     Start-Sleep -Seconds 1
     if ($Dispatcher.Handle) {
         [void] $Dispatcher.PowerShell.EndInvoke($Dispatcher.Handle)
-        [void] $Dispatcher.PowerShell.Dispose()    
+        [void] $Dispatcher.PowerShell.Dispose()
     }
     [System.GC]::Collect()
 }
@@ -416,7 +416,7 @@ Export-ModuleMember -Function Set-LoggingDefaultLevel
 Export-ModuleMember -Function Get-LoggingDefaultLevel
 Export-ModuleMember -Function Set-LoggingDefaultFormat
 Export-ModuleMember -Function Get-LoggingDefaultFormat
-Export-ModuleMember -Function Set-LoggingCustomTargets
+Export-ModuleMember -Function Set-LoggingCustomTarget
 Export-ModuleMember -Function Get-LoggingTargetAvailable
 Export-ModuleMember -Function Get-LoggingTarget
 Export-ModuleMember -Function Add-LoggingTarget

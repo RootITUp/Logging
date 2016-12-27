@@ -30,7 +30,7 @@ Gets currently configured targets.
 ### [Get-LoggingTargetAvailable](Get-LoggingTargetAvailable.md)
 Gets the initialized logging targets.
 
-### [Set-LoggingCustomTargets](Set-LoggingCustomTargets.md)
+### [Set-LoggingCustomTarget](Set-LoggingCustomTarget.md)
 Configures custom logging targets.
 
 ### [Set-LoggingDefaultFormat](Set-LoggingDefaultFormat.md)

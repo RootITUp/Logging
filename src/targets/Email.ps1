@@ -10,22 +10,22 @@
     }
     Logger = {
         param(
-            $Log, 
-            $Format, 
+            $Log,
+            $Format,
             [hashtable] $Configuration
         )
-        
+
         $Params = @{}
-        
+
         $Params['SmtpServer'] = $Configuration.SMTPServer
         $Params['From'] = $Configuration.From
         $Params['To'] = $Configuration.To
-        $Params['Body'] = Replace-Tokens -String $Format -Source $Log
-        
+        $Params['Body'] = Replace-Token -String $Format -Source $Log
+
         if ($Configuration.Subject) {
-            $Params['Subject'] = Replace-Tokens -String $Configuration.Subject -Source $Log
+            $Params['Subject'] = Replace-Token -String $Configuration.Subject -Source $Log
         } else {
-            $Params['Subject'] = Replace-Tokens -String '[%{level:-7}] %{message}' -Source $Log
+            $Params['Subject'] = Replace-Token -String '[%{level:-7}] %{message}' -Source $Log
         }
 
         if ($Configuration.Credential) {
@@ -34,8 +34,8 @@
 
         if ($Log.Body) {
             $Params['Body'] += "`n`n{0}" -f ($Log.Body | ConvertTo-Json)
-        }        
-        
+        }
+
         Send-MailMessage @Params
     }
 }

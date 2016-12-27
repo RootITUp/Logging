@@ -65,7 +65,7 @@ The following section describe how to configure the Logging module.
 * Format
 * Targets
 * CustomTargets
-    
+
 #### Level
 
 The *Level* property defines the default logging level.
@@ -169,8 +169,8 @@ The mutex name to acquire is ```ConsoleMtx```
 
 ```powershell
 > Add-LoggingTarget -Name File -Configuration @{
-    Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log') 
-                                    #            It supports templating like $Logging.Format 
+    Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log')
+                                    #            It supports templating like $Logging.Format
     PrintBody   = $false            # <Not required> Prints body message too
     Append      = $true             # <Not required> Append to log file
     Encoding    = 'ascii'           # <Not required> Sets the log file encoding
@@ -186,7 +186,7 @@ The mutex name to acquire is ```ConsoleMtx```
     ServerName  = <NOTSET>          # <Required> Sets the ES server name (eg. 'localhost')
     ServerPort  = <NOTSET>          # <Required> Sets the ES server port (eg. 9200)
     Index       = <NOTSET>          # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
-                                    #            It supports templating like $Logging.Format         
+                                    #            It supports templating like $Logging.Format
     Type        = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
 }
@@ -218,10 +218,10 @@ The mutex name to acquire is ```ConsoleMtx```
 
 ### CustomTargets
 
-It lets define a folder to load custom targets. 
+It lets define a folder to load custom targets.
 
 ```powershell
-> Set-LoggingCustomTargets -Path 'C:\temp\'
+> Set-LoggingCustomTarget -Path 'C:\temp\'
 > Get-LoggingTargetAvailable
 Name                           Value
 ----                           -----

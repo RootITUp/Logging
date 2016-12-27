@@ -1,6 +1,6 @@
 ---
 external help file: Logging-help.xml
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -16,7 +16,7 @@ Add-LoggingTarget [-Configuration] <Hashtable> [-Name] <String> [<CommonParamete
 ```
 
 ## DESCRIPTION
-This cmdlet sets up a new logging target. The logging target must be initialized using *Set-LoggingCustomTargets*.
+This cmdlet sets up a new logging target. The logging target must be initialized using *Set-LoggingCustomTarget*.
 
 ## EXAMPLES
 
@@ -35,7 +35,7 @@ Target configuration is an hashtable object.
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 2
@@ -50,7 +50,7 @@ Target name
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 Accepted values: Email, Console, ElasticSearch, File, Slack
 
 Required: True

@@ -10,8 +10,8 @@
     }
     Logger = {
         param(
-            $Log, 
-            $Format, 
+            $Log,
+            $Format,
             $Configuration
         )
 
@@ -20,9 +20,9 @@
             param(
                 [hashtable] $Object
             )
-            
+
             $ht = [hashtable] @{}
-            
+
             foreach ($key in $Object.Keys) {
                 if ($Object[$key] -is [hashtable]) {
                     $ht += ConvertTo-FlatterHashTable -Object $Object[$key]
@@ -30,19 +30,19 @@
                     $ht[$key] = $Object[$key]
                 }
             }
-            
+
             return $ht
         }
 
-        $Index = Replace-Tokens -String $Configuration.Index -Source $Log
+        $Index = Replace-Token -String $Configuration.Index -Source $Log
         $Uri = 'http://{0}:{1}/{2}/{3}' -f  $Configuration.ServerName, $Configuration.ServerPort, $Index, $Configuration.Type
-        
-        if ($Configuration.Flatten) {            
+
+        if ($Configuration.Flatten) {
             $Message = ConvertTo-FlatterHashTable $Log | ConvertTo-Json
         } else {
             $Message = $Log | ConvertTo-Json
         }
-        
+
         Invoke-RestMethod -Method Post -Uri $Uri -Body $Message | Out-Null
     }
 }
