@@ -297,24 +297,27 @@ Function Assert-LoggingTargetConfiguration {
 Function Add-LoggingTarget {
     [CmdletBinding()]
     param(
+        [Parameter(Position = 2, Mandatory = $true)]
         [hashtable] $Configuration = @{}
     )
     
     DynamicParam {
         $attributes = New-Object System.Management.Automation.ParameterAttribute
         $attributes.ParameterSetName = '__AllParameterSets'
-        $attributes.Mandatory = $false
+        $attributes.Mandatory = $true
+        $attributes.Position = 1
         $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LogTargets.Keys)
 
         $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
         $attributeCollection.Add($attributes)
         $attributeCollection.Add($ValidateSetAttribute)
 
-        $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Name', [string], $attributeCollection)
+        $NameParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Name', [string], $attributeCollection)
             
-        $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $paramDictionary.Add('Name', $dynParam1)
-        return $paramDictionary
+        $DynParams = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+        $DynParams.Add('Name', $NameParam)
+        
+        return $DynParams
     }
     
     End {
