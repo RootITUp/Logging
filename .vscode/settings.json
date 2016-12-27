@@ -1,0 +1,9 @@
+{
+    "files.trimTrailingWhitespace": true,
+
+    "search.exclude": {
+        "Release": true
+    },
+
+    "powershell.scriptAnalysis.settingsPath": "ScriptAnalyzerSettings.psd1"
+}
