@@ -1,5 +1,6 @@
 ﻿@{
     Name = 'Console'
+    Description = 'Writes messages to console with different colors.'
     Configuration = @{
         Level  = @{Required = $false; Type = [string]}
         Format = @{Required = $false; Type = [string]}
