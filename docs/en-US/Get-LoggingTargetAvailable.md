@@ -1,6 +1,6 @@
 ---
 external help file: Logging-help.xml
-online version:
+online version: 
 schema: 2.0.0
 ---
 

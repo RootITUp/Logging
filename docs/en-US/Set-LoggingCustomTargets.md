@@ -1,6 +1,6 @@
 ---
 external help file: Logging-help.xml
-online version:
+online version: 
 schema: 2.0.0
 ---
 
@@ -35,7 +35,7 @@ The folder to load targets from
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: 
 
 Required: True
 Position: 0

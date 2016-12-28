@@ -4,57 +4,41 @@ online version:
 schema: 2.0.0
 ---
 
-# Add-LoggingTarget
+# Set-LoggingCustomTarget
 
 ## SYNOPSIS
-Sets up a new logging target.
+{{Fill in the Synopsis}}
 
 ## SYNTAX
 
 ```
-Add-LoggingTarget [-Configuration] <Hashtable> [-Name] <String> [<CommonParameters>]
+Set-LoggingCustomTarget [-Path] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-This cmdlet sets up a new logging target. The logging target must be initialized using *Set-LoggingCustomTarget*.
+{{Fill in the Description}}
 
 ## EXAMPLES
 
 ### Example 1
 ```
-PS C:\> Add-LoggingTarget -Name File -Configuration @{Level='DEBUG'; Path='C:\TMP\log.txt'}
+PS C:\> {{ Add example code here }}
 ```
 
-Sets up a file target with DEBUG level to C:\TMP\log.txt
+{{ Add example description here }}
 
 ## PARAMETERS
 
-### -Configuration
-Target configuration is an hashtable object.
-
-```yaml
-Type: Hashtable
-Parameter Sets: (All)
-Aliases: 
-
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Name
-{{Fill Name Description}}
+### -Path
+{{Fill Path Description}}
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 Aliases: 
-Accepted values: Email, Console, ElasticSearch, File, Slack
 
 Required: True
-Position: 1
+Position: 0
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
