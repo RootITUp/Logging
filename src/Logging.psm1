@@ -34,9 +34,6 @@ $Logging.Level      = $NOTSET
 $Logging.Format     = $Defaults.Format
 $Logging.Targets    = [hashtable] @{}
 
-<#
-
-#>
 Function Write-Log {
     [CmdletBinding()]
     param(
@@ -258,7 +255,7 @@ Function Initialize-LoggingTarget {
             Logger = $Module.Logger
             Description = $Module.Description
             Configuration = $Module.Configuration
-            ParamsRequired = $Module.Configuration.GetEnumerator() | Where-Object {$_.Value.Required -eq $true} | Select-Object -exp Name
+            ParamsRequired = $Module.Configuration.GetEnumerator() | Where-Object {$_.Value.Required -eq $true} | Select-Object -ExpandProperty Name
         }
     }
 }
@@ -346,7 +343,7 @@ Function Wait-Logging {
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Token', (Get-Content Function:\Replace-Token)))
-$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Initialize-LoggingTargets', (Get-Content Function:\Initialize-LoggingTarget)))
+$InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Initialize-LoggingTarget', (Get-Content Function:\Initialize-LoggingTarget)))
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Get-LevelNumber', (Get-Content Function:\Get-LevelNumber)))
 
 $InitialSessionState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ScriptRoot', $ScriptRoot, ''))
