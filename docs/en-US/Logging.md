@@ -2,7 +2,7 @@
 Module Name: Logging
 Module Guid: 25a60f1d-85dd-4ad6-9efc-35fd3894f6c1
 Download Help Link: https://github.com/EsOsO/Logging/tree/master/docs
-Help Version: 1.0.7
+Help Version: 1.0.8
 Locale: en-US
 ---
 
@@ -44,6 +44,7 @@ Waits until all messages are processed.
 
 ### [Write-Log](Write-Log.md)
 Emits a log message to specific destinations.
+
 
 
 

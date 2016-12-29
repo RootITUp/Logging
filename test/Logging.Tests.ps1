@@ -1,5 +1,5 @@
 $manifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
-$changeLogPath = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
+$changeLogPath  = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
 
 Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
     $script:manifest = $null
@@ -38,23 +38,4 @@ Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
         $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
     }
 
-    if (Get-Command git.exe -ErrorAction SilentlyContinue) {
-        $skipVersionTest = -not [bool]((git.exe remote -v 2>&1) -match 'github.com/EsOsO/')
-        $script:tagVersion = $null
-        It 'is tagged with a valid version' -skip:$skipVersionTest {
-            $thisCommit = git.exe log --decorate --oneline HEAD~1..HEAD
-
-            if ($thisCommit -match 'tag:\s*(\d+(?:\.\d+)*)') {
-                $script:tagVersion = $matches[1]
-            }
-
-            $script:tagVersion                  | Should Not BeNullOrEmpty
-            $script:tagVersion -as [Version]    | Should Not BeNullOrEmpty
-        }
-
-        It 'all versions are the same' -skip:$skipVersionTest {
-            $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
-            $script:manifest.Version -as [Version] | Should be ( $script:tagVersion -as [Version] )
-        }
-    }
 }

@@ -68,7 +68,6 @@ Task Test -depends Build -requiredVariables $TestDir {
 
 Task Release -depends Build, Test {
     Import-Module PowershellGet
-    Update-ModuleManifest -ModuleVersion $env:APPVEYOR_BUILD_VERSION
     Publish-Module -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY -Path $ReleaseDir
 }
 
