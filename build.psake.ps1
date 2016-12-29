@@ -31,7 +31,7 @@ Properties {
 Task default -depends BuildHelp, Test
 
 Task Build -depends Clean, Init -requiredVariables SrcDir, ReleaseDir {
-    Copy-Item -Recurse -Force -Path $SrcDir -Destination $ReleaseDir -Verbose:$true
+    Copy-Item -Recurse -Force -Path $SrcDir -Destination $ReleaseDir | Out-Null
 }
 
 Task BuildHelp -depends Build -requiredVariables $DocRoot {
@@ -68,7 +68,7 @@ Task Test -depends Build -requiredVariables $TestDir {
 
 Task Release -depends Build, Test {
     Import-Module PowershellGet
-    Publish-Module -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY -Path $ReleaseDir
+    Publish-Module -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY -Path $ModuleDir
 }
 
 Task Init -requiredVariables $ReleaseDir {

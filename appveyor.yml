@@ -1,10 +1,6 @@
 os:
   - "WMF 5"
 
-branches:
-  only:
-    - master
-
 environment:
   APPVEYOR_NUGET_API_KEY:
     secure: AtKUh7VTiq0BCPftMVX+nkY7Jsz47iYsYR2iWJ3U//cAQwvo0MWuY0A0bbY3kP4L
