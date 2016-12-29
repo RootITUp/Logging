@@ -42,7 +42,7 @@ function Resolve-Module {
 
 # Resolve-Module Psake, Pester, BuildHelpers
 
-Set-BuildEnvironment
+# Set-BuildEnvironment
 
 Invoke-psake .\build.psake.ps1 -taskList $Task
 exit ([int](-not $psake.build_success))
