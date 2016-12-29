@@ -1,7 +1,5 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-$manifestPath   = "$here\..\Logging\Logging.psd1"
-$changeLogPath = "$here\..\CHANGELOG.md"
+$manifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
+$changeLogPath = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
 
 Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
     $script:manifest = $null
