@@ -1,5 +1,5 @@
 os:
-  - WMF 5
+  - "WMF 5"
 
 #Publish to PowerShell Gallery with this key
 environment:
@@ -14,6 +14,7 @@ install:
       Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
       Install-Module platyPS -Scope CurrentUser -Force | Out-Null
 
-#Kick off the CI/CD pipeline
-test_script:
+build_script:
   - ps: . .\build.ps1
+
+test: false
