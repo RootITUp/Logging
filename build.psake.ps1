@@ -17,7 +17,7 @@ Task Test -depends Build -requiredVariables $TestDir {
         Invoke-Pester -Path $TestDir -OutputFormat NUnitXml -OutputFile $TestOutputFile
 
         $uri = 'https://ci.appveyor.com/api/testresults/nunit/{0}' -f $env:APPVEYOR_JOB_ID
-        Invoke-RestMethod -Method POST -Uri $uri -InFile $TestOutputFile -ContentType 'multipart/form-data'
+        (New-Object 'System.Net.WebClient').UploadFile($uri, $TestOutputFile)
     } else {
         Invoke-Pester -Path $TestDir
     }
