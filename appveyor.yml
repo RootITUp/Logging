@@ -1,0 +1,15 @@
+# See http://www.appveyor.com/docs/appveyor-yml for many more options
+
+#Publish to PowerShell Gallery with this key
+environment:
+  NuGetApiKey:
+    secure: AtKUh7VTiq0BCPftMVX+nkY7Jsz47iYsYR2iWJ3U//cAQwvo0MWuY0A0bbY3kP4L
+
+# Allow WMF5 (i.e. PowerShellGallery functionality)
+os: WMF 5
+
+build: false
+
+#Kick off the CI/CD pipeline
+test_script:
+  - ps: . .\build.ps1
