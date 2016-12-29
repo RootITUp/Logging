@@ -1,6 +1,6 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$manifestPath   = "$here\..\src\Logging.psd1"
+$manifestPath   = "$here\..\Logging\Logging.psd1"
 $changeLogPath = "$here\..\CHANGELOG.md"
 
 Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
@@ -26,10 +26,8 @@ Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
     $script:changelogVersion = $null
     It 'has a valid version in the changelog' {
 
-        foreach ($line in (Get-Content $changeLogPath))
-        {
-            if ($line -match '^\D*(?<Version>(\d+\.){1,3}\d+)')
-            {
+        foreach ($line in (Get-Content $changeLogPath)) {
+            if ($line -match '^\D*(?<Version>(\d+\.){1,3}\d+)') {
                 $script:changelogVersion = $matches.Version
                 break
             }
@@ -42,26 +40,23 @@ Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
         $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
     }
 
-    if (Get-Command git.exe -ErrorAction SilentlyContinue)
-    {
-        $skipVersionTest = -not [bool]((git remote -v 2>&1) -match 'github.com/EsOsO/')
-        $script:tagVersion = $null
-        It 'is tagged with a valid version' -skip:$skipVersionTest {
-            $thisCommit = git.exe log --decorate --oneline HEAD~1..HEAD
+    # if (Get-Command git.exe -ErrorAction SilentlyContinue) {
+    #     $skipVersionTest = -not [bool]((git.exe remote -v 2>&1) -match 'github.com/EsOsO/')
+    #     $script:tagVersion = $null
+    #     It 'is tagged with a valid version' -skip:$skipVersionTest {
+    #         $thisCommit = git.exe log --decorate --oneline HEAD~1..HEAD
 
-            if ($thisCommit -match 'tag:\s*(\d+(?:\.\d+)*)')
-            {
-                $script:tagVersion = $matches[1]
-            }
+    #         if ($thisCommit -match 'tag:\s*(\d+(?:\.\d+)*)') {
+    #             $script:tagVersion = $matches[1]
+    #         }
 
-            $script:tagVersion                  | Should Not BeNullOrEmpty
-            $script:tagVersion -as [Version]    | Should Not BeNullOrEmpty
-        }
+    #         $script:tagVersion                  | Should Not BeNullOrEmpty
+    #         $script:tagVersion -as [Version]    | Should Not BeNullOrEmpty
+    #     }
 
-        It 'all versions are the same' -skip:$skipVersionTest {
-            $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
-            $script:manifest.Version -as [Version] | Should be ( $script:tagVersion -as [Version] )
-        }
-
-    }
+    #     It 'all versions are the same' -skip:$skipVersionTest {
+    #         $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
+    #         $script:manifest.Version -as [Version] | Should be ( $script:tagVersion -as [Version] )
+    #     }
+    # }
 }

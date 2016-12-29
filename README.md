@@ -1,4 +1,8 @@
-# Powershell Logging Module v2.3.9
+[![Build status](https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b?svg=true)](https://ci.appveyor.com/project/EsOsO/logging)
+
+# Powershell Logging Module
+
+## v2.3.4
 
 ## Features
 
