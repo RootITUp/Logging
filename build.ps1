@@ -2,47 +2,19 @@ param (
     [string[]] $Task = 'default'
 )
 
-function Resolve-Module {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory)]
-        [string[]] $Name
-    )
+if ($env:APPVEYOR) {
+    $TestOutputFile = Join-Path $PWD -ChildPath "$PSScriptRoot\TestResults.xml"
 
-    Process {
-        foreach ($ModuleName in $Name) {
-            $Module = Get-Module -Name $ModuleName -ListAvailable
-            Write-Verbose -Message "Resolving Module $($ModuleName)"
+    Invoke-psake .\build.psake.ps1 -taskList Build, Test, Release -properties @{TestOutputFile = $TestOutputFile}
 
-            if ($Module) {
-                $Version = $Module | Measure-Object -Property Version -Maximum | Select-Object -ExpandProperty Maximum
-                $GalleryVersion = Find-Module -Name $ModuleName -Repository PSGallery | Measure-Object -Property Version -Maximum | Select-Object -ExpandProperty Maximum
-
-                if ($Version -lt $GalleryVersion) {
-                    if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne 'Trusted') { Set-PSRepository -Name PSGallery -InstallationPolicy Trusted }
-
-                    Write-Verbose -Message "$($ModuleName) Installed Version [$($Version.tostring())] is outdated. Installing Gallery Version [$($GalleryVersion.tostring())]"
-                    Install-Module -Name $ModuleName -Force
-                    Import-Module -Name $ModuleName -Force -RequiredVersion $GalleryVersion
-                } else {
-                    Write-Verbose -Message "Module Installed, Importing $($ModuleName)"
-                    Import-Module -Name $ModuleName -Force -RequiredVersion $Version
-                }
-            } else {
-                Write-Verbose -Message "$($ModuleName) Missing, installing Module"
-                Install-Module -Name $ModuleName -Force
-                Import-Module -Name $ModuleName -Force -RequiredVersion $Version
-            }
-        }
+    if ($psake.build_success -and (Test-Path $TestOutputFile)) {
+        Add-AppveyorMessage -Message 'Uploading Test Results' -Category Information
+        $uri = 'https://ci.appveyor.com/api/testresults/nunit/{0}' -f $env:APPVEYOR_JOB_ID
+        Invoke-RestMethod -Method POST -Uri $uri -InFile $TestOutputFile -ContentType 'multipart/form-data'
+    } else {
+        $Error | Format-List * -Force
+        exit 1
     }
+} else {
+    Invoke-psake .\build.psake.ps1 -taskList $Task
 }
-
-# Grab nuget bits, install modules, set build variables, start build.
-# Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
-
-# Resolve-Module Psake, Pester, BuildHelpers
-
-# Set-BuildEnvironment
-
-Invoke-psake .\build.psake.ps1 -taskList $Task
-exit ([int](-not $psake.build_success))

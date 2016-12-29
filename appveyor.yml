@@ -1,14 +1,18 @@
-# See http://www.appveyor.com/docs/appveyor-yml for many more options
+os:
+  - WMF 5
 
 #Publish to PowerShell Gallery with this key
 environment:
   NuGetApiKey:
     secure: AtKUh7VTiq0BCPftMVX+nkY7Jsz47iYsYR2iWJ3U//cAQwvo0MWuY0A0bbY3kP4L
 
-# Allow WMF5 (i.e. PowerShellGallery functionality)
-os: WMF 5
-
-build: false
+install:
+  - ps: |
+      Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+      Install-Module Pester -MinimumVersion 3.4.0 -Scope CurrentUser -Force | Out-Null
+      Install-Module psake -Scope CurrentUser -Force | Out-Null
+      Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
+      Install-Module platyPS -Scope CurrentUser -Force | Out-Null
 
 #Kick off the CI/CD pipeline
 test_script:
