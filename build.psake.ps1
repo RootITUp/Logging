@@ -1,14 +1,57 @@
 #Requires -Modules psake
 
-###############################################################################
-# Dot source the user's customized properties and extension tasks.
-###############################################################################
-. $PSScriptRoot\build.settings.ps1
+Properties {
+    $ModuleName = 'Logging'
 
-Task default -depends Build, Test
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $SrcDir = '{0}\{1}' -f $PSScriptRoot, $ModuleName
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $ReleaseDir = '{0}\Release' -f $PSScriptRoot
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $TestDir = '{0}\test' -f $PSScriptRoot
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $TestOutputFile = '{0}\TestResults.xml' -f $PSScriptRoot
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $DocRoot = '{0}\docs' -f $PSScriptRoot
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $DefaultLocale = 'en-US'
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $ModuleDir = '{0}\{1}' -f $ReleaseDir, $ModuleName
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
+    $UpdatableHelpDir = '{0}\UpdatableHelp' -f $ReleaseDir
+}
+
+Task default -depends BuildHelp, Test
 
 Task Build -depends Clean, Init -requiredVariables SrcDir, ReleaseDir {
-    Copy-Item -Recurse -Force -Path $SrcDir -Destination $ReleaseDir | Out-Null
+    Copy-Item -Recurse -Force -Path $SrcDir -Destination $ReleaseDir -Verbose:$true
+}
+
+Task BuildHelp -depends Build -requiredVariables $DocRoot {
+    Import-Module platyPS
+    Import-Module -Global -Force $ModuleDir\$ModuleName.psd1
+
+    if (Get-ChildItem -Path $DocRoot -Recurse -Filter *.md) {
+        Get-ChildItem -Path $DocRoot -Directory | ForEach-Object {
+            Update-MarkdownHelp -Path $_.FullName | Out-Null
+        }
+    } else {
+        New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocRoot\$DefaultLocale -WithModulePage
+    }
+
+    foreach ($locale in (Get-ChildItem -Path $DocRoot -Directory).Name) {
+        New-ExternalHelp -Path $DocRoot\$locale -OutputPath $ModuleDir\$locale -Force | Out-Null
+        New-ExternalHelpCab -CabFilesFolder $ModuleDir\$locale -LandingPagePath $DocRoot\$locale\$ModuleName.md -OutputFolder $UpdatableHelpDir | Out-Null
+    }
+
+    Remove-Module $ModuleName
 }
 
 Task Test -depends Build -requiredVariables $TestDir {
@@ -24,7 +67,9 @@ Task Test -depends Build -requiredVariables $TestDir {
 }
 
 Task Release -depends Build, Test {
-
+    Import-Module PowershellGet
+    Update-ModuleManifest -ModuleVersion $env:APPVEYOR_BUILD_VERSION
+    Publish-Module -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY -Path $ReleaseDir
 }
 
 Task Init -requiredVariables $ReleaseDir {
