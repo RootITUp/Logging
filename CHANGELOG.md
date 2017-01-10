@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.4.3 (January 10, 2017)
+
+- Fixed build script to release on powershelgallery only on master branch
+
 ## 2.4.2 (January 10, 2017)
 
 - Fixed minor issues in internal functions
