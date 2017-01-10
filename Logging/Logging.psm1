@@ -27,10 +27,11 @@ New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path)
 New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option ReadOnly
 
 $Defaults = @{
+    Level = $NOTSET
     Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
 }
 
-$Logging.Level      = $NOTSET
+$Logging.Level      = $Defaults.Level
 $Logging.Format     = $Defaults.Format
 $Logging.Targets    = [hashtable] @{}
 
@@ -102,8 +103,8 @@ Function Get-LevelNumber {
         $Level
     )
 
-    if ($Level -is [int]) {return $Level}
-    elseif ([string] $Level -eq $Level) {return $LevelNames[$Level]}
+    if ($Level -is [int] -and $Level -in $LevelNames.Keys) {return $Level}
+    elseif ([string] $Level -eq $Level -and $Level -in $LevelNames.Keys) {return $LevelNames[$Level]}
     else {throw ('Level not a valid integer or a valid string: {0}' -f $Level)}
 }
 
@@ -111,7 +112,7 @@ Function Get-LevelNumber {
 Function Get-LevelName {
     [CmdletBinding()]
     param(
-        $Level
+        [int] $Level
     )
 
     $l = $LevelNames[$Level]
@@ -163,8 +164,16 @@ Function Add-LoggingLevel {
         [string] $LevelName
     )
 
-    $LevelNames[$Level] = $LevelName.ToUpper()
-    $LevelNames[$LevelName] = $Level
+    if ($Level -notin $LevelNames.Keys -and $LevelName -notin $LevelNames.Keys) {
+        $LevelNames[$Level] = $LevelName.ToUpper()
+        $LevelNames[$LevelName] = $Level
+    } elseif ($Level -in $LevelNames.Keys -and $LevelName -notin $LevelNames.Keys) {
+        $LevelNames.Remove($LevelNames[$Level]) | Out-Null
+        $LevelNames[$Level] = $LevelName
+    } elseif ($Level -notin $LevelNames.Keys -and $LevelName -in $LevelNames.Keys) {
+        $LevelNames.Remove($LevelNames[$LevelName]) | Out-Null
+        $LevelNames[$LevelName] = $Level
+    }
 }
 
 Function Set-LoggingDefaultLevel {
@@ -326,7 +335,6 @@ Function Add-LoggingTarget {
     End {
         Assert-LoggingTargetConfiguration -Target $PSBoundParameters.Name -Configuration $Configuration
         $Logging.Targets[$PSBoundParameters.Name] = $Configuration
-
     }
 }
 

@@ -1,41 +1,164 @@
-$manifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
-$changeLogPath  = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
+Remove-Module Logging -Force -ErrorAction SilentlyContinue
+
+$ManifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
+$ChangeLogPath  = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
+
+Import-Module $manifestPath -Force
 
 Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
-    $script:manifest = $null
+    $script:Manifest = $null
     It 'has a valid manifest' {
         {
-            $script:manifest = Test-ModuleManifest -Path $manifestPath -ErrorAction Stop -WarningAction SilentlyContinue
+            $script:Manifest = Test-ModuleManifest -Path $ManifestPath -ErrorAction Stop -WarningAction SilentlyContinue
         } | Should Not Throw
     }
 
     It 'has a valid name in the manifest' {
-        $script:manifest.Name | Should Be Logging
+        $script:Manifest.Name | Should Be Logging
     }
 
     It 'has a valid guid in the manifest' {
-        $script:manifest.Guid | Should Be '25a60f1d-85dd-4ad6-9efc-35fd3894f6c1'
+        $script:Manifest.Guid | Should Be '25a60f1d-85dd-4ad6-9efc-35fd3894f6c1'
     }
 
     It 'has a valid version in the manifest' {
-        $script:manifest.Version -as [Version] | Should Not BeNullOrEmpty
+        $script:Manifest.Version -as [Version] | Should Not BeNullOrEmpty
     }
 
-    $script:changelogVersion = $null
+    $script:ChangelogVersion = $null
     It 'has a valid version in the changelog' {
 
-        foreach ($line in (Get-Content $changeLogPath)) {
+        foreach ($line in (Get-Content $ChangeLogPath)) {
             if ($line -match '^\D*(?<Version>(\d+\.){1,3}\d+)') {
-                $script:changelogVersion = $matches.Version
+                $script:ChangelogVersion = $matches.Version
                 break
             }
         }
-        $script:changelogVersion                | Should Not BeNullOrEmpty
-        $script:changelogVersion -as [Version]  | Should Not BeNullOrEmpty
+        $script:ChangelogVersion                | Should Not BeNullOrEmpty
+        $script:ChangelogVersion -as [Version]  | Should Not BeNullOrEmpty
     }
 
     It 'changelog and manifest versions are the same' {
-        $script:changelogVersion -as [Version] | Should be ( $script:manifest.Version -as [Version] )
+        $script:ChangelogVersion -as [Version] | Should be ( $script:Manifest.Version -as [Version] )
     }
 
+}
+
+InModuleScope Logging {
+    Describe 'Internal Vars' {
+        It 'sets up internal variables' {
+            Test-Path Variable:Dispatcher | Should Be $true
+            Test-Path Variable:LevelNames | Should Be $true
+            Test-Path Variable:Logging | Should Be $true
+            Test-Path Variable:LogTargets | Should Be $true
+            Test-Path Variable:ScriptRoot | Should Be $true
+            Test-Path Variable:MessageQueue | Should Be $true
+        }
+
+        It 'stes up Session State' {
+            Test-Path Variable:InitialSessionState | Should Be $true
+        }
+    }
+
+    Describe 'Token replacement' {
+        $TimeStamp = Get-Date -UFormat '%Y-%m-%dT%T%Z'
+        $Object = [PSCustomObject] @{
+            message = 'Test'
+            timestamp = $TimeStamp
+            level = 'INFO'
+        }
+
+        It 'should return a string with token replaced' {
+            Replace-Token -String '%{message}' -Source $Object | Should Be 'Test'
+        }
+
+        It 'should retrun a string with token replaced and padded' {
+            Replace-Token -String '%{message:7}' -Source $Object | Should Be '   Test'
+            Replace-Token -String '%{message:-7}' -Source $Object | Should Be 'Test   '
+        }
+
+        It 'should return a string with a timestamp' {
+            Replace-Token -String '%{timestamp}' -Source $Object | Should Be $TimeStamp
+        }
+
+        It 'should return a string with a custom timestamp' {
+            Replace-Token -String '%{timestamp:+%Y%m%d}' -Source $Object | Should Be $(Get-Date $TimeStamp -UFormat '%Y%m%d')
+        }
+
+        It 'should return the current date with custom format' {
+            Replace-Token -String '%{+%Y%m%d}' -Source $Object | Should Be $(Get-Date $TimeStamp -UFormat '%Y%m%d')
+        }
+    }
+
+    Describe 'Logging Levels' {
+        It 'should return logging levels names' {
+            Get-LevelsName | Should Be @('DEBUG', 'ERROR', 'INFO', 'NOTSET', 'WARNING')
+        }
+
+        It 'should return loggin level name' {
+            Get-LevelName -Level 10 | Should Be 'DEBUG'
+            {Get-LevelName -Level 'DEBUG'} | Should Throw
+        }
+
+        It 'should return logging levels number' {
+            Get-LevelNumber -Level 0 | Should Be 0
+            Get-LevelNumber -Level 'NOTSET' | Should Be 0
+        }
+
+        It 'should throw on invalid level' {
+            {Get-LevelNumber -Level 11} | Should Throw
+            {Get-LevelNumber -Level 'LEVEL_UNKNOWN'} | Should Throw
+        }
+
+        It 'should add a new logging level' {
+            Add-LoggingLevel -Level 11 -LevelName 'Test'
+            Get-LevelsName | Should Be @('DEBUG', 'ERROR', 'INFO', 'NOTSET', 'TEST', 'WARNING')
+        }
+
+        It 'should change the level name if same level number' {
+            Add-LoggingLevel -Level 11 -LevelName 'Foo'
+            Get-LevelsName | Should Be @('DEBUG', 'ERROR', 'FOO', 'INFO', 'NOTSET', 'WARNING')
+        }
+
+        It 'should change the level number if same level name' {
+            Add-LoggingLevel -Level 21 -LevelName 'Foo'
+            Get-LevelsName | Should Be @('DEBUG', 'ERROR', 'FOO', 'INFO', 'NOTSET', 'WARNING')
+            Get-LevelNumber -Level 'FOO' | Should Be 21
+        }
+
+        It 'return the default logging level' {
+            Get-LoggingDefaultLevel | Should Be 'NOTSET'
+        }
+
+        It 'sets the default logging level' {
+            Set-LoggingDefaultLevel -Level INFO
+            Get-LoggingDefaultLevel | Should Be 'INFO'
+        }
+    }
+
+    Describe 'Logging Targets' {
+        It 'loads the logging targets' {
+            $Targets = $InitialSessionState.Variables.Item('LogTargets').Value
+            $Targets.Count | Should Be 5
+        }
+
+        It 'returns the loaded logging targets' {
+            $AvailableTargets = Get-LoggingTargetAvailable
+            $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
+            $AvailableTargets.Count | Should Be 5
+        }
+    }
+
+    Describe 'Logging Format' {
+        It 'should be the default format' {
+            Get-LoggingDefaultFormat | Should Be $Defaults.Format
+        }
+
+        It 'should change the default logging format' {
+            $NewFormat = '[%{level:-7}] %{message}'
+            Get-LoggingDefaultFormat | Should Be $Defaults.Format
+            Set-LoggingDefaultFormat -Format $NewFormat
+            Get-LoggingDefaultFormat | Should Be $NewFormat
+        }
+    }
 }
