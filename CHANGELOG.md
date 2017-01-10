@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2.4.2 (January 10, 2017)
+
+- Fixed minor issues in internal functions
+- Added new Pester tests
+
 ## 2.4.1 (December 29, 2016)
 
 - Fixed deployment issues
