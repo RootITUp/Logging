@@ -33,7 +33,7 @@
 * Download [the zip](https://github.com/EsOsO/Logging/archive/master.zip)
 * Unzip the content of "Logging-master" to:
 * C:\Program Files\WindowsPowerShell\Modules\Logging [System wide]
-* D:\Users\\<username>\Documents\WindowsPowerShell\Modules\Logging [User only]
+* D:\Users\{username}\Documents\WindowsPowerShell\Modules\Logging [User only]
 
 ```powershell
 > Import-Module Logging
@@ -68,7 +68,7 @@ The following section describe how to configure the Logging module.
 * Targets
 * CustomTargets
 
-#### Level
+### Level
 
 The *Level* property defines the default logging level.
 Valid values are:
@@ -91,7 +91,7 @@ NOTSET                                          # NOTSET level
 ERROR
 ```
 
-#### Format
+### Format
 
 The *Format* property defines how the message is rendered.
 
@@ -109,7 +109,7 @@ The Log object has a number of attributes that are replaced in the format string
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
-##### Padding
+#### Padding
 
 If the padding value is negative, the field will be left aligned and padded with spaces on the right:
 
@@ -131,7 +131,7 @@ If the padding value is positive, the field will be right aligned and padded wit
 [  ERROR]
 ```
 
-##### Date format string
+#### Date format string
 
 The date format string starts with a plus sign (`+`) followed by **UFormat** parameters. See [here](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) for available formats.
 
@@ -157,6 +157,7 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * Email
 
 #### Console
+
 From version 2.3.3 it supports acquiring lock for issues with git prompt that sometimes gets splitted during output.
 The mutex name to acquire is ```ConsoleMtx```
 
