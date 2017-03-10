@@ -33,7 +33,7 @@
 * Download [the zip](https://github.com/EsOsO/Logging/archive/master.zip)
 * Unzip the content of "Logging-master" to:
 * C:\Program Files\WindowsPowerShell\Modules\Logging [System wide]
-* D:\Users\<username>\Documents\WindowsPowerShell\Modules\Logging [User only]
+* D:\Users\\<username>\Documents\WindowsPowerShell\Modules\Logging [User only]
 
 ```powershell
 > Import-Module Logging
@@ -43,7 +43,7 @@
 
 ```powershell
 Set-LoggingDefaultLevel -Level 'WARNING'
-Add-LoggingTarget -Name Console
+Add-LoggingTarget -Name Console -Configuration @{}
 Add-LoggingTarget -Name File -Configuration @{Path = 'C:\Temp\example_%{+%Y%m%d}.log'}
 
 $Level = 'DEBUG', 'INFO', 'WARNING', 'ERROR'
