@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.4.4 (March 13, 2017)
+
+- Fixed module autoloading timing
+
 ## 2.4.3 (January 10, 2017)
 
 - Fixed build script to release on powershelgallery only on master branch
