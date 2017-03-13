@@ -12,7 +12,7 @@
 RootModule = 'Logging.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.4.3'
+ModuleVersion = '2.4.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -94,10 +94,10 @@ When used in *unattended* scripts (scheduled tasks, spawned process) you need to
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Write-Log', 'Add-LoggingLevel', 'Set-LoggingDefaultLevel', 
-               'Get-LoggingDefaultLevel', 'Get-LoggingDefaultFormat', 
-               'Set-LoggingDefaultFormat', 'Get-LoggingTargetAvailable', 
-               'Get-LoggingTarget', 'Set-LoggingCustomTarget', 'Add-LoggingTarget', 
+FunctionsToExport = 'Write-Log', 'Add-LoggingLevel', 'Set-LoggingDefaultLevel',
+               'Get-LoggingDefaultLevel', 'Get-LoggingDefaultFormat',
+               'Set-LoggingDefaultFormat', 'Get-LoggingTargetAvailable',
+               'Get-LoggingTarget', 'Set-LoggingCustomTarget', 'Add-LoggingTarget',
                'Wait-Logging'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
@@ -142,7 +142,7 @@ PrivateData = @{
         # ExternalModuleDependencies = ''
 
     } # End of PSData hashtable
-    
+
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
