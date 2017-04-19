@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.4.5 (April 19, 2017)
+
+- Fixed timestamp based on system locale
+
 ## 2.4.4 (March 13, 2017)
 
 - Fixed module autoloading timing
