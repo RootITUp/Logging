@@ -76,7 +76,7 @@ Function Write-Log {
         }
 
         $mess = [hashtable] @{
-            timestamp = Get-Date -UFormat '%Y-%m-%dT%T%Z'
+            timestamp = Get-Date
             levelno = $LevelNo
             level = Get-LevelName -Level $LevelNo
             message = $text
