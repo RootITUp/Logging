@@ -351,6 +351,8 @@ Function Wait-Logging {
 Initialize-LoggingTarget
 
 $InitialSessionState = [System.Management.Automation.Runspaces.InitialSessionState]::CreateDefault()
+$InitialSessionState.ApartmentState = 'MTA'
+
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Token', (Get-Content Function:\Replace-Token)))
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Initialize-LoggingTarget', (Get-Content Function:\Initialize-LoggingTarget)))
 $InitialSessionState.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Get-LevelNumber', (Get-Content Function:\Get-LevelNumber)))
@@ -404,9 +406,11 @@ $ScriptBlock = {
 
 $Dispatcher.Flag = $true
 $Dispatcher.Host = $Host
-$Dispatcher.RunspacePool = [runspacefactory]::CreateRunspacePool($InitialSessionState)
+$Dispatcher.RunspacePool = [RunspaceFactory]::CreateRunspacePool($InitialSessionState)
+$Dispatcher.RunspacePool.SetMinRunspaces(1)
+$Dispatcher.RunspacePool.SetMaxRunspaces([int] $env:NUMBER_OF_PROCESSORS + 1)
 $Dispatcher.RunspacePool.Open()
-$Dispatcher.Powershell = [powershell]::Create().AddScript($ScriptBlock)
+$Dispatcher.Powershell = [Powershell]::Create().AddScript($ScriptBlock)
 $Dispatcher.Powershell.RunspacePool = $Dispatcher.RunspacePool
 $Dispatcher.Handle = $Dispatcher.Powershell.BeginInvoke()
 
