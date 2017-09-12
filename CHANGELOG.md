@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.4.6 (September 12, 2017)
+
+- Set runspace ApartmentState to MTA
+- Set min runspaces equals to 1
+- Set max runspaces equals to NUMBER_OF_PROCESSORS + 1
+
 ## 2.4.5 (April 19, 2017)
 
 - Fixed timestamp based on system locale
