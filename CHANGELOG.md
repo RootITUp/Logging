@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.4.7 (November 6, 2017)
+
+- Fixed slack logging target
+
 ## 2.4.6 (September 12, 2017)
 
 - Set runspace ApartmentState to MTA
