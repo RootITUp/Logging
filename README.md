@@ -199,10 +199,11 @@ The mutex name to acquire is ```ConsoleMtx```
 
 ```powershell
 > Add-LoggingTarget -Name Slack -Configuration @{
-    ServerURI   = <NOTSET>          # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
+    WebHook     = <NOTSET>          # <Required> Sets the Slack Webhook URI (eg. 'https://hooks.slack.com/services/xxxx/xxxx/xxxxxxxxxx')
     Channel     = <NOTSET>          # <Not required> Overrides the default channel of the Webhook (eg. '@username' or '#other-channel')
     BotName     = <NOTSET>          # <Not required> Overrides the default name of the bot (eg. 'PoshLogging')
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
+    Format      = <NOTSET>          # <Not required> Sets the logging format for this target
 }
 ```
 
