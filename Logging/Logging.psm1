@@ -169,7 +169,8 @@ Function Add-LoggingLevel {
         $LevelNames[$LevelName] = $Level
     } elseif ($Level -in $LevelNames.Keys -and $LevelName -notin $LevelNames.Keys) {
         $LevelNames.Remove($LevelNames[$Level]) | Out-Null
-        $LevelNames[$Level] = $LevelName
+        $LevelNames[$Level] = $LevelName.ToUpper()
+        $LevelNames[$LevelNames[$Level]] = $Level
     } elseif ($Level -notin $LevelNames.Keys -and $LevelName -in $LevelNames.Keys) {
         $LevelNames.Remove($LevelNames[$LevelName]) | Out-Null
         $LevelNames[$LevelName] = $Level
