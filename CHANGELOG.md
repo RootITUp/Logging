@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.4.8 (Febraury 27, 2018)
+
+- Fixed email configuration address parsing
+
 ## 2.4.7 (November 6, 2017)
 
 - Fixed slack logging target
