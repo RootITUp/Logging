@@ -19,7 +19,7 @@
 
         $Params['SmtpServer'] = $Configuration.SMTPServer
         $Params['From'] = $Configuration.From
-        $Params['To'] = $Configuration.To
+        $Params['To'] = $Configuration.To.Split(',').Trim()
         $Params['Body'] = Replace-Token -String $Format -Source $Log
 
         if ($Configuration.Subject) {
