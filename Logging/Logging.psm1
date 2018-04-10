@@ -129,19 +129,24 @@ Function Replace-Token {
         [object] $Source
     )
 
-    $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmt>(?:%[YmdHMS].*?)+))?(?::(?<padding>-?\d+))?}'
+    $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmtU>(?:%[ABCDGHIMRSTUVWXYZabcdeghjklmnprstuwxy].*?)+))?(?::?\+(?<datefmt>(?:.*?)+))?(?::(?<padding>-?\d+))?}'
     $re.Replace($String, {
         param($match)
         $token = $match.Groups['token'].value
         $datefmt = $match.Groups['datefmt'].value
+        $datefmtU = $match.Groups['datefmtU'].value
         $padding = $match.Groups['padding'].value
 
-        if ($token -and -not $datefmt) {
+        if ($token -and -not $datefmt -and -not $datefmtU) {
             $var = $Source.$token
+        } elseif ($token -and $datefmtU) {
+            $var = Get-Date $Source.$token -UFormat $datefmtU
         } elseif ($token -and $datefmt) {
-            $var = Get-Date $Source.$token -UFormat $datefmt
+            $var = Get-Date $Source.$token -Format $datefmt
+        } elseif ($datefmtU -and -not $token) {
+            $var = Get-Date -UFormat $datefmtU
         } elseif ($datefmt -and -not $token) {
-            $var = Get-Date -UFormat $datefmt
+            $var = Get-Date -Format $datefmt
         }
 
         if ($padding) {
@@ -169,7 +174,8 @@ Function Add-LoggingLevel {
         $LevelNames[$LevelName] = $Level
     } elseif ($Level -in $LevelNames.Keys -and $LevelName -notin $LevelNames.Keys) {
         $LevelNames.Remove($LevelNames[$Level]) | Out-Null
-        $LevelNames[$Level] = $LevelName
+        $LevelNames[$Level] = $LevelName.ToUpper()
+        $LevelNames[$LevelNames[$Level]] = $Level
     } elseif ($Level -notin $LevelNames.Keys -and $LevelName -in $LevelNames.Keys) {
         $LevelNames.Remove($LevelNames[$LevelName]) | Out-Null
         $LevelNames[$LevelName] = $Level
