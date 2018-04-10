@@ -101,7 +101,7 @@ The Log object has a number of attributes that are replaced in the format string
 
 | Format         | Description |
 | -------------- | ----------- |
-| `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 14:22:45+02*). Take a look at the [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter |
+| `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 14:22:45+02*). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
 | `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*)
 | `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*)
 | `%{message}`   | The logged message
@@ -133,16 +133,23 @@ If the padding value is positive, the field will be right aligned and padded wit
 
 #### Date format string
 
-The date format string starts with a plus sign (`+`) followed by **UFormat** parameters. See [here](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) for available formats.
+The date format string starts with a plus sign (`+`) followed by **UFormat** OR **Format** (`[DateTimeFormatInfo]`) parameters. See [here](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) for available **UFormat**s, and [here](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available **Format**s.
 
 ```powershell
 > Set-LoggingDefaultFormat -Format '%{timestamp}'
 2016-04-20 13:31:12+02
+
 > Set-LoggingDefaultFormat -Format '%{timestamp:+%A, %B %d, %Y}'
 Wednesday, April 20, 2016
+
 > Set-LoggingDefaultFormat -Format '[%{timestamp:+%T:12}]'   # You could also use padding and date format string at the same time
 [   13:31:12]
+
+> Set-LoggingDefaultFormat -Format '[%{timestamp:+yyyy/MM/dd HH:mm:ss.fff}]'
+[2016/04/20 13:31:12.431]
 ```
+
+**Note**: A format string starting with a percent symbol (%) will use the `UFormat` parameter of `Get-Date`
 
 ### Targets
 
