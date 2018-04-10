@@ -163,8 +163,30 @@ The mutex name to acquire is ```ConsoleMtx```
 
 ```powershell
 > Add-LoggingTarget -Name Console -Configuration @{
-    Level       = <NOTSET>          # <Not required> Sets the logging level for this target
-    Format      = <NOTSET>          # <Not required> Sets the logging format for this target
+    Level        = <NOTSET>         # <Not required> Sets the logging level for this target
+    Format       = <NOTSET>         # <Not required> Sets the logging format for this target
+    ColorMapping = <NOTSET>         # <Not required> Overrides the level:color mappings with a [hashtable].
+                                    #                Only need to specify the levels you wish to override
+}
+```
+##### Colors
+Default Console Colors
+```powershell
+$ColorMapping = @{
+    'DEBUG'   = 'Blue'
+    'INFO'    = 'Green'
+    'WARNING' = 'Yellow'
+    'ERROR'   = 'Red'
+}
+```
+
+Each color will be verified against `[System.ConsoleColor]`. If it is invalid, an error will appear on the screen along with the orignal message.
+```powershell
+Add-LoggingTarget -Name Console -Configuration @{
+    ColorMapping = @{
+        DEBUG = 'Gray'
+        INFO  = 'White'
+    }
 }
 ```
 

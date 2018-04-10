@@ -4,6 +4,7 @@
     Configuration = @{
         Level  = @{Required = $false; Type = [string]}
         Format = @{Required = $false; Type = [string]}
+        ColorMapping = @{Required = $false; Type = [hashtable]}
     }
     Logger = {
         param(
@@ -17,6 +18,19 @@
             'INFO' = 'Green'
             'WARNING' = 'Yellow'
             'ERROR' = 'Red'
+        }
+
+        if ($Configuration.ColorMapping) {
+            foreach ($Level in $Configuration.ColorMapping.Keys) {
+                $Color = $Configuration.ColorMapping[$Level]
+                
+                if ($Color -notin ([System.Enum]::GetNames([System.ConsoleColor]))) {
+                    $ParentHost.UI.WriteErrorLine("ERROR: Cannot use custom color '$Color': not a valid [System.ConsoleColor] value")
+                    continue
+                }
+                
+                $ColorMapping[$Level] = $Configuration.ColorMapping[$Level]
+            }
         }
 
         $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
