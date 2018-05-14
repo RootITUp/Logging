@@ -316,8 +316,8 @@ Function Assert-LoggingTargetConfiguration {
 Function Add-LoggingTarget {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 2, Mandatory = $true)]
-        [hashtable] $Configuration
+        [Parameter(Position = 2)]
+        [hashtable] $Configuration = @{}
     )
 
     DynamicParam {
