@@ -29,6 +29,7 @@ New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchron
 $Defaults = @{
     Level = $NOTSET
     Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+    Timestamp = '%Y-%m-%dT%T%Z'
 }
 
 $Logging.Level      = $Defaults.Level
@@ -76,7 +77,7 @@ Function Write-Log {
         }
 
         $mess = [hashtable] @{
-            timestamp = Get-Date
+            timestamp = Get-Date -UFormat $Defaults.Timestamp
             levelno = $LevelNo
             level = Get-LevelName -Level $LevelNo
             message = $text
@@ -315,8 +316,8 @@ Function Assert-LoggingTargetConfiguration {
 Function Add-LoggingTarget {
     [CmdletBinding()]
     param(
-        [Parameter(Position = 2, Mandatory = $true)]
-        [hashtable] $Configuration
+        [Parameter(Position = 2)]
+        [hashtable] $Configuration = @{}
     )
 
     DynamicParam {

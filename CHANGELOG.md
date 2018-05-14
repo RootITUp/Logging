@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.4.10 (14 May, 2018)
+
+- Fixed ElasticSearch target
+- Added some more documentation
+- Minor tweaking
+
 ## 2.4.9 (10 April, 2018)
 
 - Implement OverrideColorMapping for Console target

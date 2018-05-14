@@ -43,12 +43,12 @@
 
 ```powershell
 Set-LoggingDefaultLevel -Level 'WARNING'
-Add-LoggingTarget -Name Console -Configuration @{}
+Add-LoggingTarget -Name Console
 Add-LoggingTarget -Name File -Configuration @{Path = 'C:\Temp\example_%{+%Y%m%d}.log'}
 
 $Level = 'DEBUG', 'INFO', 'WARNING', 'ERROR'
 foreach ($i in 1..100) {
-    Write-Log -Level ($Level | Get-Random) ('Message n.{0}' -f $i)
+    Write-Log -Level ($Level | Get-Random) -Message 'Message n. {0}' -Arguments $i
     Start-Sleep -Milliseconds (Get-Random -Min 100 -Max 1000)
 }
 
@@ -209,6 +209,10 @@ Add-LoggingTarget -Name Console -Configuration @{
     Level       = <NOTSET>          # <Not required> Sets the logging level for this target
     Format      = <NOTSET>          # <Not required> Sets the logging format for this target
 }
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
 ```
 
 #### ElasticSearch
@@ -221,7 +225,58 @@ Add-LoggingTarget -Name Console -Configuration @{
                                     #            It supports templating like $Logging.Format
     Type        = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
+    Flatten     = $false            # <Not required> Transforms the log hashtable in a 1-D hashtable
 }
+
+$Body = @{source = 'Logging'; host='bastion.constoso.com'; _metadata = @{ip = '10.10.10.10'; server_farm = 'WestEurope'}}
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!' -Body $Body
+```
+
+##### NoFlatten
+
+```
+      {
+        "_index": "powershell-2018-05-10",
+        "_type": "doc",
+        "_id": "6BfJXWMB8moSvzgSbZgo",
+        "_score": 1,
+        "_source": {
+          "body": {
+            "host": "bastion.constoso.com",
+            "_metadata": {
+              "server_farm": "WestEurope",
+              "ip": "10.10.10.10"
+            },
+            "source": "Logging"
+          },
+          "levelno": 30,
+          "timestamp": "2018-05-14T10:34:31+02",
+          "level": "WARNING",
+          "message": "Hello, Powershell, No Flatten"
+        }
+      }
+```
+
+##### Flatten
+
+```
+      {
+        "_index": "powershell-2018-05-10",
+        "_type": "doc",
+        "_id": "6RfJXWMB8moSvzgSeJj_",
+        "_score": 1,
+        "_source": {
+          "source": "Logging",
+          "server_farm": "WestEurope",
+          "ip": "10.10.10.10",
+          "levelno": 30,
+          "level": "WARNING",
+          "host": "bastion.constoso.com",
+          "message": "Hello, Powershell, Flatten",
+          "timestamp": "2018-05-14T10:34:34+02"
+        }
+      }
 ```
 
 #### Slack
@@ -234,6 +289,10 @@ Add-LoggingTarget -Name Console -Configuration @{
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
     Format      = <NOTSET>          # <Not required> Sets the logging format for this target
 }
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
 ```
 
 #### Email
@@ -247,6 +306,10 @@ Add-LoggingTarget -Name Console -Configuration @{
     Credential  = <NOTSET>          # <Not required> If your server uses authentication
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
 }
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
 ```
 
 ### CustomTargets
