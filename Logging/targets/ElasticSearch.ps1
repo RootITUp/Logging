@@ -38,11 +38,11 @@
         $Uri = 'http://{0}:{1}/{2}/{3}' -f  $Configuration.ServerName, $Configuration.ServerPort, $Index, $Configuration.Type
 
         if ($Configuration.Flatten) {
-            $Message = ConvertTo-FlatterHashTable $Log | ConvertTo-Json
+            $Message = ConvertTo-FlatterHashTable $Log | ConvertTo-Json -Compress
         } else {
-            $Message = $Log | ConvertTo-Json
+            $Message = $Log | ConvertTo-Json -Compress
         }
 
-        Invoke-RestMethod -Method Post -Uri $Uri -Body $Message | Out-Null
+        Invoke-RestMethod -Method Post -Uri $Uri -Body $Message -Headers @{"Content-Type"= "application/json"} | Out-Null
     }
 }
