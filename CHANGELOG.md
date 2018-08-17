@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.4.11 (17 August, 2018)
+
+- Fixed custom targets for locations outside module folder (#20 thx to @jeremymcgee73)
+
 ## 2.4.10 (14 May, 2018)
 
 - Fixed ElasticSearch target

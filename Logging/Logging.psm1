@@ -286,6 +286,7 @@ Function Set-LoggingCustomTarget {
     )
     Wait-Logging
     $Logging.CustomTargets = $Path
+    Initialize-LoggingTarget
 }
 
 
