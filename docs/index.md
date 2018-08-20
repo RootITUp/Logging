@@ -1,8 +1,5 @@
 # Powershell Logging Module
 
-[![Build status](https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/master?retina=true)](https://ci.appveyor.com/project/EsOsO/logging)
-[![Docs status](https://logging.readthedocs.io/en/latest/?badge=latest)](https://readthedocs.org/projects/logging/)
-
 ## Features
 
 * Separate thread that dispatch messages to targets to avoid bottleneck in the main script

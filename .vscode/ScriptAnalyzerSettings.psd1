@@ -1,0 +1,9 @@
+@{
+    Severity = @('Error','Warning')
+
+    ExcludeRules = @(
+        'PSAvoidUsingWriteHost',
+        'PSMissingModuleManifestField',
+        'PSUseDeclaredVarsMoreThanAssignments'
+    )
+}

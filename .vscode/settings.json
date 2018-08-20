@@ -5,5 +5,5 @@
         "Release": true
     },
 
-    "powershell.scriptAnalysis.settingsPath": "ScriptAnalyzerSettings.psd1"
+    "powershell.scriptAnalysis.settingsPath": ".vscode/ScriptAnalyzerSettings.psd1"
 }

@@ -1,5 +1,7 @@
-os:
-  - "WMF 5"
+image: WMF 5
+skip_commits:
+  message: /updated readme.*|update readme.*s/
+build: false
 
 environment:
   APPVEYOR_NUGET_API_KEY:
@@ -13,7 +15,5 @@ install:
       Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
       Install-Module platyPS -Scope CurrentUser -Force | Out-Null
 
-build_script:
+test_script:
   - ps: . .\build.ps1
-
-test: false
