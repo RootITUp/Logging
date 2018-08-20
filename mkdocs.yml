@@ -1,0 +1,14 @@
+site_name: Powershell Logging Module
+site_description: Powershell Logging Module
+site_author: Massimo Bonvicini
+repo_url: https://github.com/EsOsO/Logging
+nav:
+  - Home: index.md
+  - About:
+    - 'License': ../LICENSE
+    - 'Contributing': CONTRIBUTING.md
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - powershell
