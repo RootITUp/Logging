@@ -3,10 +3,9 @@ Remove-Module Logging -Force -ErrorAction SilentlyContinue
 $ManifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
 $ChangeLogPath  = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
 
-Import-Module $manifestPath -Force
-Import-Module Pester
+Import-Module $ManifestPath -Force
 
-Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
+Describe -Tags Build, Unit 'Logging manifest' {
     $script:Manifest = $null
     It 'has a valid manifest' {
         {
@@ -25,24 +24,6 @@ Describe -Tags 'VersionChecks' 'Logging manifest and changelog' {
     It 'has a valid version in the manifest' {
         $script:Manifest.Version -as [Version] | Should Not BeNullOrEmpty
     }
-
-    $script:ChangelogVersion = $null
-    It 'has a valid version in the changelog' {
-
-        foreach ($line in (Get-Content $ChangeLogPath)) {
-            if ($line -match '^\D*(?<Version>(\d+\.){1,3}\d+)') {
-                $script:ChangelogVersion = $matches.Version
-                break
-            }
-        }
-        $script:ChangelogVersion                | Should Not BeNullOrEmpty
-        $script:ChangelogVersion -as [Version]  | Should Not BeNullOrEmpty
-    }
-
-    It 'changelog and manifest versions are the same' {
-        $script:ChangelogVersion -as [Version] | Should be ( $script:Manifest.Version -as [Version] )
-    }
-
 }
 
 InModuleScope Logging {
@@ -122,7 +103,7 @@ InModuleScope Logging {
             Replace-Token -String '%{+yyyy/MM/dd HH:15}' -Source $Object | Should Be $("  {0}" -f (Get-Date -Format 'yyyy/MM/dd HH'))
         }
     }
-    
+
     Describe 'Logging Levels' {
         It 'should return logging levels names' {
             Get-LevelsName | Should Be @('DEBUG', 'ERROR', 'INFO', 'NOTSET', 'WARNING')
