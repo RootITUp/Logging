@@ -1,5 +1,7 @@
 # Powershell Logging Module
 
+<img src="https://github.com/EsOsO/Logging/blob/docs/img/logo.svg?raw=true" alt="Logging Logo" width="32" />
+
 Logging module for powershell
 
 ---
@@ -10,8 +12,22 @@ Logging module for powershell
 
 - View the [module documentation][module-doc]
 - Project [changelog][changelog]
-- Project [homepage][github]
-- [Contribute][contribute] to the project
+- Project [homepage][github-logging]
+
+---
+
+## Contributing
+
+Please read [CONTRIBUTING.md][contribute] for details on how to contribute to the project.
+Take a look at the [CODE_OF_CONDUCT.md][coc] to be a good user/contributor of the project.
+
+## Maintainers
+
+- [Massimo Bonvicini][github]
+
+## License
+
+This project is licensed under the [MIT License][license]
 
 ---
 
@@ -27,7 +43,10 @@ Special thanks to:
 [psgallery]: https://www.powershellgallery.com/packages/logging
 [module-doc]: https://logging.readthedocs.io
 [changelog]: https://logging.readthedocs.io/about/CHANGELOG.md
-[github]: https://github.com/EsOsO/Logging
+[github-logging]: https://github.com/EsOsO/Logging
 [contribute]: https://logging.readthedocs.io/about/CONTRIBUTING.md
 [get-powershell-blog]: http://get-powershellblog.blogspot.com/2017/03/write-faq-n-manual-part1.html
 [runspaces]: https://learn-powershell.net/tag/runspace/
+[github]: https://github.com/EsOsO
+[license]: https://logging.readthedocs.io/about/LICENSE
+[coc]: https://logging.readthedocs.io/about/CODE_OF_CONDUCT.md
