@@ -8,7 +8,7 @@
         Credential  = @{Required = $false;  Type = [pscredential]}
         Level       = @{Required = $false;  Type = [string]}
         Port        = @{Required = $false;  Type = [int]}
-        UseSsl        = @{Required = $false;  Type = [bool]}
+        UseSsl      = @{Required = $false;  Type = [bool]}
     }
     Logger = {
         param(
