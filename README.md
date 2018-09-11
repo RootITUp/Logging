@@ -305,6 +305,8 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
     Subject     = '[%{level:-7}] %{message}'    # <Not required> Email subject. Supports formatting and expansion
     Credential  = <NOTSET>          # <Not required> If your server uses authentication
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
+    Port        = <NOTSET>          # <Not required> Set the SMTP server's port
+    UseSsl      = $false            # <Not required> Use encrypted transport to SMTP server
 }
 
 Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
