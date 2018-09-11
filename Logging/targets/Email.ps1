@@ -7,6 +7,8 @@
         Subject     = @{Required = $false;  Type = [string]}
         Credential  = @{Required = $false;  Type = [pscredential]}
         Level       = @{Required = $false;  Type = [string]}
+        Port        = @{Required = $false;  Type = [int]}
+        UseSsl        = @{Required = $false;  Type = [bool]}
     }
     Logger = {
         param(
@@ -30,6 +32,14 @@
 
         if ($Configuration.Credential) {
             $Params['Credential'] = $Configuration.Credential
+        }
+
+        if ($Configuration.Port) {
+            $Params['Port'] = $Configuration.Port
+        }
+
+        if ($Configuration.UseSsl) {
+            $Params['UseSsl'] = $Configuration.UseSsl
         }
 
         if ($Log.Body) {
