@@ -122,7 +122,7 @@ InModuleScope Logging {
             Replace-Token -String '%{+yyyy/MM/dd HH:15}' -Source $Object | Should Be $("  {0}" -f (Get-Date -Format 'yyyy/MM/dd HH'))
         }
     }
-    
+
     Describe 'Logging Levels' {
         It 'should return logging levels names' {
             Get-LevelsName | Should Be @('DEBUG', 'ERROR', 'INFO', 'NOTSET', 'WARNING')
@@ -172,13 +172,13 @@ InModuleScope Logging {
     Describe 'Logging Targets' {
         It 'loads the logging targets' {
             $Targets = $InitialSessionState.Variables.Item('LogTargets').Value
-            $Targets.Count | Should Be 5
+            $Targets.Count | Should Be 6
         }
 
         It 'returns the loaded logging targets' {
             $AvailableTargets = Get-LoggingTargetAvailable
             $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
-            $AvailableTargets.Count | Should Be 5
+            $AvailableTargets.Count | Should Be 6
         }
     }
 
