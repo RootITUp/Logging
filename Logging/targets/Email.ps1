@@ -7,6 +7,8 @@
         Subject     = @{Required = $false;  Type = [string]}
         Credential  = @{Required = $false;  Type = [pscredential]}
         Level       = @{Required = $false;  Type = [string]}
+        Port        = @{Required = $false;  Type = [int]}
+        UseSsl      = @{Required = $false;  Type = [bool]}
     }
     Logger = {
         param(
@@ -21,6 +23,8 @@
         $Params['From'] = $Configuration.From
         $Params['To'] = $Configuration.To.Split(',').Trim()
         $Params['Body'] = Replace-Token -String $Format -Source $Log
+        $Params['Port'] = $Configuration.Port
+        $Params['UseSsl'] = $Configuration.UseSsl
 
         if ($Configuration.Subject) {
             $Params['Subject'] = Replace-Token -String $Configuration.Subject -Source $Log
