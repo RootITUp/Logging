@@ -162,6 +162,7 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * ElasticSearch
 * Slack
 * Email
+* Seq
 
 #### Console
 
@@ -303,6 +304,7 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
     From        = <NOTSET>          # <Required> From address
     To          = <NOTSET>          # <Required> A string of recipients delimited by comma (,) (eg. 'test@contoso.com, robin@hood.eu')
     Subject     = '[%{level:-7}] %{message}'    # <Not required> Email subject. Supports formatting and expansion
+    Attachments = <NOTSET>          # <Not required> Path to the desired file to attach
     Credential  = <NOTSET>          # <Not required> If your server uses authentication
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
     Port        = <NOTSET>          # <Not required> Set the SMTP server's port
@@ -310,6 +312,21 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
 }
 
 Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
+```
+
+#### Seq
+
+```powershell
+> Add-LoggingTarget -Name Seq -Configuration @{
+    Url         = <NOTSET>          # <Required> Url to Seq instance
+    ApiKey      = <NOTSET>          # <Not required> Api Key to authenticate to Seq
+    Properties  = <NOTSET>          # <Required> Hashtable of user defined properties to be added to each Seq message
+    Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+}
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
 ```
