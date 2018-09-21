@@ -47,7 +47,10 @@ Function Write-Log {
         [array] $Arguments,
         [Parameter(Position = 4,
                    Mandatory = $false)]
-        [object] $Body
+        [object] $Body,
+        [Parameter(Position = 5,
+                   Mandatory = $false)]
+        [System.Management.Automation.ErrorRecord] $ExceptionInfo = $null
     )
 
     DynamicParam {
@@ -80,11 +83,14 @@ Function Write-Log {
             timestamp = Get-Date -UFormat $Defaults.Timestamp
             levelno = $LevelNo
             level = Get-LevelName -Level $LevelNo
+            lineno = $MyInvocation.ScriptLineNumber
+            pathname = $MyInvocation.ScriptName
+            filename = Split-Path -Path $MyInvocation.ScriptName -Leaf
             message = $text
+            execinfo = $ExceptionInfo
         }
 
-        if ($Body) { $mess['body'] = $Body }
-
+        if ($Body) { $mess.body = $Body }
         [void] $MessageQueue.Add($mess)
     }
 }
