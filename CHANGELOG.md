@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.4.13 (22/10/2018)
+
+- [ADD] Caller function in message template
+
 ## 2.4.12 (21/09/2018)
 
 - [ADD] Seq target (thx @TheSemicolon)
