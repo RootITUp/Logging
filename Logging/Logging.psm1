@@ -81,13 +81,13 @@ Function Write-Log {
 
         $mess = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
-            levelno   = $LevelNo
             level     = Get-LevelName -Level $LevelNo
+            levelno   = $LevelNo
             lineno    = $MyInvocation.ScriptLineNumber
             pathname  = $MyInvocation.ScriptName
             filename  = Split-Path -Path $MyInvocation.ScriptName -Leaf
             caller    = $MyInvocation.MyCommand.Name
-            message = $text
+            message   = $text
             execinfo  = $ExceptionInfo
         }
 
