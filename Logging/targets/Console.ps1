@@ -2,8 +2,8 @@
     Name = 'Console'
     Description = 'Writes messages to console with different colors.'
     Configuration = @{
-        Level  = @{Required = $false; Type = [string]}
-        Format = @{Required = $false; Type = [string]}
+        Level        = @{Required = $false; Type = [string]}
+        Format       = @{Required = $false; Type = [string]}
         ColorMapping = @{Required = $false; Type = [hashtable]}
     }
     Logger = {
@@ -14,10 +14,10 @@
         )
 
         $ColorMapping = @{
-            'DEBUG' = 'Blue'
-            'INFO' = 'Green'
+            'DEBUG'   = 'Blue'
+            'INFO'    = 'Green'
             'WARNING' = 'Yellow'
-            'ERROR' = 'Red'
+            'ERROR'   = 'Red'
         }
 
         if ($Configuration.ColorMapping) {
