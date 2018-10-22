@@ -102,10 +102,15 @@ The Log object has a number of attributes that are replaced in the format string
 | Format         | Description |
 | -------------- | ----------- |
 | `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 14:22:45+02*). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
-| `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*)
-| `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*)
-| `%{message}`   | The logged message
-| `%{body}`      | The logged body (json format not pretty printed)
+| `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*) |
+| `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*) |
+| `%{lineno}`    | The line number on wich the write occured |
+| `%{pathname}`  | The path of the caller |
+| `%{filename}`  | The file name part of the caller |
+| `%{caller}`    | The caller function name |
+| `%{message}`   | The logged message |
+| `%{body}`      | The logged body (json format not pretty printed) |
+| `%{execinfo}`  | The ErrorRecord catched in a try/catch statement |
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
