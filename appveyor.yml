@@ -1,19 +1,34 @@
-os:
-  - "WMF 5"
+version: '{build}'
+
+image: 'Visual Studio 2017'
+
+branches:
+  only:
+    - master
+
+skip_commits:
+  message: /\[skip ci\]/
 
 environment:
   APPVEYOR_NUGET_API_KEY:
     secure: AtKUh7VTiq0BCPftMVX+nkY7Jsz47iYsYR2iWJ3U//cAQwvo0MWuY0A0bbY3kP4L
+  APPVEYOR_PERSONAL_ACCESS_TOKEN:
+    secure: +823CdXZbrvfhBVAbcsRT/CGVmREYmkH5g5TC8+1HWjGt0SHZtgS4AWVBbeyfzLl
+  APPVEYOR_GITHUB_USERNAME: 'EsOsO'
+  APPVEYOR_GITHUB_EMAIL:
+    secure: qOw7foLVABiwY5Y4Th58VNI8sbyJpNwvkFSI9DFxqII=
 
-install:
-  - ps: |
-      Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
-      Install-Module Pester -MinimumVersion 3.4.0 -Scope CurrentUser -Force | Out-Null
-      Install-Module psake -Scope CurrentUser -Force | Out-Null
-      Install-Module PSScriptAnalyzer -Scope CurrentUser -Force | Out-Null
-      Install-Module platyPS -Scope CurrentUser -Force | Out-Null
+build: false
 
-build_script:
+test_script:
   - ps: . .\build.ps1
 
-test: false
+deploy:
+  tag: $(ReleaseVersion)
+  description: $(ReleaseDescription)
+  force_update: true
+  draft: false
+  prerelease: false
+  provider: GitHub
+  auth_token:
+    secure: +823CdXZbrvfhBVAbcsRT/CGVmREYmkH5g5TC8+1HWjGt0SHZtgS4AWVBbeyfzLl

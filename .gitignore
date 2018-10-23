@@ -1,3 +1,2 @@
-*.zip
-Release/
 .gitconfig
+BuildOutput/

@@ -1,88 +1,164 @@
-#Requires -Modules psake
+function Update-AdditionalReleaseArtifact {
+    param(
+        [string] $Version,
+        [string] $CommitDate
+    )
+
+    Write-Host ('Updating Module Manifest version number to: {0}' -f $Version)
+    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
+
+    Write-Host 'Getting release notes'
+    $ReleaseDescription = gc $ReleaseFile
+
+    if ($env:APPVEYOR) {
+        Set-AppveyorBuildVariable -Name ReleaseDescription -Value $ReleaseDescription
+    }
+
+    $Changelog = gc $ChangelogFile
+
+    ("# {0} ({1})`r`n" -f $Version, $CommitDate) | Out-File $ChangelogTemp -Encoding ascii
+    ("{0}`r`n`r`n" -f $ReleaseDescription) | Out-File $ChangelogTemp -Append -Encoding ascii
+    ("{0}`r`n" -f $Changelog) | Out-File $ChangelogTemp -Append -Encoding ascii
+
+    Copy-Item $ChangelogTemp $ChangelogFile -Force
+}
 
 Properties {
-    $ModuleName = 'Logging'
+    $GitVersion = gitversion | ConvertFrom-Json
+    $BranchName = $GitVersion.BranchName
+    $SemVer = $GitVersion.SemVer
+    $StableVersion = $GitVersion.MajorMinorPatch
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $SrcDir = '{0}\{1}' -f $PSScriptRoot, $ModuleName
+    $TestsFolder = '.\Tests'
+    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $GitVersion.ShortSha, $SemVer)
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ReleaseDir = '{0}\Release' -f $PSScriptRoot
+    $Artifact = '{0}-{1}.zip' -f $env:BHProjectName.ToLower(), $SemVer
+    $BuildBaseModule = Join-Path $env:BHBuildOutput $env:BHProjectName
+    $BuildVersionedModule = Join-Path $BuildBaseModule $StableVersion
+    $ArtifactPath = Join-Path $env:BHBuildOutput $Artifact
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $TestDir = '{0}\test' -f $PSScriptRoot
+    $ReleaseFile = Join-Path $env:BHProjectPath 'docs\RELEASE.md'
+    $ChangelogFile = Join-Path $env:BHProjectPath 'docs\CHANGELOG.md'
+    $ChangelogTemp = Join-Path $env:BHBuildOutput 'CHANGELOG.md.tmp'
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $TestOutputFile = '{0}\TestResults.xml' -f $PSScriptRoot
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $DocRoot = '{0}\docs' -f $PSScriptRoot
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $DefaultLocale = 'en-US'
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $ModuleDir = '{0}\{1}' -f $ReleaseDir, $ModuleName
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssigments', '')]
-    $UpdatableHelpDir = '{0}\UpdatableHelp' -f $ReleaseDir
+    Import-Module $env:BHPSModuleManifest -Global
+    $ExportedFunctions = Get-Command -Module $env:BHProjectName | select -ExpandProperty Name
+    Remove-Module $env:BHProjectName -Force
 }
 
-Task default -depends BuildHelp, Test
+FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
 
-Task Build -depends Clean, Init -requiredVariables SrcDir, ReleaseDir {
-    Copy-Item -Recurse -Force -Path $SrcDir -Destination $ReleaseDir | Out-Null
+Task Default -Depends Build
+
+Task Init {
+    Set-Location $env:BHProjectPath
+
+    New-Item -Path $env:BHBuildOutput -ItemType Directory | Out-Null
+
+    Exec {git config --global credential.helper store}
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+
+    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
+    Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
+
+    if ($env:APPVEYOR) {
+        Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
+    }
+
+    Write-Host ('Working folder: {0}' -f $PWD)
+    Write-Host ('Build output: {0}' -f $env:BHBuildOutput)
+    Write-Host ('Git Version: {0}' -f $SemVer)
+    Write-Host ('Git Version (Stable): {0}' -f $StableVersion)
+    Write-Host ('Git Branch: {0}' -f $BranchName)
+
+    $PendingChanges = git status --porcelain
+    if ($null -ne $PendingChanges) {
+        throw 'You have pending changes, aborting release'
+    }
+
+    Write-Host 'Git: Fetchin origin'
+    Exec {git fetch origin}
+
+    Write-Host "Git: Merging origin/$BranchName"
+    Exec {git merge origin/$BranchName --ff-only}
 }
 
-Task BuildHelp -depends Build -requiredVariables $DocRoot {
-    Import-Module platyPS
-    Import-Module -Global -Force $ModuleDir\$ModuleName.psd1
+Task CodeAnalisys -Depends Init {
+    Write-Host 'ScriptAnalyzer: Running'
+    Invoke-ScriptAnalyzer -Path $env:BHModulePath -Recurse -Severity Warning
+}
 
-    if (Get-ChildItem -Path $DocRoot -Recurse -Filter *.md) {
-        Get-ChildItem -Path $DocRoot -Directory | ForEach-Object {
-            Update-MarkdownHelp -Path $_.FullName | Out-Null
+Task Tests -Depends CodeAnalisys {
+    $TestResults = Invoke-Pester -Path $TestsFolder -PassThru -OutputFormat NUnitXml -OutputFile $TestsFile
+
+    switch ($env:BHBuildSystem) {
+        'AppVeyor' {
+            Get-ChildItem -Path $env:BHBuildOutput -Filter 'tests-*.xml' -File | ForEach-Object {
+                (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "$($_.FullName)")
+            }
         }
-    } else {
-        New-MarkdownHelp -Module $ModuleName -Locale $DefaultLocale -OutputFolder $DocRoot\$DefaultLocale -WithModulePage
+        Default {
+            Write-Warning "Publish test result not implemented for build system '$($ENV:BHBuildSystem)'"
+        }
     }
 
-    foreach ($locale in (Get-ChildItem -Path $DocRoot -Directory).Name) {
-        New-ExternalHelp -Path $DocRoot\$locale -OutputPath $ModuleDir\$locale -Force | Out-Null
-        New-ExternalHelpCab -CabFilesFolder $ModuleDir\$locale -LandingPagePath $DocRoot\$locale\$ModuleName.md -OutputFolder $UpdatableHelpDir | Out-Null
-    }
-
-    Remove-Module $ModuleName
-}
-
-Task Test -depends Build -requiredVariables $TestDir {
-    $TestResults = if ($env:APPVEYOR) {
-        Import-Module Pester
-        Invoke-Pester -Path $TestDir -OutputFormat NUnitXml -OutputFile $TestOutputFile -PassThru
-
-        $uri = 'https://ci.appveyor.com/api/testresults/nunit/{0}' -f $env:APPVEYOR_JOB_ID
-        (New-Object 'System.Net.WebClient').UploadFile($uri, $TestOutputFile)
-    } else {
-        Invoke-Pester -Path $TestDir -PassThru
-    }
-
-    if($TestResults.FailedCount -gt 0) {
-        Throw 'Build Failed! ({0} failed Pester tests)' -f $TestResults.FailedCount
+    if ($TestResults.FailedCount -gt 0) {
+        Write-Error "Build failed. [$($TestResults.FailedCount) Errors]"
     }
 }
 
-Task Release -depends Build, Test {
-    Import-Module PowershellGet
-    Publish-Module -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY -Path $ModuleDir
+Task BuildDocs -Depends Tests {
+    Import-Module $env:BHPSModuleManifest -Global
+
+    Write-Host 'BuildDocs: Generating Help for exported functions'
+    New-MarkdownHelp -Module $env:BHProjectName -OutputFolder .\docs\functions -Force
+
+    Copy-Item -Path .\header-mkdocs.yml -Destination mkdocs.yml -Force
+    $ExportedFunctions | %{
+        ("`t`t- {0}: {0}.md" -f $_) | Out-File .\mkdocs.yml -Append -Encoding ascii
+    }
+
+    Remove-Module $env:BHProjectName -Force
+
+    Write-Host 'Git: Committing updated docs'
+    Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
 }
 
-Task Init -requiredVariables $ReleaseDir {
-    if (-not (Test-Path $ReleaseDir)) {
-        New-Item -ItemType Directory -Path $ReleaseDir | Out-Null
+Task IncrementVersion -Depends BuildDocs {
+    Update-AdditionalReleaseArtifact -Version $StableVersion -CommitDate $GitVersion.CommitDate
+
+    Write-Host 'Git: Committing new release'
+    Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
+
+    Write-Host 'Git: Tagging branch'
+    Exec {git tag $SemVer}
+
+    if ($LASTEXITCODE -ne 0) {
+        Exec {git reset --hard HEAD^}
+        throw 'No changes detected since last release'
     }
+
+    Write-Host 'Git: Pushing tags to origin'
+    Exec {git push -q origin $BranchName --tags}
+
+    Pop-Location
 }
 
-Task Clean -requiredVariables $ReleaseDir {
-    if (Test-Path $ReleaseDir) {
-        Remove-Item -Recurse -Force -Path $ReleaseDir | Out-Null
-    }
+Task Build -Depends IncrementVersion {
+    if (-not (Test-Path $BuildBaseModule)) {New-Item -Path $BuildBaseModule -ItemType Directory | Out-Null}
+    if (-not (Test-Path $BuildVersionedModule)) {New-Item -Path $BuildVersionedModule -ItemType Directory | Out-Null}
+
+    Write-Host "Build: Copying module to $ArtifactFolder"
+    Copy-Item -Path $env:BHModulePath\* -Destination $BuildVersionedModule -Recurse
+
+    Write-Host "Build: Compressing release to $ArtifactPath"
+    Compress-Archive -Path $BuildBaseModule -DestinationPath $ArtifactPath
+
+    Write-Host "Build: Pushing release to Appveyor"
+    Push-AppveyorArtifact -Path $ArtifactPath
+}
+
+Task PublishModule -Depends Build {
+
 }
