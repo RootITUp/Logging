@@ -18,6 +18,9 @@
     .PARAMETER Body
         An object that can contain additional log metadata (used in target like ElasticSearch)
 
+    .PARAMETER ExceptionInfo
+        An optional ErrorRecord
+
     .EXAMPLE
         PS C:\> Write-Log 'Hello, World!'
 
