@@ -8,7 +8,7 @@ function Update-AdditionalReleaseArtifact {
     Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
 
     Write-Host 'Getting release notes'
-    $ReleaseDescription = gc $ReleaseFile
+    $ReleaseDescription = (gc $ReleaseFile) -join "`r`n"
 
     if ($env:APPVEYOR) {
         Set-AppveyorBuildVariable -Name ReleaseDescription -Value $ReleaseDescription
@@ -122,6 +122,7 @@ Task BuildDocs -Depends Tests {
     Remove-Module $env:BHProjectName -Force
 
     Write-Host 'Git: Committing updated docs'
+    Exec {git add --all}
     Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
 }
 
