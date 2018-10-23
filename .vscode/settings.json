@@ -1,9 +1,0 @@
-{
-    "files.trimTrailingWhitespace": true,
-
-    "search.exclude": {
-        "Release": true
-    },
-
-    "powershell.scriptAnalysis.settingsPath": ".vscode/ScriptAnalyzerSettings.psd1"
-}
