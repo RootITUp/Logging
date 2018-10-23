@@ -3,5 +3,5 @@
 - [FIX] New module layout
 
 
-# CHANGELOG
+# 2.5.0 (2018-10-23)
 
