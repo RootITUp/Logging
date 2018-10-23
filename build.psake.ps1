@@ -1,322 +1,164 @@
-Properties {
-    # Find the build folder based on build system
-    $LINES = '----------------------------------------------------------------------'
+function Update-AdditionalReleaseArtifact {
+    param(
+        [string] $Version,
+        [string] $CommitDate
+    )
 
-    $ProjectRoot = $ENV:BHProjectPath
+    Write-Host ('Updating Module Manifest version number to: {0}' -f $Version)
+    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
 
-    if (-not $ProjectRoot) {
-        $ProjectRoot = $PSScriptRoot
+    Write-Host 'Getting release notes'
+    $ReleaseDescription = gc $ReleaseFile
+
+    if ($env:APPVEYOR) {
+        Set-AppveyorBuildVariable -Name ReleaseDescription -Value $ReleaseDescription
     }
 
-    $ModuleFolder = Split-Path -Path $ENV:BHPSModuleManifest -Parent
+    $Changelog = gc $ChangelogFile
 
-    $PSVersion = $PSVersionTable.PSVersion.Major
+    ("# {0} ({1})`r`n" -f $Version, $CommitDate) | Out-File $ChangelogTemp -Encoding ascii
+    ("{0}`r`n`r`n" -f $ReleaseDescription) | Out-File $ChangelogTemp -Append -Encoding ascii
+    ("{0}`r`n" -f $Changelog) | Out-File $ChangelogTemp -Append -Encoding ascii
 
-    $Timestamp = Get-date -UFormat "%Y%m%d-%H%M%S"
-
-    $TestFile = "TestResults_PS$PSVersion`_$TimeStamp.xml"
-
-    $Verbose = @{ }
-
-    if ($ENV:BHCommitMessage -match "!verbose") {
-        $Verbose = @{ Verbose = $True }
-    }
-
-    $CurrentVersion = [version](Get-Metadata -Path $env:BHPSModuleManifest)
-
-    $StepVersion = [version] (Step-Version $CurrentVersion)
-
-    $GalleryVersion = Get-NextNugetPackageVersion -Name $env:BHProjectName
-
-    $BuildVersion = $StepVersion
-
-    If ($GalleryVersion -gt $StepVersion) {
-        $BuildVersion = $GalleryVersion
-    }
-
-    $BuildVersion = [version]::New($BuildVersion.Major, $BuildVersion.Minor, $BuildVersion.Build, $env:BHBuildNumber)
-
-    $BuildDate = Get-Date -UFormat '%Y-%m-%d'
-
-    $ReleaseNotes = "$ProjectRoot\RELEASE.md"
-
-    $ChangeLog = "$ProjectRoot\docs\ChangeLog.md"
+    Copy-Item $ChangelogTemp $ChangelogFile -Force
 }
 
-Task Default -Depends PostDeploy
+Properties {
+    $GitVersion = gitversion | ConvertFrom-Json
+    $BranchName = $GitVersion.BranchName
+    $SemVer = $GitVersion.SemVer
+    $StableVersion = $GitVersion.MajorMinorPatch
+
+    $TestsFolder = '.\Tests'
+    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $BranchName, $SemVer)
+
+    $Artifact = '{0}-{1}.zip' -f $env:BHProjectName.ToLower(), $SemVer
+    $BuildBaseModule = Join-Path $env:BHBuildOutput $env:BHProjectName
+    $BuildVersionedModule = Join-Path $BuildBaseModule $StableVersion
+    $ArtifactPath = Join-Path $env:BHBuildOutput $Artifact
+
+    $ReleaseFile = Join-Path $env:BHProjectPath 'docs\RELEASE.md'
+    $ChangelogFile = Join-Path $env:BHProjectPath 'docs\CHANGELOG.md'
+    $ChangelogTemp = Join-Path $env:BHBuildOutput 'CHANGELOG.md.tmp'
+
+    Import-Module $env:BHPSModuleManifest -Global
+    $ExportedFunctions = Get-Command -Module $env:BHProjectName | select -ExpandProperty Name
+    Remove-Module $env:BHProjectName -Force
+}
+
+FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
+
+Task Default -Depends Build
 
 Task Init {
-    $LINES
+    Set-Location $env:BHProjectPath
 
-    Set-Location $ProjectRoot
-    "Build System Details:"
-    Get-Item ENV:BH* | Format-List
-    "`n"
-    "Current Version: $CurrentVersion`n"
-    "Build Version: $BuildVersion`n"
+    New-Item -Path $env:BHBuildOutput -ItemType Directory | Out-Null
+
+    Exec {git config --global credential.helper store}
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+
+    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
+    Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
+
+    if ($env:APPVEYOR) {
+        Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
+    }
+
+    Write-Host ('Working folder: {0}' -f $PWD)
+    Write-Host ('Build output: {0}' -f $env:BHBuildOutput)
+    Write-Host ('Git Version: {0}' -f $SemVer)
+    Write-Host ('Git Version (Stable): {0}' -f $StableVersion)
+    Write-Host ('Git Branch: {0}' -f $BranchName)
+
+    $PendingChanges = git status --porcelain
+    if ($null -ne $PendingChanges) {
+        throw 'You have pending changes, aborting release'
+    }
+
+    Write-Host 'Git: Fetchin origin'
+    Exec {git fetch origin}
+
+    Write-Host "Git: Merging origin/$BranchName"
+    Exec {git merge origin/$BranchName --ff-only}
 }
 
-Task UnitTests -Depends Init {
-    $LINES
-    "Running Pre-build unit tests`n"
-
-    $Parameters = @{
-        Script = "$ProjectRoot\Tests"
-        PassThru = $true
-        Tag = 'Unit'
-        OutputFormat = 'NUnitXml'
-        OutputFile = "$ProjectRoot\$TestFile"
-    }
-
-    $TestResults =Invoke-Pester @Parameters
-
-    if ($TestResults.FailedCount -gt 0) {
-        Write-Error "Failed '$($TestResults.FailedCount)' tests, build failed"
-    }
-
-    "`n"
-
-    if ($ENV:BHBuildSystem -eq 'AppVeyor') {
-        "Uploading $ProjectRoot\$TestFile to AppVeyor"
-        "JobID: $env:APPVEYOR_JOB_ID"
-
-        (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "$ProjectRoot\$TestFile"))
-    }
-
-    Remove-Item "$ProjectRoot\$TestFile" -Force -ErrorAction SilentlyContinue
+Task CodeAnalisys -Depends Init {
+    Write-Host 'ScriptAnalyzer: Running'
+    Invoke-ScriptAnalyzer -Path $env:BHModulePath -Recurse -Severity Warning
 }
 
-Task Build -Depends UnitTests {
-    $LINES
+Task Tests -Depends CodeAnalisys {
+    $TestResults = Invoke-Pester -Path $TestsFolder -PassThru -OutputFormat NUnitXml -OutputFile $TestsFile
 
-    "Populating AliasesToExport and FunctionsToExport"
-    # Load the module, read the exported functions and aliases, update the psd1
-    $ExportFunctions = Get-Command -Module  $env:BHProjectName | select -ExpandProperty Name
-    $ExportAliases = Get-Alias | ? Source -eq $env:BHProjectName
-
-    if ($ExportFunctions) {Set-ModuleFunctions -Name $env:BHPSModuleManifest -FunctionsToExport $ExportFunctions}
-    if ($ExportAliases) {Update-Metadata -Path $env:BHPSModuleManifest -PropertyName AliasesToExport -Value $ExportAliases}
-
-    # Bump the module version
-    "Bump the module version"
-    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $BuildVersion
-
-    # Update release notes with Version info and set the PSD1 release notes
-    $parameters = @{
-        Path = $ReleaseNotes
-        ErrorAction = 'SilentlyContinue'
-    }
-    $ReleaseText = (Get-Content @parameters | Where-Object {$_ -notmatch '^# Version '}) -join "`r`n"
-
-    if (-not $ReleaseText) {
-        "Skipping realse notes`n"
-        "Consider adding a RELEASE.md to your project.`n"
-        return
-    }
-
-    $Header = "# Version {0} ({1})`r`n" -f $BuildVersion, $BuildDate
-    $ReleaseText = $Header + $ReleaseText
-    $ReleaseText | Set-Content $ReleaseNotes
-    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ReleaseNotes -Value $ReleaseText
-
-    # Update the ChangeLog with the current release notes
-    $releaseparameters = @{
-        Path = $ReleaseNotes
-        ErrorAction = 'SilentlyContinue'
-    }
-    $changeparameters = @{
-        Path = $ChangeLog
-        ErrorAction = 'SilentlyContinue'
-    }
-    (Get-Content @releaseparameters),"`r`n`r`n", (Get-Content @changeparameters) | Set-Content $ChangeLog
-}
-
-Task Test -Depends Build  {
-    $LINES
-    "`n`tSTATUS: Testing with PowerShell $PSVersion"
-
-    # Gather test results. Store them in a variable and file
-    $parameters = @{
-        Script = "$ProjectRoot\Tests"
-        PassThru = $true
-        OutputFormat = 'NUnitXml'
-        OutputFile = "$ProjectRoot\$TestFile"
-    }
-    $TestResults = Invoke-Pester @parameters
-
-    # In Appveyor?  Upload our tests! #Abstract this into a function?
-    If ($ENV:BHBuildSystem -eq 'AppVeyor') {
-        "Uploading $ProjectRoot\$TestFile to AppVeyor"
-        "JobID: $env:APPVEYOR_JOB_ID"
-        (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "$ProjectRoot\$TestFile"))
-    }
-
-    Remove-Item "$ProjectRoot\$TestFile" -Force -ErrorAction SilentlyContinue
-
-    # Failed tests?
-    # Need to tell psake or it will proceed to the deployment. Danger!
-    if ($TestResults.FailedCount -gt 0) {
-        Write-Error "Failed '$($TestResults.FailedCount)' tests, build failed"
-    }
-    "`n"
-}
-
-Task BuildDocs -depends Test {
-    $LINES
-
-    "Loading Module from $ENV:BHPSModuleManifest"
-    Remove-Module $ENV:BHProjectName -Force -ea SilentlyContinue
-    # platyPS + AppVeyor requires the module to be loaded in Global scope
-    Import-Module $ENV:BHPSModuleManifest -force -Global
-
-    #Build YAMLText starting with the header
-    $YMLtext = (Get-Content "$ProjectRoot\header-mkdocs.yml") -join "`n"
-    $YMLtext = "$YMLtext`n"
-
-    $parameters = @{
-        Path = $ReleaseNotes
-        ErrorAction = 'SilentlyContinue'
-    }
-    $ReleaseText = (Get-Content @parameters) -join "`n"
-
-    if ($ReleaseText) {
-        $ReleaseText | Set-Content "$ProjectRoot\docs\RELEASE.md"
-        $YMLText = "$YMLtext  - Realse Notes: RELEASE.md`n"
-    }
-
-    if ((Test-Path -Path $ChangeLog)) {
-        $YMLText = "$YMLtext  - Change Log: ChangeLog.md`n"
-    }
-
-    $YMLText = "$YMLtext  - Functions:`n"
-    # Drain the swamp
-    $parameters = @{
-        Recurse = $true
-        Force = $true
-        Path = "$ProjectRoot\docs\functions"
-        ErrorAction = 'SilentlyContinue'
-    }
-    $null = Remove-Item @parameters
-
-    $Params = @{
-        Path = "$ProjectRoot\docs\functions"
-        type = 'directory'
-        ErrorAction = 'SilentlyContinue'
-    }
-    $null = New-Item @Params
-
-    $Params = @{
-        Module = $ENV:BHProjectName
-        Force = $true
-        OutputFolder = "$ProjectRoot\docs\functions"
-        NoMetadata = $true
-    }
-    New-MarkdownHelp @Params | foreach-object {
-        $Function = $_.Name -replace '\.md', ''
-        $Part = "    - {0}: functions/{1}" -f $Function, $_.Name
-        $YMLText = "{0}{1}`n" -f $YMLText, $Part
-        $Part
-    }
-    $YMLtext | Set-Content -Path "$ProjectRoot\mkdocs.yml"
-}
-
-Task Deploy -Depends BuildDocs {
-    $LINES
-
-    # Gate deployment
-    if (
-        $ENV:BHBuildSystem -ne 'Unknown' -and
-        $ENV:BHBranchName -eq "master" -and
-        $ENV:BHCommitMessage -match '!deploy'
-    ) {
-        $Params = @{
-            Path = $ProjectRoot
-            Force = $true
-        }
-
-        Invoke-PSDeploy @Verbose @Params
-    }
-    else {
-        "Skipping deployment: To deploy, ensure that...`n" +
-        "`t* You are in a known build system (Current: $ENV:BHBuildSystem)`n" +
-        "`t* You are committing to the master branch (Current: $ENV:BHBranchName) `n" +
-        "`t* Your commit message includes !deploy (Current: $ENV:BHCommitMessage)"
-    }
-}
-
-Task PostDeploy -depends Deploy {
-    $LINES
-    if ($ENV:APPVEYOR_REPO_PROVIDER -notlike 'github') {
-        "Repo provider '$ENV:APPVEYOR_REPO_PROVIDER'. Skipping PostDeploy"
-        return
-    }
-    If ($ENV:BHBuildSystem -eq 'AppVeyor') {
-        "git config --global credential.helper store"
-        cmd /c "git config --global credential.helper store 2>&1"
-
-        Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-
-        "git config --global user.email"
-        cmd /c "git config --global user.email ""${ENV:email}"" 2>&1"
-
-        "git config --global user.name"
-        cmd /c "git config --global user.name ""AppVeyor"" 2>&1"
-
-        "git config --global core.autocrlf true"
-        cmd /c "git config --global core.autocrlf true 2>&1"
-    }
-
-    "git checkout $ENV:BHBranchName"
-    cmd /c "git checkout $ENV:BHBranchName 2>&1"
-
-    "git add -A"
-    cmd /c "git add -A 2>&1"
-
-    "git commit -m"
-    cmd /c "git commit -m ""AppVeyor post-build commit[ci skip]"" 2>&1"
-
-    "git status"
-    cmd /c "git status 2>&1"
-
-    "git push origin $ENV:BHBranchName"
-    cmd /c "git push origin $ENV:BHBranchName 2>&1"
-    # if this is a !deploy on master, create GitHub release
-    if (
-        $ENV:BHBuildSystem -ne 'Unknown' -and
-        $ENV:BHBranchName -eq "master" -and
-        $ENV:BHCommitMessage -match '!deploy'
-    ) {
-        "Publishing Release 'v$BuildVersion' to Github"
-
-        $parameters = @{
-            Path = $ReleaseNotes
-            ErrorAction = 'SilentlyContinue'
-        }
-        $ReleaseText = (Get-Content @parameters) -join "`r`n"
-                if (-not $ReleaseText) {
-            $ReleaseText = "Release version $BuildVersion ($BuildDate)"
-        }
-
-        $Body = @{
-            "tag_name" = "v$BuildVersion"
-            "target_commitish"= "master"
-            "name" = "v$BuildVersion"
-            "body"= $ReleaseText
-            "draft" = $false
-            "prerelease"= $false
-        } | ConvertTo-Json
-
-        $releaseParams = @{
-            Uri = "https://api.github.com/repos/{0}/releases" -f $ENV:APPVEYOR_REPO_NAME
-            Method = 'POST'
-            Headers = @{
-                Authorization = 'Basic ' + [Convert]::ToBase64String(
-                    [Text.Encoding]::ASCII.GetBytes($env:access_token + ":x-oauth-basic"));
+    switch ($env:BHBuildSystem) {
+        'AppVeyor' {
+            Get-ChildItem -Path $env:BHBuildOutput -Filter 'tests-*.xml' -File | ForEach-Object {
+                (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", "$($_.FullName)")
             }
-            ContentType = 'application/json'
-            Body = $Body
         }
-        $Response = Invoke-RestMethod @releaseParams
-        $Response | Format-List *
+        Default {
+            Write-Warning "Publish test result not implemented for build system '$($ENV:BHBuildSystem)'"
+        }
     }
+
+    if ($TestResults.FailedCount -gt 0) {
+        Write-Error "Build failed. [$($TestResults.FailedCount) Errors]"
+    }
+}
+
+Task BuildDocs -Depends Tests {
+    Import-Module $env:BHPSModuleManifest -Global
+
+    Write-Host 'BuildDocs: Generating Help for exported functions'
+    New-MarkdownHelp -Module $env:BHProjectName -OutputFolder .\docs\functions -Force
+
+    Copy-Item -Path .\header-mkdocs.yml -Destination mkdocs.yml -Force
+    $ExportedFunctions | %{
+        ("`t- {0}: {0}.md`r`n" -f $_) | Out-File .\mkdocs.yml -Append
+    }
+
+    Remove-Module $env:BHProjectName -Force
+
+    Write-Host 'Git: Committing updated docs'
+    Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
+}
+
+Task IncrementVersion -Depends BuildDocs {
+    Update-AdditionalReleaseArtifact -Version $StableVersion -CommitDate $GitVersion.CommitDate
+
+    Write-Host 'Git: Committing new release'
+    Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
+
+    Write-Host 'Git: Tagging branch'
+    Exec {git tag $SemVer}
+
+    if ($LASTEXITCODE -ne 0) {
+        Exec {git reset --hard HEAD^}
+        throw 'No changes detected since last release'
+    }
+
+    Write-Host 'Git: Pushing tags to origin'
+    Exec {git push -q origin $BranchName --tags}
+
+    Pop-Location
+}
+
+Task Build -Depends IncrementVersion {
+    if (-not (Test-Path $BuildBaseModule)) {New-Item -Path $BuildBaseModule -ItemType Directory | Out-Null}
+    if (-not (Test-Path $BuildVersionedModule)) {New-Item -Path $BuildVersionedModule -ItemType Directory | Out-Null}
+
+    Write-Host "Build: Copying module to $ArtifactFolder"
+    Copy-Item -Path $env:BHModulePath\* -Destination $BuildVersionedModule -Recurse
+
+    Write-Host "Build: Compressing release to $ArtifactPath"
+    Compress-Archive -Path $BuildBaseModule -DestinationPath $ArtifactPath
+
+    Write-Host "Build: Pushing release to Appveyor"
+    Push-AppveyorArtifact -Path $ArtifactPath
+}
+
+Task PublishModule -Depends Build {
+
 }

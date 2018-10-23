@@ -3,12 +3,8 @@ site_description: Powershell Logging Module
 site_author: Massimo Bonvicini
 repo_url: https://github.com/EsOsO/Logging
 edit_uri: edit/master/docs/
-copyright: "Powershell Logging Module is licensed under the <a href="https://github.com/EsOsO/Logging/raw/master/LICENSE">MIT license</a>"
-theme:
-  name: readthedocs
-  highlightjs: true
-  hljs_languages:
-    - powershell
+copyright: "Powershell Logging Module is licensed under the <a href="https://github.com/EsOsO/Logging/raw/master/docs/LICENSE">MIT license</a>"
+theme: readthedocs
 nav:
   - Home: index.md
   - Usage: Usage.md
@@ -17,3 +13,4 @@ nav:
     - Changelog: CHANGELOG.md
     - Contributing: CONTRIBUTING.md
     - License: LICENSE
+  - Functions:

@@ -1,14 +1,47 @@
-# Configuration
+## Installation
 
-By default the logging module don't log any message to any target so you can start adding calls to the `Write-Log` cmdlet in your scripts and then setup your desired targets and different severity levels.
+### GitHub
 
-After importing the module nothing will be writed anywhere
+#### Clone Repo
+
+```terminal
+> git clone https://github.com/EsOsO/Logging.git
+> Import-Module .\Logging\Logging.psm1
+
+```
+
+#### Download Repo
+
+* Download [the zip](https://github.com/EsOsO/Logging/archive/master.zip)
+* Unzip the content of "Logging-master" to:
+* C:\Program Files\WindowsPowerShell\Modules\Logging [System wide]
+* D:\Users\{username}\Documents\WindowsPowerShell\Modules\Logging [User only]
 
 ```powershell
 > Import-Module Logging
-> Write-Log - Level DEBUG -Message 'Hello, World!'
 ```
 
+## TL;DR
+
+```powershell
+Set-LoggingDefaultLevel -Level 'WARNING'
+Add-LoggingTarget -Name Console
+Add-LoggingTarget -Name File -Configuration @{Path = 'C:\Temp\example_%{+%Y%m%d}.log'}
+
+$Level = 'DEBUG', 'INFO', 'WARNING', 'ERROR'
+foreach ($i in 1..100) {
+    Write-Log -Level ($Level | Get-Random) -Message 'Message n. {0}' -Arguments $i
+    Start-Sleep -Milliseconds (Get-Random -Min 100 -Max 1000)
+}
+
+Wait-Logging        # See Note
+```
+
+### NOTE
+
+When used in *unattended* scripts (scheduled tasks, spawned process) you need to call Wait-Logging to avoid losing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you'll lose it)
+
+## Configuration
 
 The following section describe how to configure the Logging module.
 
@@ -17,7 +50,7 @@ The following section describe how to configure the Logging module.
 * Targets
 * CustomTargets
 
-## Level
+### Level
 
 The *Level* property defines the default logging level.
 Valid values are:
@@ -51,12 +84,15 @@ The Log object has a number of attributes that are replaced in the format string
 | Format         | Description |
 | -------------- | ----------- |
 | `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 14:22:45+02*). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
-| `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*)
-| `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*)
-| `%{lineno}`    | Line number where the logging call was issued
-| `%{pathname}`  | Full pathname of the source file where the logging call was issued
-| `%{filename}`  | Filename portion of pathname
-| `%{message}`   | The logged message
+| `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*) |
+| `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*) |
+| `%{lineno}`    | The line number on wich the write occured |
+| `%{pathname}`  | The path of the caller |
+| `%{filename}`  | The file name part of the caller |
+| `%{caller}`    | The caller function name |
+| `%{message}`   | The logged message |
+| `%{body}`      | The logged body (json format not pretty printed) |
+| `%{execinfo}`  | The ErrorRecord catched in a try/catch statement |
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
@@ -113,6 +149,7 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * ElasticSearch
 * Slack
 * Email
+* Seq
 
 #### Console
 
@@ -127,10 +164,8 @@ The mutex name to acquire is ```ConsoleMtx```
                                     #                Only need to specify the levels you wish to override
 }
 ```
-
 ##### Colors
 Default Console Colors
-
 ```powershell
 $ColorMapping = @{
     'DEBUG'   = 'Blue'
@@ -256,11 +291,29 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
     From        = <NOTSET>          # <Required> From address
     To          = <NOTSET>          # <Required> A string of recipients delimited by comma (,) (eg. 'test@contoso.com, robin@hood.eu')
     Subject     = '[%{level:-7}] %{message}'    # <Not required> Email subject. Supports formatting and expansion
+    Attachments = <NOTSET>          # <Not required> Path to the desired file to attach
     Credential  = <NOTSET>          # <Not required> If your server uses authentication
     Level       = <NOTSET>          # <Not required> Sets the logging format for this target
+    Port        = <NOTSET>          # <Not required> Set the SMTP server's port
+    UseSsl      = $false            # <Not required> Use encrypted transport to SMTP server
 }
 
 Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
+```
+
+#### Seq
+
+```powershell
+> Add-LoggingTarget -Name Seq -Configuration @{
+    Url         = <NOTSET>          # <Required> Url to Seq instance
+    ApiKey      = <NOTSET>          # <Not required> Api Key to authenticate to Seq
+    Properties  = <NOTSET>          # <Required> Hashtable of user defined properties to be added to each Seq message
+    Level       = <NOTSET>          # <Not required> Sets the logging level for this target
+}
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
 ```

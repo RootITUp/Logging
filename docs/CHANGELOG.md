@@ -1,4 +1,15 @@
-# 2.4.11 (17 August, 2018)
+# CHANGELOG
+
+## 2.4.13 (22/10/2018)
+
+- [ADD] Caller function in message template
+
+## 2.4.12 (21/09/2018)
+
+- [ADD] Seq target (thx @TheSemicolon)
+- [ADD] $ExceptionInfo paramter to Write-Log to add Error tracing
+
+## 2.4.11 (17 August, 2018)
 
 - Fixed custom targets for locations outside module folder (#20 thx to @jeremymcgee73)
 
