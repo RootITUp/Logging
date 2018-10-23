@@ -2,3 +2,4 @@
 * text=auto
 
 *.md text eol=crlf
+*.yml text eol=crlf
