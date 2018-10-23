@@ -1,5 +1,2 @@
-*.zip
-Release/
 .gitconfig
-TestResults*
-mkdocs.yml
+BuildOutput/
