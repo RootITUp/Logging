@@ -157,7 +157,7 @@ InModuleScope Logging {
         }
 
         It 'returns the loaded logging targets' {
-            $AvailableTargets = Get-LoggingTargetAvailable
+            $AvailableTargets = Get-LoggingAvailableTarget
             $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
             $AvailableTargets.Count | Should Be 6
         }

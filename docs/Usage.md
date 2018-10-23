@@ -324,7 +324,7 @@ It lets define a folder to load custom targets.
 
 ```powershell
 > Set-LoggingCustomTarget -Path 'C:\temp\'
-> Get-LoggingTargetAvailable
+> Get-LoggingAvailableTarget
 Name                           Value
 ----                           -----
 Console                        {Configuration, ParamsRequired, Logger}

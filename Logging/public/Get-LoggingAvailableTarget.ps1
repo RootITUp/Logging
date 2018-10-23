@@ -6,10 +6,10 @@
         This function returns available logging targtes
 
     .EXAMPLE
-        PS C:\> Get-LoggingTargetAvailable
+        PS C:\> Get-LoggingAvailableTarget
 
     .LINK
-        https://logging.readthedocs.io/en/latest/functions/Get-LoggingTargetAvailable.md
+        https://logging.readthedocs.io/en/latest/functions/Get-LoggingAvailableTarget.md
 
     .LINK
         https://logging.readthedocs.io/en/latest/functions/Write-Log.md
