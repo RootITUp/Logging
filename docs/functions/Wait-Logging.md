@@ -1,3 +1,10 @@
+---
+external help file: Logging-help.xml
+Module Name: Logging
+online version: https://logging.readthedocs.io/en/latest/functions/Wait-Logging.md
+schema: 2.0.0
+---
+
 # Wait-Logging
 
 ## SYNOPSIS
@@ -35,5 +42,5 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 [https://logging.readthedocs.io/en/latest/functions/Wait-Logging.md](https://logging.readthedocs.io/en/latest/functions/Wait-Logging.md)
 
-[https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L525](https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L525)
+[https://github.com/EsOsO/Logging/blob/master/Logging/public/Wait-Logging.ps1](https://github.com/EsOsO/Logging/blob/master/Logging/public/Wait-Logging.ps1)
 

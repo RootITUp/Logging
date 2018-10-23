@@ -1,3 +1,10 @@
+---
+external help file: Logging-help.xml
+Module Name: Logging
+online version: https://logging.readthedocs.io/en/latest/functions/Add-LoggingTarget.md
+schema: 2.0.0
+---
+
 # Add-LoggingTarget
 
 ## SYNOPSIS
@@ -74,5 +81,5 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 [https://logging.readthedocs.io/en/latest/AvailableTargets.md](https://logging.readthedocs.io/en/latest/AvailableTargets.md)
 
-[https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L243](https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L243)
+[https://github.com/EsOsO/Logging/blob/master/Logging/public/Add-LoggingTarget.ps1](https://github.com/EsOsO/Logging/blob/master/Logging/public/Add-LoggingTarget.ps1)
 

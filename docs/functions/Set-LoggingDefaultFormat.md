@@ -1,3 +1,10 @@
+---
+external help file: Logging-help.xml
+Module Name: Logging
+online version: https://logging.readthedocs.io/en/latest/functions/Set-LoggingDefaultFormat.md
+schema: 2.0.0
+---
+
 # Set-LoggingDefaultFormat
 
 ## SYNOPSIS
@@ -61,5 +68,5 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 [https://logging.readthedocs.io/en/latest/functions/Write-Log.md](https://logging.readthedocs.io/en/latest/functions/Write-Log.md)
 
-[https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L461](https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L461)
+[https://github.com/EsOsO/Logging/blob/master/Logging/public/Set-LoggingDefaultFormat.ps1](https://github.com/EsOsO/Logging/blob/master/Logging/public/Set-LoggingDefaultFormat.ps1)
 

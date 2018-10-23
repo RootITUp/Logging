@@ -1,3 +1,10 @@
+---
+external help file: Logging-help.xml
+Module Name: Logging
+online version: https://logging.readthedocs.io/en/latest/functions/Write-Log.md
+schema: 2.0.0
+---
+
 # Write-Log
 
 ## SYNOPSIS
@@ -6,7 +13,8 @@ Emits a log record
 ## SYNTAX
 
 ```
-Write-Log [-Message] <String> [[-Arguments] <Array>] [[-Body] <Object>] -Level <String> [<CommonParameters>]
+Write-Log [-Message] <String> [[-Arguments] <Array>] [[-Body] <Object>] [[-ExceptionInfo] <ErrorRecord>]
+ -Level <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -81,6 +89,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ExceptionInfo
+An optional ErrorRecord
+
+```yaml
+Type: ErrorRecord
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 6
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Level
 {{Fill Level Description}}
 
@@ -112,5 +135,5 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 [https://logging.readthedocs.io/en/latest/functions/Add-LoggingLevel.md](https://logging.readthedocs.io/en/latest/functions/Add-LoggingLevel.md)
 
-[https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L575](https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L575)
+[https://github.com/EsOsO/Logging/blob/master/Logging/public/Write-Log.ps1](https://github.com/EsOsO/Logging/blob/master/Logging/public/Write-Log.ps1)
 

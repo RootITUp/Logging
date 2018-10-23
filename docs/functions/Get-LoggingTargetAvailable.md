@@ -1,7 +1,14 @@
+---
+external help file: Logging-help.xml
+Module Name: Logging
+online version: https://logging.readthedocs.io/en/latest/functions/Get-LoggingTarget.md
+schema: 2.0.0
+---
+
 # Get-LoggingTargetAvailable
 
 ## SYNOPSIS
-Returns available logging targets
+{{Fill in the Synopsis}}
 
 ## SYNTAX
 
@@ -10,14 +17,16 @@ Get-LoggingTargetAvailable [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-This function returns available logging targtes
+{{Fill in the Description}}
 
 ## EXAMPLES
 
-### EXAMPLE 1
+### Example 1
+```powershell
+PS C:\> {{ Add example code here }}
 ```
-Get-LoggingTargetAvailable
-```
+
+{{ Add example description here }}
 
 ## PARAMETERS
 
@@ -27,15 +36,11 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## INPUTS
 
+### None
+
 ## OUTPUTS
 
+### System.Object
 ## NOTES
 
 ## RELATED LINKS
-
-[https://logging.readthedocs.io/en/latest/functions/Get-LoggingTargetAvailable.md](https://logging.readthedocs.io/en/latest/functions/Get-LoggingTargetAvailable.md)
-
-[https://logging.readthedocs.io/en/latest/functions/Write-Log.md](https://logging.readthedocs.io/en/latest/functions/Write-Log.md)
-
-[https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L375](https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L375)
-

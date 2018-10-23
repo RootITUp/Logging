@@ -1,3 +1,10 @@
+---
+external help file: Logging-help.xml
+Module Name: Logging
+online version: https://logging.readthedocs.io/en/latest/functions/Get-LoggingDefaultFormat.md
+schema: 2.0.0
+---
+
 # Get-LoggingDefaultFormat
 
 ## SYNOPSIS
@@ -39,5 +46,5 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 [https://logging.readthedocs.io/en/latest/LoggingFormat.md](https://logging.readthedocs.io/en/latest/LoggingFormat.md)
 
-[https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L297](https://github.com/EsOsO/Logging/blob/master/Logging/Logging.psm1#L297)
+[https://github.com/EsOsO/Logging/blob/master/Logging/public/Get-LoggingDefaultFormat.ps1](https://github.com/EsOsO/Logging/blob/master/Logging/public/Get-LoggingDefaultFormat.ps1)
 
