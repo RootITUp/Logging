@@ -1,0 +1,2 @@
+- [FIX] New module layout
+- [FIX] New build script

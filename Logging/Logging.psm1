@@ -1,10 +1,10 @@
 #requires -Version 4
 
-$NOTSET = 0
-$DEBUG = 10
-$INFO = 20
-$WARNING = 30
-$ERROR_ = 40
+$NOTSET     = 0
+$DEBUG      = 10
+$INFO       = 20
+$WARNING    = 30
+$ERROR_     = 40
 
 $LN = [hashtable]::Synchronized(@{
     $NOTSET = 'NOTSET'
@@ -23,8 +23,8 @@ New-Variable -Name Dispatcher   -Value ([hashtable]::Synchronized(@{})) -Option 
 New-Variable -Name LevelNames   -Value $LN -Option ReadOnly
 New-Variable -Name Logging      -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
 New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
-New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option ReadOnly
 New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option ReadOnly
+New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option ReadOnly
 
 $Defaults = @{
     Level = $NOTSET
@@ -36,332 +36,21 @@ $Logging.Level      = $Defaults.Level
 $Logging.Format     = $Defaults.Format
 $Logging.Targets    = [hashtable] @{}
 
-Function Write-Log {
-    [CmdletBinding()]
-    param(
-        [Parameter(Position = 2,
-                   Mandatory = $true)]
-        [string] $Message,
-        [Parameter(Position = 3,
-                   Mandatory = $false)]
-        [array] $Arguments,
-        [Parameter(Position = 4,
-                   Mandatory = $false)]
-        [object] $Body,
-        [Parameter(Position = 5,
-                   Mandatory = $false)]
-        [System.Management.Automation.ErrorRecord] $ExceptionInfo = $null
-    )
+# Dot source public/private functions
+$PublicFunctions = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'public/*.ps1') -Recurse -ErrorAction SilentlyContinue)
+$PrivateFunctions = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'private/*.ps1') -Recurse -ErrorAction SilentlyContinue)
 
-    DynamicParam {
-        $Level = New-Object System.Management.Automation.ParameterAttribute
-        $Level.ParameterSetName = '__AllParameterSets'
-        $Level.Mandatory = $true
-        $Level.Position = 1
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute(Get-LevelsName)
-
-        $AttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-        $AttributeCollection.Add($Level)
-        $AttributeCollection.Add($ValidateSetAttribute)
-
-        $LevelParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $AttributeCollection)
-
-        $RDPDic = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $RDPDic.Add('Level', $LevelParam)
-        return $RDPDic
+$AllFunctions = $PublicFunctions + $PrivateFunctions
+foreach ($Function in $AllFunctions) {
+    try {
+        . $Function.FullName
     }
-
-    End {
-        $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
-        if ($Arguments) {
-            $text = $Message -f $Arguments
-        } else {
-            $text = $Message
-        }
-
-        $mess = [hashtable] @{
-            timestamp = Get-Date -UFormat $Defaults.Timestamp
-            level     = Get-LevelName -Level $LevelNo
-            levelno   = $LevelNo
-            lineno    = $MyInvocation.ScriptLineNumber
-            pathname  = $MyInvocation.ScriptName
-            filename  = Split-Path -Path $MyInvocation.ScriptName -Leaf
-            caller    = $MyInvocation.MyCommand.Name
-            message   = $text
-            execinfo  = $ExceptionInfo
-        }
-
-        if ($Body) { $mess.body = $Body }
-        [void] $MessageQueue.Add($mess)
+    catch {
+        throw "Unable to dot source [$($Function.FullName)]"
     }
 }
 
-
-Function Get-LevelsName {
-    [CmdletBinding()]
-    param()
-
-    return $LevelNames.Keys | Where-Object {$_ -isnot [int]} | Sort-Object
-}
-
-
-Function Get-LevelNumber {
-    [CmdletBinding()]
-    param(
-        $Level
-    )
-
-    if ($Level -is [int] -and $Level -in $LevelNames.Keys) {return $Level}
-    elseif ([string] $Level -eq $Level -and $Level -in $LevelNames.Keys) {return $LevelNames[$Level]}
-    else {throw ('Level not a valid integer or a valid string: {0}' -f $Level)}
-}
-
-
-Function Get-LevelName {
-    [CmdletBinding()]
-    param(
-        [int] $Level
-    )
-
-    $l = $LevelNames[$Level]
-    if ($l) {return $l}
-    else {return ('Level {0}' -f $Level)}
-}
-
-
-Function Replace-Token {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseApprovedVerbs', '')]
-    [CmdletBinding()]
-    param(
-        [string] $String,
-        [object] $Source
-    )
-
-    $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmtU>(?:%[ABCDGHIMRSTUVWXYZabcdeghjklmnprstuwxy].*?)+))?(?::?\+(?<datefmt>(?:.*?)+))?(?::(?<padding>-?\d+))?}'
-    $re.Replace($String, {
-        param($match)
-        $token = $match.Groups['token'].value
-        $datefmt = $match.Groups['datefmt'].value
-        $datefmtU = $match.Groups['datefmtU'].value
-        $padding = $match.Groups['padding'].value
-
-        if ($token -and -not $datefmt -and -not $datefmtU) {
-            $var = $Source.$token
-        } elseif ($token -and $datefmtU) {
-            $var = Get-Date $Source.$token -UFormat $datefmtU
-        } elseif ($token -and $datefmt) {
-            $var = Get-Date $Source.$token -Format $datefmt
-        } elseif ($datefmtU -and -not $token) {
-            $var = Get-Date -UFormat $datefmtU
-        } elseif ($datefmt -and -not $token) {
-            $var = Get-Date -Format $datefmt
-        }
-
-        if ($padding) {
-            $tpl = "{0,$padding}"
-        } else {
-            $tpl = '{0}'
-        }
-
-        return ($tpl -f $var)
-    })
-}
-
-
-Function Add-LoggingLevel {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [int] $Level,
-        [Parameter(Mandatory)]
-        [string] $LevelName
-    )
-
-    if ($Level -notin $LevelNames.Keys -and $LevelName -notin $LevelNames.Keys) {
-        $LevelNames[$Level] = $LevelName.ToUpper()
-        $LevelNames[$LevelName] = $Level
-    } elseif ($Level -in $LevelNames.Keys -and $LevelName -notin $LevelNames.Keys) {
-        $LevelNames.Remove($LevelNames[$Level]) | Out-Null
-        $LevelNames[$Level] = $LevelName.ToUpper()
-        $LevelNames[$LevelNames[$Level]] = $Level
-    } elseif ($Level -notin $LevelNames.Keys -and $LevelName -in $LevelNames.Keys) {
-        $LevelNames.Remove($LevelNames[$LevelName]) | Out-Null
-        $LevelNames[$LevelName] = $Level
-    }
-}
-
-Function Set-LoggingDefaultLevel {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions','')]
-    [CmdletBinding()]
-    param()
-
-    DynamicParam {
-        $attributes = New-Object System.Management.Automation.ParameterAttribute
-        $attributes.ParameterSetName = '__AllParameterSets'
-        $attributes.Mandatory = $true
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute(Get-LevelsName)
-
-        $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-        $attributeCollection.Add($attributes)
-        $attributeCollection.Add($ValidateSetAttribute)
-
-        $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $attributeCollection)
-        $dynParam1.Value = 'VERBOSE'
-
-        $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $paramDictionary.Add('Level', $dynParam1)
-        return $paramDictionary
-    }
-
-    End {
-        $Logging.Level = Get-LevelNumber -Level $PSBoundParameters.Level
-    }
-}
-
-
-Function Get-LoggingDefaultLevel {
-    [CmdletBinding()]
-    param()
-
-    return Get-LevelName -Level $Logging.Level
-}
-
-
-Function Get-LoggingDefaultFormat {
-    [CmdletBinding()]
-    param()
-
-    return $Logging.Format
-}
-
-
-Function Set-LoggingDefaultFormat {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions','')]
-    [CmdletBinding()]
-    param(
-        [string] $Format = $Defaults.Format
-    )
-    Wait-Logging
-    $Logging.Format = $Format
-}
-
-
-Function Get-LoggingTargetAvailable {
-    [CmdletBinding()]
-    param()
-
-    return $LogTargets
-}
-
-
-Function Get-LoggingTarget {
-    [CmdletBinding()]
-    param()
-
-    return $Logging.Targets
-}
-
-Function Initialize-LoggingTarget {
-    [CmdletBinding()]
-    param()
-
-    $Targets = Get-ChildItem "$ScriptRoot\targets" -Filter '*.ps1'
-    if ($Logging.CustomTargets) {
-        if (Test-Path $Logging.CustomTargets) {
-            $Targets += Get-ChildItem $Logging.CustomTargets -Filter '*.ps1'
-        }
-    }
-
-    foreach ($Target in $Targets) {
-        $Module = . $Target.FullName
-        $LogTargets[$Module.Name] = @{
-            Logger = $Module.Logger
-            Description = $Module.Description
-            Configuration = $Module.Configuration
-            ParamsRequired = $Module.Configuration.GetEnumerator() | Where-Object {$_.Value.Required -eq $true} | Select-Object -ExpandProperty Name
-        }
-    }
-}
-
-Function Set-LoggingCustomTarget {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions','')]
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [ValidateScript({Test-Path -Path $_})]
-        [string] $Path
-    )
-    Wait-Logging
-    $Logging.CustomTargets = $Path
-    Initialize-LoggingTarget
-}
-
-
-Function Assert-LoggingTargetConfiguration {
-    [CmdletBinding()]
-    param(
-        $Target,
-        $Configuration
-    )
-
-    $TargetName = $Target
-    $TargetConf = $LogTargets[$Target]
-
-    foreach ($Param in $TargetConf.ParamsRequired) {
-        if ($Param -notin $Configuration.Keys) {
-            throw ('Configuration {0} is required for target {2}; please provide one of type {1}' -f $Param, $TargetConf.Configuration[$Param].Type, $TargetName)
-        }
-    }
-
-    foreach ($Conf in $Configuration.Keys) {
-        if ($TargetConf.Configuration[$Conf] -and $Configuration[$Conf] -isnot $TargetConf.Configuration[$Conf].Type) {
-            throw ('Configuration {0} has to be of type {1} for target {2}' -f $Conf, $TargetConf.Configuration[$Conf].Type, $TargetName)
-        }
-    }
-}
-
-
-Function Add-LoggingTarget {
-    [CmdletBinding()]
-    param(
-        [Parameter(Position = 2)]
-        [hashtable] $Configuration = @{}
-    )
-
-    DynamicParam {
-        $attributes = New-Object System.Management.Automation.ParameterAttribute
-        $attributes.ParameterSetName = '__AllParameterSets'
-        $attributes.Mandatory = $true
-        $attributes.Position = 1
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LogTargets.Keys)
-
-        $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-        $attributeCollection.Add($attributes)
-        $attributeCollection.Add($ValidateSetAttribute)
-
-        $NameParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Name', [string], $attributeCollection)
-
-        $DynParams = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $DynParams.Add('Name', $NameParam)
-
-        return $DynParams
-    }
-
-    End {
-        Assert-LoggingTargetConfiguration -Target $PSBoundParameters.Name -Configuration $Configuration
-        $Logging.Targets[$PSBoundParameters.Name] = $Configuration
-    }
-}
-
-Function Wait-Logging {
-    [CmdletBinding()]
-    [OutputType()]
-    param()
-
-    while ($MessageQueue.Count -gt 0) {
-        Start-Sleep -Milliseconds 10
-    }
-}
+Export-ModuleMember -Function $PublicFunctions.BaseName
 
 Initialize-LoggingTarget
 
@@ -441,16 +130,3 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     [System.GC]::Collect()
 }
 #endregion Handle Module Removal
-
-# Exports
-Export-ModuleMember -Function Add-LoggingLevel
-Export-ModuleMember -Function Set-LoggingDefaultLevel
-Export-ModuleMember -Function Get-LoggingDefaultLevel
-Export-ModuleMember -Function Set-LoggingDefaultFormat
-Export-ModuleMember -Function Get-LoggingDefaultFormat
-Export-ModuleMember -Function Set-LoggingCustomTarget
-Export-ModuleMember -Function Get-LoggingTargetAvailable
-Export-ModuleMember -Function Get-LoggingTarget
-Export-ModuleMember -Function Add-LoggingTarget
-Export-ModuleMember -Function Write-Log
-Export-ModuleMember -Function Wait-Logging

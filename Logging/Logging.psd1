@@ -12,7 +12,7 @@
 RootModule = 'Logging.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.4.13'
+ModuleVersion = '2.5.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,32 +30,7 @@ CompanyName = 'Unknown'
 Copyright = '(c) 2015 Massimo Bonvicini. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Powershell Logging Module
-
-Features
-
-* Separate thread that dispatch messages to targets to avoid bottleneck in the main script
-* Extensible with new targets
-* Custom formatting
-* Each target can have his own logging level
-
-TL;DR
-
-Set-LoggingDefaultLevel -Level ''WARNING''
-Add-LoggingTarget -Name Console
-Add-LoggingTarget -Name File -Configuration @{Path = ''C:\Temp\example_%{+%Y%m%d}.log''}
-
-$Level = ''DEBUG'', ''INFO'', ''WARNING'', ''ERROR''
-foreach ($i in 1..100) {
-    Write-Log -Level ($Level | Get-Random) (''Message n.{0}'' -f $i)
-    Start-Sleep -Milliseconds (Get-Random -Min 100 -Max 1000)
-}
-
-Wait-Logging        # See Note
-
-NOTE
-
-When used in *unattended* scripts (scheduled tasks, spawned process) you need to call Wait-Logging to avoid losing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you''ll lose it)'
+Description = 'Powershell Logging Module'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -94,11 +69,7 @@ When used in *unattended* scripts (scheduled tasks, spawned process) you need to
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Write-Log', 'Add-LoggingLevel', 'Set-LoggingDefaultLevel',
-               'Get-LoggingDefaultLevel', 'Get-LoggingDefaultFormat',
-               'Set-LoggingDefaultFormat', 'Get-LoggingTargetAvailable',
-               'Get-LoggingTarget', 'Set-LoggingCustomTarget', 'Add-LoggingTarget',
-               'Wait-Logging'
+FunctionsToExport = @('Add-LoggingLevel','Add-LoggingTarget','Get-LoggingDefaultFormat','Get-LoggingDefaultLevel','Get-LoggingTarget','Get-LoggingTargetAvailable','Set-LoggingCustomTarget','Set-LoggingDefaultFormat','Set-LoggingDefaultLevel','Wait-Logging','Write-Log')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -124,10 +95,10 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Logging','Log','Console','File'
+        Tags = 'Logging','Log','Console','File','ElasticSearch','Slack','Email'
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/EsOsO/Logging/blobl/master/docs/LICENSE'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/EsOsO/Logging'
@@ -136,7 +107,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = ''
 
         # External dependent modules of this module
         # ExternalModuleDependencies = ''
@@ -146,10 +117,16 @@ PrivateData = @{
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-# HelpInfoURI = ''
+HelpInfoURI = 'https://logging.readthedocs.io'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
 
 }
+
+
+
+
+
+
 
