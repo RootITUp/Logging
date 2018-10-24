@@ -1,6 +1,5 @@
 install:
   - cup gitversion.portable -pre -y
-  - C:\ProgramData\chocolatey\bin\RefreshEnv
 
 version: '{build}'
 
@@ -23,7 +22,7 @@ environment:
     secure: qOw7foLVABiwY5Y4Th58VNI8sbyJpNwvkFSI9DFxqII=
 
 before_build:
-  - ps: gitversion /l console /output buildserver
+  - ps: C:\ProgramData\chocolatey\bin\gitversion.exe /l console /output buildserver
 
 build_script:
   - ps: . .\build.ps1
