@@ -130,3 +130,4 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     [System.GC]::Collect()
 }
 #endregion Handle Module Removal
+
