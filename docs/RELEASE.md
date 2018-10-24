@@ -1,1 +1,2 @@
+- [MOD] Changed gitversion mode to "Mainline"
 - [FIX] Buld script fixes
