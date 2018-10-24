@@ -15,9 +15,10 @@ function Update-AdditionalReleaseArtifact {
         Set-AppveyorBuildVariable -Name ReleaseDescription -Value $ReleaseDescription
     }
 
-    $Changelog = gc $ChangelogFile
+    $Changelog = (gc $ChangelogFile | select -Skip 2) -join "`r`n"
 
-    ("# {0} ({1})`r`n" -f $Version, $CommitDate) | Out-File $ChangelogTemp -Encoding ascii
+    "# CHANGELOG`r`n" | Out-File $ChangelogTemp -Encoding ascii
+    ("## {0} ({1})`r`n" -f $Version, $CommitDate) | Out-File $ChangelogTemp -Encoding ascii
     ("{0}`r`n`r`n" -f $ReleaseDescription) | Out-File $ChangelogTemp -Append -Encoding ascii
     ("{0}`r`n" -f $Changelog) | Out-File $ChangelogTemp -Append -Encoding ascii
 
