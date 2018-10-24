@@ -9,6 +9,11 @@ branches:
 skip_commits:
   message: /\[skip ci\]/
 
+only_commits:
+  files:
+    - Logging/
+    - Tests/
+
 environment:
   APPVEYOR_NUGET_API_KEY:
     secure: AtKUh7VTiq0BCPftMVX+nkY7Jsz47iYsYR2iWJ3U//cAQwvo0MWuY0A0bbY3kP4L
