@@ -7,8 +7,7 @@ branches:
     - master
 
 only_commits:
-  message:
-    - /+semver:/
+  message: /+semver:/
 
 environment:
   APPVEYOR_NUGET_API_KEY:
