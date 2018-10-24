@@ -1,2 +1,1 @@
-- [FIX] copyright string in mkdocs.yml
-- [FIX] Build version for CD
+- [ADD] powershellgallery publishing on build
