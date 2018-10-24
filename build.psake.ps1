@@ -134,9 +134,6 @@ Task IncrementVersion -Depends BuildDocs {
     Write-Host 'Git: Committing new release'
     Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
 
-    Write-Host 'Git: Tagging branch'
-    Exec {git tag $SemVer}
-
     if ($LASTEXITCODE -ne 0) {
         Exec {git reset --hard HEAD^}
         throw 'No changes detected since last release'
