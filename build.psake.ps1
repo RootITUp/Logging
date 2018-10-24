@@ -163,5 +163,5 @@ Task Build -Depends IncrementVersion {
 }
 
 Task PublishModule -Depends Build {
-
+    Publish-Module -Path $BuildVersionedModule -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY
 }
