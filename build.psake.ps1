@@ -24,7 +24,7 @@ function Update-AdditionalReleaseArtifact {
 }
 
 Properties {
-    $GitVersion = gitversion | ConvertFrom-Json
+    $GitVersion = gitversion /output json | ConvertFrom-Json
     $BranchName = $GitVersion.BranchName
     $SemVer = $GitVersion.SemVer
     $StableVersion = $GitVersion.MajorMinorPatch
