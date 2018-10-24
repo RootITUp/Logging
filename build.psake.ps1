@@ -31,7 +31,7 @@ Properties {
     $StableVersion = $GitVersion.MajorMinorPatch
 
     $TestsFolder = '.\Tests'
-    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $GitVersion.ShortSha, $SemVer)
+    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $GitVersion.Sha, $SemVer)
 
     $Artifact = '{0}-{1}.zip' -f $env:BHProjectName.ToLower(), $SemVer
     $BuildBaseModule = Join-Path $env:BHBuildOutput $env:BHProjectName
