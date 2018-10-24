@@ -1,0 +1,27 @@
+site_name: Powershell Logging Module Documentation
+site_description: Powershell Logging Module
+site_author: Massimo Bonvicini
+repo_url: https://github.com/EsOsO/Logging
+edit_uri: edit/master/docs/
+copyright: "Powershell Logging Module is licensed under the <a href="https://github.com/EsOsO/Logging/raw/master/docs/LICENSE">MIT license</a>"
+theme: readthedocs
+nav:
+  - Home: index.md
+  - Usage: Usage.md
+  - 'Available Targets': AvailableTargets.md
+  - About:
+    - Changelog: CHANGELOG.md
+    - Contributing: CONTRIBUTING.md
+    - License: LICENSE
+  - Functions:
+		- Add-LoggingLevel: Add-LoggingLevel.md
+		- Add-LoggingTarget: Add-LoggingTarget.md
+		- Get-LoggingAvailableTarget: Get-LoggingAvailableTarget.md
+		- Get-LoggingDefaultFormat: Get-LoggingDefaultFormat.md
+		- Get-LoggingDefaultLevel: Get-LoggingDefaultLevel.md
+		- Get-LoggingTarget: Get-LoggingTarget.md
+		- Set-LoggingCustomTarget: Set-LoggingCustomTarget.md
+		- Set-LoggingDefaultFormat: Set-LoggingDefaultFormat.md
+		- Set-LoggingDefaultLevel: Set-LoggingDefaultLevel.md
+		- Wait-Logging: Wait-Logging.md
+		- Write-Log: Write-Log.md
