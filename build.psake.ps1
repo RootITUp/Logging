@@ -4,8 +4,9 @@ function Update-AdditionalReleaseArtifact {
         [string] $CommitDate
     )
 
-    Write-Host ('Updating Module Manifest version number to: {0}' -f $Version)
-    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
+    $PSVersion = $Version -replace '^(\d+\.\d+\.\d+).*$', '$1'
+    Write-Host ('Updating Module Manifest version number to: {0}' -f $PSVersion)
+    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $PSVersion
 
     Write-Host 'Getting release notes'
     $ReleaseDescription = (gc $ReleaseFile) -join "`r`n"
@@ -24,7 +25,6 @@ function Update-AdditionalReleaseArtifact {
 }
 
 Properties {
-    gitversion
     $GitVersion = gitversion | ConvertFrom-Json
     $BranchName = $GitVersion.BranchName
     $SemVer = $GitVersion.SemVer
@@ -128,7 +128,7 @@ Task BuildDocs -Depends Tests {
 }
 
 Task IncrementVersion -Depends BuildDocs {
-    Update-AdditionalReleaseArtifact -Version $StableVersion -CommitDate $GitVersion.CommitDate
+    Update-AdditionalReleaseArtifact -Version $SemVer -CommitDate $GitVersion.CommitDate
 
     Write-Host 'Git: Committing new release'
     Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
