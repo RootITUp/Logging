@@ -24,10 +24,10 @@ environment:
 before_build:
   - ps: gitversion /l console /output buildserver
 
-build: false
-
-test_script:
+build_script:
   - ps: . .\build.ps1
+
+test: false
 
 deploy:
   tag: $(ReleaseVersion)
