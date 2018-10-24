@@ -1,2 +1,2 @@
-- [MOD] Changed gitversion mode to "Mainline"
-- [FIX] Buld script fixes
+- [FIX] copyright string in mkdocs.yml
+- [FIX] Build version for CD
