@@ -50,7 +50,7 @@ Properties {
 
 FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
 
-Task Default -Depends Build
+Task Default -Depends PublishModule
 
 Task Init {
     Set-Location $env:BHProjectPath
