@@ -26,14 +26,12 @@ function Update-AdditionalReleaseArtifact {
 }
 
 Properties {
-    gitversion /version
-    $GitVersion = gitversion | ConvertFrom-Json
-    $BranchName = $GitVersion.BranchName
-    $SemVer = $GitVersion.SemVer
-    $StableVersion = $GitVersion.MajorMinorPatch
+    $BranchName = $env:GitVersion_BranchName
+    $SemVer = $env:GitVersion_SemVer
+    $StableVersion = $env:GitVersion_MajorMinorPatch
 
     $TestsFolder = '.\Tests'
-    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $GitVersion.Sha, $SemVer)
+    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $env:GitVersion_ShortSha, $SemVer)
 
     $Artifact = '{0}-{1}.zip' -f $env:BHProjectName.ToLower(), $SemVer
     $BuildBaseModule = Join-Path $env:BHBuildOutput $env:BHProjectName
@@ -130,7 +128,7 @@ Task BuildDocs -Depends Tests {
 }
 
 Task IncrementVersion -Depends BuildDocs {
-    Update-AdditionalReleaseArtifact -Version $SemVer -CommitDate $GitVersion.CommitDate
+    Update-AdditionalReleaseArtifact -Version $SemVer -CommitDate $env:GitVersion_CommitDate
 
     Write-Host 'Git: Committing new release'
     Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
