@@ -163,5 +163,6 @@ Task Build -Depends IncrementVersion {
 }
 
 Task PublishModule -Depends Build {
+    Write-Host "PublishModule: Publishing module to powershellgallery"
     Publish-Module -Path $BuildVersionedModule -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY
 }

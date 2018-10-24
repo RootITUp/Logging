@@ -6,13 +6,9 @@ branches:
   only:
     - master
 
-skip_commits:
-  message: /\[skip ci\]/
-
 only_commits:
-  files:
-    - Logging/
-    - Tests/
+  message:
+    - /+semver:/
 
 environment:
   APPVEYOR_NUGET_API_KEY:
