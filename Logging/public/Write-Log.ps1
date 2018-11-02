@@ -96,7 +96,7 @@ Function Write-Log {
             lineno    = $MyInvocation.ScriptLineNumber
             pathname  = $MyInvocation.ScriptName
             filename  = $FileName
-            caller    = $MyInvocation.MyCommand.Name
+            caller    = Get-CallerNameInScope
             message   = $text
             execinfo  = $ExceptionInfo
         }
