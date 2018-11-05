@@ -4,19 +4,21 @@ function Update-AdditionalReleaseArtifact {
         [string] $CommitDate
     )
 
-    Write-Host ('Updating Module Manifest version number to: {0}' -f $Version)
-    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $Version
+    $PSVersion = $Version -replace '^(\d+\.\d+\.\d+).*$', '$1'
+    Write-Host ('Updating Module Manifest version number to: {0}' -f $PSVersion)
+    Update-Metadata -Path $env:BHPSModuleManifest -PropertyName ModuleVersion -Value $PSVersion
 
     Write-Host 'Getting release notes'
-    $ReleaseDescription = gc $ReleaseFile
+    $ReleaseDescription = (gc $ReleaseFile) -join "`r`n"
 
     if ($env:APPVEYOR) {
         Set-AppveyorBuildVariable -Name ReleaseDescription -Value $ReleaseDescription
     }
 
-    $Changelog = gc $ChangelogFile
+    $Changelog = (gc $ChangelogFile | select -Skip 2) -join "`r`n"
 
-    ("# {0} ({1})`r`n" -f $Version, $CommitDate) | Out-File $ChangelogTemp -Encoding ascii
+    "# CHANGELOG`r`n" | Out-File $ChangelogTemp -Encoding ascii
+    ("## {0} ({1})`r`n" -f $Version, $CommitDate) | Out-File $ChangelogTemp -Encoding ascii
     ("{0}`r`n`r`n" -f $ReleaseDescription) | Out-File $ChangelogTemp -Append -Encoding ascii
     ("{0}`r`n" -f $Changelog) | Out-File $ChangelogTemp -Append -Encoding ascii
 
@@ -24,13 +26,12 @@ function Update-AdditionalReleaseArtifact {
 }
 
 Properties {
-    $GitVersion = gitversion | ConvertFrom-Json
-    $BranchName = $GitVersion.BranchName
-    $SemVer = $GitVersion.SemVer
-    $StableVersion = $GitVersion.MajorMinorPatch
+    $BranchName = $env:GitVersion_BranchName
+    $SemVer = $env:GitVersion_SemVer
+    $StableVersion = $env:GitVersion_MajorMinorPatch
 
     $TestsFolder = '.\Tests'
-    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $GitVersion.ShortSha, $SemVer)
+    $TestsFile = Join-Path $env:BHBuildOutput ('tests-{0}-{1}.xml' -f $env:GitVersion_ShortSha, $SemVer)
 
     $Artifact = '{0}-{1}.zip' -f $env:BHProjectName.ToLower(), $SemVer
     $BuildBaseModule = Join-Path $env:BHBuildOutput $env:BHProjectName
@@ -48,7 +49,7 @@ Properties {
 
 FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
 
-Task Default -Depends Build
+Task Default -Depends PublishModule
 
 Task Init {
     Set-Location $env:BHProjectPath
@@ -122,11 +123,12 @@ Task BuildDocs -Depends Tests {
     Remove-Module $env:BHProjectName -Force
 
     Write-Host 'Git: Committing updated docs'
+    Exec {git add --all}
     Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
 }
 
 Task IncrementVersion -Depends BuildDocs {
-    Update-AdditionalReleaseArtifact -Version $StableVersion -CommitDate $GitVersion.CommitDate
+    Update-AdditionalReleaseArtifact -Version $SemVer -CommitDate $env:GitVersion_CommitDate
 
     Write-Host 'Git: Committing new release'
     Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
@@ -160,5 +162,6 @@ Task Build -Depends IncrementVersion {
 }
 
 Task PublishModule -Depends Build {
-
+    Write-Host "PublishModule: Publishing module to powershellgallery"
+    Publish-Module -Path $BuildVersionedModule -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY
 }

@@ -30,10 +30,12 @@ $Defaults = @{
     Level = $NOTSET
     Format = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
     Timestamp = '%Y-%m-%dT%T%Z'
+    CallerScope = 1
 }
 
 $Logging.Level      = $Defaults.Level
 $Logging.Format     = $Defaults.Format
+$Logging.CallerScope = $Defaults.CallerScope
 $Logging.Targets    = [hashtable] @{}
 
 # Dot source public/private functions
@@ -130,3 +132,4 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     [System.GC]::Collect()
 }
 #endregion Handle Module Removal
+

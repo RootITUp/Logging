@@ -1,2 +1,1 @@
-- [FIX] New module layout
-- [FIX] New build script
+- [ADD] powershellgallery publishing on build

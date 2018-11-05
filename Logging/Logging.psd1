@@ -12,7 +12,7 @@
 RootModule = 'Logging.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.5.0'
+ModuleVersion = '2.6.13'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ Description = 'Powershell Logging Module'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Add-LoggingLevel','Add-LoggingTarget','Get-LoggingDefaultFormat','Get-LoggingDefaultLevel','Get-LoggingTarget','Get-LoggingTargetAvailable','Set-LoggingCustomTarget','Set-LoggingDefaultFormat','Set-LoggingDefaultLevel','Wait-Logging','Write-Log')
+FunctionsToExport = @('Add-LoggingLevel','Add-LoggingTarget','Get-LoggingDefaultFormat','Get-LoggingDefaultLevel','Get-LoggingTarget','Get-LoggingAvailableTarget','Set-LoggingCustomTarget','Set-LoggingDefaultFormat','Set-LoggingDefaultLevel','Wait-Logging','Write-Log')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

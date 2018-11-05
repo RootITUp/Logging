@@ -157,7 +157,7 @@ InModuleScope Logging {
         }
 
         It 'returns the loaded logging targets' {
-            $AvailableTargets = Get-LoggingTargetAvailable
+            $AvailableTargets = Get-LoggingAvailableTarget
             $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
             $AvailableTargets.Count | Should Be 6
         }
@@ -173,6 +173,19 @@ InModuleScope Logging {
             Get-LoggingDefaultFormat | Should Be $Defaults.Format
             Set-LoggingDefaultFormat -Format $NewFormat
             Get-LoggingDefaultFormat | Should Be $NewFormat
+        }
+    }
+
+    Describe 'Logging Caller Scope' {
+        It 'should be the default value' {
+            Get-LoggingCallerScope | Should -Be $Defaults.CallerScope
+        }
+
+        It 'should change the caller scope value' {
+            $newScope = 3
+            Get-LoggingCallerScope | Should -Be $Defaults.CallerScope
+            Set-LoggingCallerScope -CallerScope $newScope
+            Get-LoggingCallerScope | Should -Be $newScope
         }
     }
 }

@@ -1,3 +1,6 @@
+install:
+  - cup gitversion.portable -pre -y
+
 version: '{build}'
 
 image: 'Visual Studio 2017'
@@ -6,8 +9,8 @@ branches:
   only:
     - master
 
-skip_commits:
-  message: /\[skip ci\]/
+only_commits:
+  message: /\+semver:/
 
 environment:
   APPVEYOR_NUGET_API_KEY:
@@ -18,10 +21,13 @@ environment:
   APPVEYOR_GITHUB_EMAIL:
     secure: qOw7foLVABiwY5Y4Th58VNI8sbyJpNwvkFSI9DFxqII=
 
-build: false
+before_build:
+  - ps: C:\ProgramData\chocolatey\bin\gitversion.exe /l console /output buildserver
 
-test_script:
+build_script:
   - ps: . .\build.ps1
+
+test: false
 
 deploy:
   tag: $(ReleaseVersion)
