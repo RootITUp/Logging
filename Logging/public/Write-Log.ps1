@@ -85,16 +85,14 @@ Function Write-Log {
             $text = $Message
         }
 
-        if ($MyInvocation.ScriptName) {
-            $FileName = Split-Path -Path $MyInvocation.ScriptName -Leaf
-        }
+        $InvocationInfo = (Get-PSCallStack).InvocationInfo
 
         $mess = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
             level     = Get-LevelName -Level $LevelNo
             levelno   = $LevelNo
-            lineno    = $MyInvocation.ScriptLineNumber
-            pathname  = $MyInvocation.ScriptName
+            lineno    = $InvocationInfo.ScriptLineNumber
+            pathname  = $InvocationInfo.ScriptName
             filename  = $FileName
             caller    = Get-CallerNameInScope
             message   = $text
