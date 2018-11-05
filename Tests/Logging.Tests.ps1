@@ -175,4 +175,17 @@ InModuleScope Logging {
             Get-LoggingDefaultFormat | Should Be $NewFormat
         }
     }
+
+    Describe 'Logging Caller Scope' {
+        It 'should be the default value' {
+            Get-LoggingCallerScope | Should -Be $Defaults.CallerScope
+        }
+
+        It 'should change the caller scope value' {
+            $newScope = 3
+            Get-LoggingCallerScope | Should -Be $Defaults.CallerScope
+            Set-LoggingCallerScope -CallerScope $newScope
+            Get-LoggingCallerScope | Should -Be $newScope
+        }
+    }
 }
