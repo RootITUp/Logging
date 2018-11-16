@@ -93,6 +93,44 @@ Wednesday, April 20, 2016
 [2016/04/20 13:31:12.431]
 ```
 
+#### Caller
+
+By default the caller cmdlet is assumed to be the parent function in the executing stack, i.e., the function directly calling the `Write-Log` cmdlet. However, there are instances where a wrapper cmdlet is used on top of `Write-Log` to trigger the logging, thus invalidating the default assumption for the caller.
+
+In these scenarios, it is possible to set the caller scope using `Set-LoggingCallerScope`, which is shown in the example below along with the usage of a wrapper logging cmdlet.
+
+```powershell
+# Write-CustomLog is the wrapper logging cmdlet
+# If the default caller scope is used, it would print 'Write-CustomLog' everytime
+function Write-CustomLog {
+    [CmdletBinding()]
+    param(
+        $Level,
+        $Message
+    )
+
+    Write-Log -Level $Level -Message $Message
+}
+
+function Invoke-CallerFunctionWithCustomLog {
+    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
+    Set-LoggingDefaultFormat -Format '[%{filename}] [%{caller}] %{message}'
+
+    # Set the scope to find the caller information from
+    Set-LoggingCallerScope -CallerScope 2
+
+    1..5 | ForEach-Object {
+        # In this example, during execution of Write-Log the numeric scope represents the following:
+        # 0 - Write-Log scope
+        # 1 - Write-CustomLog scope (which would be default value)
+        # 2 - Invoke-CallerFunctionWithCustomLog
+        Write-CustomLog -Level (Get-Random 'DEBUG', 'INFO', 'WARNING', 'ERROR') -Message 'Hello, World! (With caller scope at level 2)'
+    }
+}
+
+Invoke-CallerFunctionWithCustomLog
+```
+
 **Note**: A format string starting with a percent symbol (%) will use the `UFormat` parameter of `Get-Date`
 
 ### Targets
