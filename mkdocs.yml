@@ -17,9 +17,11 @@ nav:
 		- Add-LoggingLevel: Add-LoggingLevel.md
 		- Add-LoggingTarget: Add-LoggingTarget.md
 		- Get-LoggingAvailableTarget: Get-LoggingAvailableTarget.md
+		- Get-LoggingCallerScope: Get-LoggingCallerScope.md
 		- Get-LoggingDefaultFormat: Get-LoggingDefaultFormat.md
 		- Get-LoggingDefaultLevel: Get-LoggingDefaultLevel.md
 		- Get-LoggingTarget: Get-LoggingTarget.md
+		- Set-LoggingCallerScope: Set-LoggingCallerScope.md
 		- Set-LoggingCustomTarget: Set-LoggingCustomTarget.md
 		- Set-LoggingDefaultFormat: Set-LoggingDefaultFormat.md
 		- Set-LoggingDefaultLevel: Set-LoggingDefaultLevel.md
