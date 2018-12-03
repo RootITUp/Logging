@@ -1,4 +1,7 @@
-## 2.6.15 (2018-11-05)
+## 2.6.17 (2018-12-03)
+
+- [ADD] powershellgallery publishing on build
+
 
 - [ADD] powershellgallery publishing on build
 
@@ -88,6 +91,7 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
