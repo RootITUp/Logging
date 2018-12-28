@@ -1,4 +1,7 @@
-## 2.6.17 (2018-12-03)
+## 2.6.18 (2018-12-28)
+
+- [FIX] Fixed Write-Log -Arguments detection
+
 
 - [ADD] powershellgallery publishing on build
 
@@ -72,6 +75,7 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
