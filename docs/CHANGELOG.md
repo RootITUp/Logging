@@ -2,25 +2,6 @@
 
 - [ADD] powershellgallery publishing on build
 
-
-- [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
-
-
 ## 2.6.0-ci.10 (2018-10-24)
 
 - [FIX] copyright string in mkdocs.yml

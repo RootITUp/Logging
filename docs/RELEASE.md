@@ -1,1 +1,1 @@
-- [ADD] powershellgallery publishing on build
+- [FIX] Fixed Write-Log -Arguments detection
