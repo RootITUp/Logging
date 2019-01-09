@@ -117,7 +117,7 @@ Task BuildDocs -Depends Tests {
 
     Copy-Item -Path .\header-mkdocs.yml -Destination mkdocs.yml -Force
     $ExportedFunctions | %{
-        ("`t`t- {0}: {0}.md" -f $_) | Out-File .\mkdocs.yml -Append -Encoding ascii
+        ("    - {0}: {0}.md" -f $_) | Out-File .\mkdocs.yml -Append -Encoding ascii
     }
 
     Remove-Module $env:BHProjectName -Force
