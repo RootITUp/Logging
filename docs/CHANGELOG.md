@@ -1,4 +1,7 @@
-## 2.6.18 (2018-12-28)
+## 2.6.19 (2019-01-09)
+
+- [FIX] Fixed Write-Log -Arguments detection
+
 
 - [FIX] Fixed Write-Log -Arguments detection
 
@@ -75,6 +78,7 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
