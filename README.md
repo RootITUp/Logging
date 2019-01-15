@@ -1,8 +1,6 @@
 # Powershell Logging Module
 
-![Logo](https://github.com/EsOsO/Logging/blob/static/img/logo.svg)
-
-Logging module for powershell
+<img src="https://github.com/EsOsO/Logging/blob/static/img/logo.svg" width="300px">
 
 ---
 
