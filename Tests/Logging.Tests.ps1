@@ -153,13 +153,13 @@ InModuleScope Logging {
     Describe 'Logging Targets' {
         It 'loads the logging targets' {
             $Targets = $InitialSessionState.Variables.Item('LogTargets').Value
-            $Targets.Count | Should Be 6
+            $Targets.Count | Should Be 7
         }
 
         It 'returns the loaded logging targets' {
             $AvailableTargets = Get-LoggingAvailableTarget
             $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
-            $AvailableTargets.Count | Should Be 6
+            $AvailableTargets.Count | Should Be 7
         }
     }
 
