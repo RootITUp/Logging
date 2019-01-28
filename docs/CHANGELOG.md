@@ -1,11 +1,6 @@
 ## 2.6.19 (2019-01-09)
 
 - [FIX] Fixed Write-Log -Arguments detection
-
-
-- [FIX] Fixed Write-Log -Arguments detection
-
-
 - [ADD] powershellgallery publishing on build
 
 ## 2.6.0-ci.10 (2018-10-24)
