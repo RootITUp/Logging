@@ -1,1 +1,1 @@
-- [FIX] Fixed Write-Log -Arguments detection
+- [NEW] Added Windows EventLog target (thx to @tadas)
