@@ -79,7 +79,7 @@ Function Write-Log {
 
     End {
         $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
-        if ($Arguments) {
+        if ($PSBoundParameters.ContainsKey('Arguments')) {
             $text = $Message -f $Arguments
         } else {
             $text = $Message

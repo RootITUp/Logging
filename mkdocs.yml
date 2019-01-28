@@ -14,14 +14,16 @@ nav:
     - Contributing: CONTRIBUTING.md
     - License: LICENSE
   - Functions:
-		- Add-LoggingLevel: Add-LoggingLevel.md
-		- Add-LoggingTarget: Add-LoggingTarget.md
-		- Get-LoggingAvailableTarget: Get-LoggingAvailableTarget.md
-		- Get-LoggingDefaultFormat: Get-LoggingDefaultFormat.md
-		- Get-LoggingDefaultLevel: Get-LoggingDefaultLevel.md
-		- Get-LoggingTarget: Get-LoggingTarget.md
-		- Set-LoggingCustomTarget: Set-LoggingCustomTarget.md
-		- Set-LoggingDefaultFormat: Set-LoggingDefaultFormat.md
-		- Set-LoggingDefaultLevel: Set-LoggingDefaultLevel.md
-		- Wait-Logging: Wait-Logging.md
-		- Write-Log: Write-Log.md
+    - Add-LoggingLevel: Add-LoggingLevel.md
+    - Add-LoggingTarget: Add-LoggingTarget.md
+    - Get-LoggingAvailableTarget: Get-LoggingAvailableTarget.md
+    - Get-LoggingCallerScope: Get-LoggingCallerScope.md
+    - Get-LoggingDefaultFormat: Get-LoggingDefaultFormat.md
+    - Get-LoggingDefaultLevel: Get-LoggingDefaultLevel.md
+    - Get-LoggingTarget: Get-LoggingTarget.md
+    - Set-LoggingCallerScope: Set-LoggingCallerScope.md
+    - Set-LoggingCustomTarget: Set-LoggingCustomTarget.md
+    - Set-LoggingDefaultFormat: Set-LoggingDefaultFormat.md
+    - Set-LoggingDefaultLevel: Set-LoggingDefaultLevel.md
+    - Wait-Logging: Wait-Logging.md
+    - Write-Log: Write-Log.md

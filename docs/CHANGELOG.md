@@ -1,22 +1,12 @@
-## 2.6.15 (2018-11-05)
+## 2.6.19 (2019-01-09)
 
-- [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
+- [FIX] Fixed Write-Log -Arguments detection
 
 
-- [ADD] powershellgallery publishing on build
+- [FIX] Fixed Write-Log -Arguments detection
 
 
 - [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
-
-
-- [ADD] powershellgallery publishing on build
-
 
 ## 2.6.0-ci.10 (2018-10-24)
 
@@ -88,6 +78,9 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
+
+
 
 
 

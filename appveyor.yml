@@ -1,5 +1,5 @@
 install:
-  - cup gitversion.portable -pre -y
+  - cup gitversion.portable -y
 
 version: '{build}'
 
