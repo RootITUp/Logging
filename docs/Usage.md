@@ -137,7 +137,7 @@ Invoke-CallerFunctionWithCustomLog
 
 The *Targets* property stores the used logging targets, it's where you define where to route your messages.
 
-Keys of the hashtable depends on the target you are configuring. The module ships with 3 targets but you can write your own for specific usage.
+Keys of the hashtable depends on the target you are configuring. The module ships with 7 targets but you can write your own for specific usage.
 
 * Console
 * File
@@ -145,6 +145,7 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * Slack
 * Email
 * Seq
+* WinEventLog
 
 #### Console
 
@@ -311,6 +312,24 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
 Write-Log -Level 'WARNING' -Message 'Hello, Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
+```
+
+#### WinEventLog
+
+Before you can log events you need to make sure that the LogName and Source exists. This needs to be done only once (run as an Administrator)
+```powershell
+> New-EventLog -LogName <NOTSET> -Source <NOTSET>
+```
+You can now log to the EventLog from your script
+```powershell
+> Add-LoggingTarget -Name WinEventLog -Configuration @{
+    LogName = <NOTSET>          # <Required> Name of the log to which the events are written (eg. 'Application', 'System' and etc.)
+    Source  = <NOTSET>          # <Required> Event source, which is typically the name of the application that is writing the event to the log
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{ EventID = 123 }
+}
 ```
 
 ### CustomTargets
