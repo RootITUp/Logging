@@ -8,6 +8,7 @@
     .PARAMETER Level
         The log level of the message. Valid values are DEBUG, INFO, WARNING, ERROR, NOTSET
         Other custom levels can be added and are a valid value for the parameter
+        INFO is the default
 
     .PARAMETER Message
         The text message to write
@@ -62,7 +63,7 @@ Function Write-Log {
     DynamicParam {
         $Level = New-Object System.Management.Automation.ParameterAttribute
         $Level.ParameterSetName = '__AllParameterSets'
-        $Level.Mandatory = $true
+        $Level.Mandatory = $false
         $Level.Position = 1
         $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute(Get-LevelsName)
 
@@ -71,6 +72,7 @@ Function Write-Log {
         $AttributeCollection.Add($ValidateSetAttribute)
 
         $LevelParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $AttributeCollection)
+        $PSBoundParameters['Level'] = 'INFO'
 
         $RDPDic = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
         $RDPDic.Add('Level', $LevelParam)
