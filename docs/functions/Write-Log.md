@@ -14,7 +14,7 @@ Emits a log record
 
 ```
 Write-Log [-Message] <String> [[-Arguments] <Array>] [[-Body] <Object>] [[-ExceptionInfo] <ErrorRecord>]
- -Level <String> [<CommonParameters>]
+ [-Level <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -105,16 +105,16 @@ Accept wildcard characters: False
 ```
 
 ### -Level
-{{Fill Level Description}}
+Level of the message that is being emitted
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
-Default value: None
+Default value: INFO
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
