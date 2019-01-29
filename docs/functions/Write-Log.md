@@ -105,7 +105,7 @@ Accept wildcard characters: False
 ```
 
 ### -Level
-Level of the message that is being emitted
+{{Fill Level Description}}
 
 ```yaml
 Type: String
@@ -114,7 +114,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: INFO
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
