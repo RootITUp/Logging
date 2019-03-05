@@ -9,8 +9,8 @@ branches:
   only:
     - master
 
-only_commits:
-  message: /\+semver:/
+skip_commits:
+  message: /\[skip ci\]/
 
 environment:
   APPVEYOR_NUGET_API_KEY:

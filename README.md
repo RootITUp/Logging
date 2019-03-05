@@ -1,12 +1,23 @@
-# Powershell Logging Module
+<p align="center">
+  <a href="https://www.powershellgallery.com/packages/logging" target="_blank" rel="noopener noreferrer">
+    <img src="https://github.com/EsOsO/Logging/blob/static/img/logo.svg" width="300px" alt="Powershell Logging logo">
+    <h3>Powershell Logging Module</h3>
+  </a>
+</p>
 
-<img src="https://github.com/EsOsO/Logging/blob/static/img/logo.svg" width="300px">
+<p align="center">
+  <a href="https://ci.appveyor.com/project/EsOsO/logging">
+    <img src="https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/master?svg=true" alt="Build Status">
+  </a>
+  <a href="https://logging.readthedocs.io/en/latest/?badge=latest">
+    <img src="https://readthedocs.org/projects/logging/badge/?version=latest" alt="Documentation">
+  </a>
+  <a href="https://www.powershellgallery.com/packages/logging">
+    <img src="https://img.shields.io/powershellgallery/dt/logging.svg" alt="Join the Wasmer Community">
+  </a>
+</p>
 
----
-
-[![Build status][appveyor-image]][appveyor-link]
-[![Documentation Status][rtfd-image]][rtfd-link]
-[![Powershell Gallery Downloads][psgallery-image]][psgallery]
+## Introduction
 
 - View the [module documentation][module-doc]
 - Project [changelog][changelog]

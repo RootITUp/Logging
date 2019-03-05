@@ -1,4 +1,13 @@
-## 2.6.19 (2019-01-09)
+## 2.8.0 (2019-03-05)
+
+- [NEW] Added Windows EventLog target (thx to @tadas)
+
+
+- [NEW] Added Windows EventLog target (thx to @tadas)
+
+
+- [NEW] Added Windows EventLog target (thx to @tadas)
+
 
 - [FIX] Fixed Write-Log -Arguments detection
 - [ADD] powershellgallery publishing on build
@@ -73,6 +82,9 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
+
+
 
 
 
