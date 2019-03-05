@@ -50,6 +50,7 @@ The Log object has a number of attributes that are replaced in the format string
 | `%{message}`   | The logged message |
 | `%{body}`      | The logged body (json format not pretty printed) |
 | `%{execinfo}`  | The ErrorRecord catched in a try/catch statement |
+| `%{pid}`       | The process id of the currently running powershellprocess ($PID) |
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
