@@ -99,6 +99,7 @@ Function Write-Log {
             caller    = Get-CallerNameInScope
             message   = $text
             execinfo  = $ExceptionInfo
+            pid       = $PID
         }
 
         if ($Body) { $mess.body = $Body }
