@@ -1,4 +1,7 @@
-## 2.8.0 (2019-03-05)
+## 2.9.1 (2019-03-15)
+
+- [NEW] Added Windows EventLog target (thx to @tadas)
+
 
 - [NEW] Added Windows EventLog target (thx to @tadas)
 
@@ -82,6 +85,7 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
