@@ -204,13 +204,15 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
 
 ```powershell
 > Add-LoggingTarget -Name ElasticSearch -Configuration @{
-    ServerName  = <NOTSET>          # <Required> Sets the ES server name (eg. 'localhost')
-    ServerPort  = <NOTSET>          # <Required> Sets the ES server port (eg. 9200)
-    Index       = <NOTSET>          # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
-                                    #            It supports templating like $Logging.Format
-    Type        = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
-    Level       = <NOTSET>          # <Not required> Sets the logging format for this target
-    Flatten     = $false            # <Not required> Transforms the log hashtable in a 1-D hashtable
+    ServerName     = <NOTSET>          # <Required> Sets the ES server name (eg. 'localhost')
+    ServerPort     = <NOTSET>          # <Required> Sets the ES server port (eg. 9200)
+    Index          = <NOTSET>          # <Required> Sets the ES index name to log to (eg. 'logs-%{+%Y.%m.%d}')
+                                       #            It supports templating like $Logging.Format
+    Type           = <NOTSET>          # <Required> Sets the ES type for the message (eg. 'log')
+    Level          = <NOTSET>          # <Not required> Sets the logging format for this target
+    Flatten        = $false            # <Not required> Transforms the log hashtable in a 1-D hashtable
+    Https          = $false            # <Not required> Uses HTTPS instead of HTTP in elasticsearch URL if $true
+    Authorization  = <NOTSET>          # <Not required> Converts creds to base64 and adds it to headers. (eg. 'username:password')
 }
 
 $Body = @{source = 'Logging'; host='bastion.constoso.com'; _metadata = @{ip = '10.10.10.10'; server_farm = 'WestEurope'}}
