@@ -25,21 +25,7 @@ function Set-LoggingDefaultLevel {
     param()
 
     DynamicParam {
-        $attributes = New-Object System.Management.Automation.ParameterAttribute
-        $attributes.ParameterSetName = '__AllParameterSets'
-        $attributes.Mandatory = $true
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute(Get-LevelsName)
-
-        $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-        $attributeCollection.Add($attributes)
-        $attributeCollection.Add($ValidateSetAttribute)
-
-        $dynParam1 = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $attributeCollection)
-        $dynParam1.Value = 'VERBOSE'
-
-        $paramDictionary = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $paramDictionary.Add('Level', $dynParam1)
-        return $paramDictionary
+        Get-LoggingDynamicParam -Name "Level" -Level -DefaultValue 'VERBOSE'
     }
 
     End {
