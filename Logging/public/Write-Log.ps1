@@ -61,7 +61,8 @@ Function Write-Log {
     )
 
     DynamicParam {
-        Get-LoggingDynamicParam -Name "Level" -Level -DefaultValue 'INFO'
+        New-LoggingDynamicParam -Level -Mandatory $false -Name "Level"
+        $PSBoundParameters["Level"] = "INFO"
     }
 
     End {

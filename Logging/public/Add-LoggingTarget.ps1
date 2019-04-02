@@ -37,7 +37,7 @@ function Add-LoggingTarget {
     )
 
     DynamicParam {
-        Get-LoggingDynamicParam -Name "Name" -Target
+        New-LoggingDynamicParam -Name "Name" -Target
     }
 
     End {

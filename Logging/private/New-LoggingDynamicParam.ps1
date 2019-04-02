@@ -3,7 +3,7 @@
 Creates the param used inside the DynamicParam{}-Block
 
 .DESCRIPTION
-Get-LoggingDynamicParam creates (or appends) a RuntimeDefinedParameterDictionary
+New-LoggingDynamicParam creates (or appends) a RuntimeDefinedParameterDictionary
 with a parameter whos value is validated through a dynamic validate set.
 
 .PARAMETER Name
@@ -15,26 +15,26 @@ Constructs the validate set out of the currently configured logging level names.
 .PARAMETER Target
 Constructs the validate set out of the currently configured logging targets.
 
-.PARAMETER DefaultValue
-Sets the default value of the dynamic param to the supplied value.
-
 .PARAMETER DynamicParams
 Dictionary to be appended. (Useful for multiple dynamic params)
 
+.PARAMETER Mandatory
+Controls if parameter is mandatory for call. Defaults to $true
+
 .EXAMPLE
 DynamicParam{
-    Get-LoggingDynamicParam -Name "Level" -Level -DefaultValue 'Verbose'
+    New-LoggingDynamicParam -Name "Level" -Level -DefaultValue 'Verbose'
 }
 
 DynamicParam{
-    $dictionary = Get-LoggingDynamicParam -Name "Level" -Level
-    Get-LoggingDynamicParam -Name "Target" -Target -DynamicParams $dictionary
+    $dictionary = New-LoggingDynamicParam -Name "Level" -Level
+    New-LoggingDynamicParam -Name "Target" -Target -DynamicParams $dictionary
 }
 #>
 
-function Get-LoggingDynamicParam {
+function New-LoggingDynamicParam {
     [OutputType([System.Management.Automation.RuntimeDefinedParameterDictionary])]
-    [CmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName="DynamicTarget")]
     param(
         [Parameter(Mandatory = $true, ParameterSetName = "DynamicLevel")]
         [Parameter(Mandatory = $true, ParameterSetName = "DynamicTarget")]
@@ -46,13 +46,13 @@ function Get-LoggingDynamicParam {
         [Parameter(Mandatory = $true, ParameterSetName = "DynamicTarget")]
         [switch]
         $Target,
-        [String]
-        $DefaultValue,
+        [boolean]
+        $Mandatory = $true,
         [System.Management.Automation.RuntimeDefinedParameterDictionary]
         $DynamicParams
     )
 
-    Write-Verbose -Message ("{0} :: Requested Dynamic Params for" -f $MyInvocation.MyCommand, $Name)
+    Write-Verbose -Message ("{0} :: Requested dynamic param for {1}" -f $MyInvocation.MyCommand, $Name)
 
     if (!$DynamicParams) {
         $DynamicParams = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
@@ -62,7 +62,7 @@ function Get-LoggingDynamicParam {
     $attribute = New-Object System.Management.Automation.ParameterAttribute
 
     $attribute.ParameterSetName = '__AllParameterSets'
-    $attribute.Mandatory = $true
+    $attribute.Mandatory = $Mandatory
     $attribute.Position = 1
 
     $attributeCollection.Add($attribute)
@@ -79,17 +79,12 @@ function Get-LoggingDynamicParam {
         }
     }
 
-    Write-Verbose -Message ("{0} :: Currently configured LogTarget size : {1}" -f $MyInvocation.MyCommand, $allowedValues.Length)
+    Write-Verbose -Message ("{0} :: Currently configured validate set size : {1}" -f $MyInvocation.MyCommand, $allowedValues.Length)
 
     $validateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($allowedValues)
     $attributeCollection.Add($validateSetAttribute)
 
-
     $dynamicParam = New-Object System.Management.Automation.RuntimeDefinedParameter($Name, [string], $attributeCollection)
-
-    if (![String]::IsNullOrWhiteSpace($DefaultValue)) {
-        $dynamicParam.Value = $DefaultValue
-    }
 
     $DynamicParams.Add($Name, $dynamicParam)
 
