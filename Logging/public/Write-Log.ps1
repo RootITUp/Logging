@@ -61,22 +61,8 @@ Function Write-Log {
     )
 
     DynamicParam {
-        $Level = New-Object System.Management.Automation.ParameterAttribute
-        $Level.ParameterSetName = '__AllParameterSets'
-        $Level.Mandatory = $false
-        $Level.Position = 1
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute(Get-LevelsName)
-
-        $AttributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-        $AttributeCollection.Add($Level)
-        $AttributeCollection.Add($ValidateSetAttribute)
-
-        $LevelParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Level', [string], $AttributeCollection)
-        $PSBoundParameters['Level'] = 'INFO'
-
-        $RDPDic = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $RDPDic.Add('Level', $LevelParam)
-        return $RDPDic
+        New-LoggingDynamicParam -Level -Mandatory $false -Name "Level"
+        $PSBoundParameters["Level"] = "INFO"
     }
 
     End {
