@@ -1,3 +1,6 @@
+#Requires -Version 5.0
+using namespace System.Threading;
+
 <#
     .SYNOPSIS
         Emits a log record
@@ -73,14 +76,14 @@ Function Write-Log {
             $text = $Message
         }
 
-        $InvocationInfo = (Get-PSCallStack).InvocationInfo
+        $invocationInfo = (Get-PSCallStack).InvocationInfo
 
-        $mess = [hashtable] @{
+        $logMessage = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
             level     = Get-LevelName -Level $LevelNo
             levelno   = $LevelNo
-            lineno    = $InvocationInfo.ScriptLineNumber
-            pathname  = $InvocationInfo.ScriptName
+            lineno    = $invocationInfo.ScriptLineNumber
+            pathname  = $invocationInfo.ScriptName
             filename  = $FileName
             caller    = Get-CallerNameInScope
             message   = $text
@@ -88,7 +91,10 @@ Function Write-Log {
             pid       = $PID
         }
 
-        if ($Body) { $mess.body = $Body }
-        [void] $MessageQueue.Add($mess)
+        if ($Body) {
+            $logMessage.body = $Body
+        }
+
+        $LoggingEventQueue.Add($logMessage)
     }
 }
