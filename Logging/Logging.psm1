@@ -33,10 +33,10 @@ $Defaults = @{
     CallerScope = 1
 }
 
-$Logging.Level      = $Defaults.Level
-$Logging.Format     = $Defaults.Format
-$Logging.CallerScope = $Defaults.CallerScope
-$Logging.Targets    = [hashtable] @{}
+$Logging.Level          = $Defaults.Level
+$Logging.Format         = $Defaults.Format
+$Logging.CallerScope    = $Defaults.CallerScope
+$Logging.Targets        = [hashtable] @{}
 
 # Dot source public/private functions
 $PublicFunctions = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'public/*.ps1') -Recurse -ErrorAction SilentlyContinue)
