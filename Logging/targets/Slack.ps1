@@ -1,11 +1,11 @@
 @{
     Name = 'Slack'
     Configuration = @{
-        WebHook     = @{Required = $true;  Type = [string]}
-        BotName     = @{Required = $false; Type = [string]}
-        Channel     = @{Required = $false; Type = [string]}
-        Level       = @{Required = $false; Type = [string]}
-        Format      = @{Required = $false; Type = [string]}
+        WebHook     = @{Required = $true;  Type = [string]; Default = $null}
+        BotName     = @{Required = $false; Type = [string]; Default = $null}
+        Channel     = @{Required = $false; Type = [string]; Default = $null}
+        Level       = @{Required = $false; Type = [string]; Default = Get-LoggingDefaultLevel}
+        Format      = @{Required = $false; Type = [string]; Default = Get-LoggingDefaultFormat}
     }
     Logger = {
         param(

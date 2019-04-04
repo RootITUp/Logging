@@ -37,26 +37,14 @@ function Add-LoggingTarget {
     )
 
     DynamicParam {
-        $attributes = New-Object System.Management.Automation.ParameterAttribute
-        $attributes.ParameterSetName = '__AllParameterSets'
-        $attributes.Mandatory = $true
-        $attributes.Position = 1
-        $ValidateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($LogTargets.Keys)
-
-        $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-        $attributeCollection.Add($attributes)
-        $attributeCollection.Add($ValidateSetAttribute)
-
-        $NameParam = New-Object System.Management.Automation.RuntimeDefinedParameter('Name', [string], $attributeCollection)
-
-        $DynParams = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
-        $DynParams.Add('Name', $NameParam)
-
-        return $DynParams
+        New-LoggingDynamicParam -Name "Name" -Target
     }
 
     End {
-        Assert-LoggingTargetConfiguration -Target $PSBoundParameters.Name -Configuration $Configuration
-        $Logging.Targets[$PSBoundParameters.Name] = $Configuration
+        $Logging.Targets[$PSBoundParameters.Name] = Merge-DefaultConfig -Target $PSBoundParameters.Name -Configuration $Configuration
+
+        if ($LogTargets[$PSBoundParameters.Name].Init -is [scriptblock]) {
+            & $LogTargets[$PSBoundParameters.Name].Init $Configuration
+        }
     }
 }

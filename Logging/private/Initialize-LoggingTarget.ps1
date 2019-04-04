@@ -11,9 +11,10 @@ function Initialize-LoggingTarget {
     foreach ($Target in $Targets) {
         $Module = . $Target.FullName
         $LogTargets[$Module.Name] = @{
-            Logger = $Module.Logger
-            Description = $Module.Description
-            Configuration = $Module.Configuration
+            Init           = $Module.Init
+            Logger         = $Module.Logger
+            Description    = $Module.Description
+            Configuration  = $Module.Configuration
             ParamsRequired = $Module.Configuration.GetEnumerator() | Where-Object {$_.Value.Required -eq $true} | Select-Object -ExpandProperty Name
         }
     }

@@ -19,12 +19,12 @@ $LN = [hashtable]::Synchronized(@{
     'DEBUG' = $DEBUG
 })
 
-New-Variable -Name Dispatcher   -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
-New-Variable -Name LevelNames   -Value $LN -Option ReadOnly
-New-Variable -Name Logging      -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
-New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option ReadOnly
-New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option ReadOnly
-New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option ReadOnly
+New-Variable -Name Dispatcher   -Value ([hashtable]::Synchronized(@{})) -Option Constant
+New-Variable -Name LevelNames   -Value $LN -Option Constant
+New-Variable -Name Logging      -Value ([hashtable]::Synchronized(@{})) -Option Constant
+New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option Constant
+New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option Constant
+New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option Constant
 
 $Defaults = @{
     Level = $NOTSET
@@ -33,10 +33,10 @@ $Defaults = @{
     CallerScope = 1
 }
 
-$Logging.Level      = $Defaults.Level
-$Logging.Format     = $Defaults.Format
-$Logging.CallerScope = $Defaults.CallerScope
-$Logging.Targets    = [hashtable] @{}
+$Logging.Level          = $Defaults.Level
+$Logging.Format         = $Defaults.Format
+$Logging.CallerScope    = $Defaults.CallerScope
+$Logging.Targets        = [hashtable] @{}
 
 # Dot source public/private functions
 $PublicFunctions = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'public/*.ps1') -Recurse -ErrorAction SilentlyContinue)
@@ -132,4 +132,3 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     [System.GC]::Collect()
 }
 #endregion Handle Module Removal
-
