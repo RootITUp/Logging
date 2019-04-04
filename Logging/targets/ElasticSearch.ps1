@@ -1,14 +1,14 @@
 @{
     Name = 'ElasticSearch'
     Configuration = @{
-        Index           = @{Required = $true;   Type = [string]}
-        Type            = @{Required = $true;   Type = [string]}
-        ServerName      = @{Required = $true;   Type = [string]}
-        ServerPort      = @{Required = $true;   Type = [int]}
-        Flatten         = @{Required = $false;  Type = [bool]}
-        Level           = @{Required = $false;  Type = [string]}
-        Authorization   = @{Required = $false;  Type = [string]}
-        Https           = @{Required = $false;  Type = [bool]}
+        Index           = @{Required = $true;   Type = [string]; Default = $null}
+        Type            = @{Required = $true;   Type = [string]; Default = $null}
+        ServerName      = @{Required = $true;   Type = [string]; Default = $null}
+        ServerPort      = @{Required = $true;   Type = [int]; Default = 9200}
+        Flatten         = @{Required = $false;  Type = [bool]; Default = $false}
+        Level           = @{Required = $false;  Type = [string]; Default = Get-LoggingDefaultLevel}
+        Authorization   = @{Required = $false;  Type = [string]; Default = $null}
+        Https           = @{Required = $false;  Type = [bool]; Default = $false}
     }
     Logger = {
         param(
@@ -35,11 +35,11 @@
 
             return $ht
         }
-        
+
         if ($Configuration.Https) {
             $httpType = "https"
         } else {
-            $httpType = "http"           
+            $httpType = "http"
         }
 
         $Index = Replace-Token -String $Configuration.Index -Source $Log
@@ -52,10 +52,10 @@
         }
 
         if ($Configuration.Authorization) {
-            $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("$($Configuration.Authorization)")))      
-            Invoke-RestMethod -Method Post -Uri $Uri -Body $Message -Headers @{"Content-Type"= "application/json";Authorization="Basic $base64Auth"}
+            $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("$($Configuration.Authorization)")))
+            Invoke-RestMethod -Method Post -Uri $Uri -Body $Message -Headers @{"Content-Type"="application/json";Authorization="Basic $base64Auth"}
         } else {
-            Invoke-RestMethod -Method Post -Uri $Uri -Body $Message -Headers @{"Content-Type"= "application/json"} 
+            Invoke-RestMethod -Method Post -Uri $Uri -Body $Message -Headers @{"Content-Type"="application/json"}
         }
     }
 }
