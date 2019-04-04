@@ -3,7 +3,7 @@ function Use-LogMessage {
     [OutputType([int])]
     param(
     )
-    [int] $loggedMessages = 0
+    [int] $logsWritten = 0
 
     foreach ($logMessage in $LoggingEventQueue.GetConsumingEnumerable()) {
         [String] $loggingFormat = $Logging.Format
@@ -11,6 +11,8 @@ function Use-LogMessage {
 
         [System.Threading.Monitor]::Enter($Logging.Targets)
         try {
+            [boolean] $messageDiscarded = $true
+
             #Enumerating through a collection is intrinsically not a thread-safe procedure
             for ($targetEnum = $Logging.Targets.GetEnumerator(); $targetEnum.MoveNext(); ) {
                 $logTarget = $targetEnum.Value
@@ -28,8 +30,14 @@ function Use-LogMessage {
 
                 if ($logMessage.LevelNo -ge $targetSeverity) {
                     & $LogTargets[$targetEnum.Key].Logger $logMessage $targetFormat $logTarget $ParentHost
-                    $loggedMessages++
+                    $logsWritten++
+
+                    $messageDiscarded = $false
                 }
+            }
+
+            if(!$messageDiscarded){
+                [System.Threading.Interlocked]::Increment($LoggingMessagerCount)
             }
         }
         finally {
@@ -37,5 +45,5 @@ function Use-LogMessage {
         }
     }
 
-    return $loggedMessages
+    return $logsWritten
 }

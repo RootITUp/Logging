@@ -22,7 +22,6 @@ $LN = [hashtable]::Synchronized(@{
 New-Variable -Name LevelNames   -Value $LN -Option Constant
 New-Variable -Name Logging      -Value ([hashtable]::Synchronized(@{})) -Option Constant
 New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option Constant
-New-Variable -Name MessageQueue -Value ([System.Collections.ArrayList]::Synchronized([System.Collections.ArrayList] @())) -Option Constant
 New-Variable -Name ScriptRoot   -Value (Split-Path $MyInvocation.MyCommand.Path) -Option Constant
 
 $Defaults = @{

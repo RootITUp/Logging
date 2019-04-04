@@ -36,9 +36,9 @@
         }
 
         $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
-        $mtx.WaitOne()
 
         try {
+            $mtx.WaitOne()
             #This call seems to require quite some time
             $Text = Replace-Token -String $Format -Source $Log
 
@@ -50,6 +50,9 @@
             $ParentHost.UI.RawUI.ForegroundColor = $ColorMapping[$Log.Level]
             $ParentHost.UI.WriteLine($Text)
             $ParentHost.UI.RawUI.ForegroundColor = $OldColor
+        }
+        catch {
+            $ParentHost.UI.WriteErrorLine($_)
         }
         finally {
             [void] $mtx.ReleaseMutex()

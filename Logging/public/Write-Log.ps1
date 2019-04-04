@@ -50,16 +50,16 @@ Function Write-Log {
     [CmdletBinding()]
     param(
         [Parameter(Position = 2,
-                   Mandatory = $true)]
+            Mandatory = $true)]
         [string] $Message,
         [Parameter(Position = 3,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [array] $Arguments,
         [Parameter(Position = 4,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [object] $Body,
         [Parameter(Position = 5,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [System.Management.Automation.ErrorRecord] $ExceptionInfo = $null
     )
 
@@ -72,7 +72,8 @@ Function Write-Log {
         $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
         if ($PSBoundParameters.ContainsKey('Arguments')) {
             $text = $Message -f $Arguments
-        } else {
+        }
+        else {
             $text = $Message
         }
 
@@ -95,6 +96,7 @@ Function Write-Log {
             $logMessage.body = $Body
         }
 
-        $LoggingEventQueue.Add($logMessage)
+        $Script:LoggingEventQueue.Add($logMessage)
+        Write-Host "ADDED"
     }
 }

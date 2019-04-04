@@ -30,10 +30,10 @@
         https://github.com/EsOsO/Logging/blob/master/Logging/public/Add-LoggingTarget.ps1
 #>
 function Add-LoggingTarget {
-    [CmdletBinding(HelpUri='https://logging.readthedocs.io/en/latest/functions/Add-LoggingTarget.md')]
+    [CmdletBinding(HelpUri = 'https://logging.readthedocs.io/en/latest/functions/Add-LoggingTarget.md')]
     param(
         [Parameter(Position = 2)]
-        [hashtable] $Configuration = @{}
+        [hashtable] $Configuration = @{ }
     )
 
     DynamicParam {
@@ -46,7 +46,8 @@ function Add-LoggingTarget {
         [System.Threading.Monitor]::Enter($Logging.Targets)
         try {
             $Logging.Targets[$PSBoundParameters.Name] = $Configuration
-        }finally{
+        }
+        finally {
             [System.Threading.Monitor]::Exit($Logging.Targets)
         }
     }
