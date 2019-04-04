@@ -28,11 +28,9 @@ function Set-LoggingCustomTarget {
     [CmdletBinding(HelpUri='https://logging.readthedocs.io/en/latest/functions/Set-LoggingCustomTarget.md')]
     param(
         [Parameter(Mandatory)]
-        [ValidateScript({Test-Path -Path $_})]
+        [ValidateScript({Test-Path -Path $_ -PathType Container})]
         [string] $Path
     )
-
-    Wait-Logging
-    $Logging.CustomTargets = $Path
+    $Script:Logging.CustomTargets = $Path
     Initialize-LoggingTarget
 }

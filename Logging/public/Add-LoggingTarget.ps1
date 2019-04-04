@@ -42,6 +42,12 @@ function Add-LoggingTarget {
 
     End {
         Assert-LoggingTargetConfiguration -Target $PSBoundParameters.Name -Configuration $Configuration
-        $Logging.Targets[$PSBoundParameters.Name] = $Configuration
+
+        [System.Threading.Monitor]::Enter($Logging.Targets)
+        try {
+            $Logging.Targets[$PSBoundParameters.Name] = $Configuration
+        }finally{
+            [System.Threading.Monitor]::Exit($Logging.Targets)
+        }
     }
 }

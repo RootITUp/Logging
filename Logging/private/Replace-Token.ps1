@@ -5,7 +5,6 @@ function Replace-Token {
         [string] $String,
         [object] $Source
     )
-
     $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmtU>(?:%[ABCDGHIMRSTUVWXYZabcdeghjklmnprstuwxy].*?)+))?(?::?\+(?<datefmt>(?:.*?)+))?(?::(?<padding>-?\d+))?}'
     $re.Replace($String, {
         param($match)

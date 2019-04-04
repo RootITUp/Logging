@@ -13,9 +13,8 @@ function Start-LoggingManager {
 
     Write-Verbose -Message ("{0} :: Starting first initialization of LoggingManager." -f $MyInvocation.MyCommand)
 
-
     Set-Variable -Name "LoggingEventQueue" -Option Constant -Scope Script -Value ([BlockingCollection[hashtable]]::new(100))
-    Set-Variable -Name "LoggingWorkerJobs" -Option Constant -Value ([List[hashtable]]::new())
+    Set-Variable -Name "LoggingWorker" -Option Constant -Scope Script -Value (@{})
 
 
     $initialState = [InitialSessionState]::CreateDefault()
@@ -25,45 +24,39 @@ function Start-LoggingManager {
     $initialState.Commands.Add((New-Object SessionStateFunctionEntry -ArgumentList 'Initialize-LoggingTarget', (Get-Content Function:\Initialize-LoggingTarget)))
     $initialState.Commands.Add((New-Object SessionStateFunctionEntry -ArgumentList 'Get-LevelNumber', (Get-Content Function:\Get-LevelNumber)))
 
-    $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'ScriptRoot', $ScriptRoot, ''))
-    $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'LevelNames', $LevelNames, ''))
-    $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'LogTargets', $LogTargets, ''))
-    $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'Logging', $Logging, ''))
-    $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'LoggingEventQueue', $LoggingEventQueue, ''))
+    [String[]] $sessionVariables = @(
+        "ScriptRoot", "LevelNames", "Logging", "LogTargets", "LoggingEventQueue"
+    )
+
+    foreach( $sessionVariable in $sessionVariables){
+        $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList $sessionVariable, (Get-Variable -Name $sessionVariable -ErrorAction Stop).Value, ''))
+    }
     $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
 
     $consumerRunspacePool = [RunspaceFactory]::CreateRunspacePool($initialState)
     $consumerRunspacePool.SetMinRunspaces(1)
     $consumerRunspacePool.SetMaxRunspaces([int] $env:NUMBER_OF_PROCESSORS + 1)
-
     $consumerRunspacePool.Open()
 
 
-    #SPAWN UP TO THREE CONSUMERS
-    for ([int] $workerCount = 2; $workerCount -gt 0; $workerCount--){
-        $workerJob = [Powershell]::Create().AddScript((Get-Content Function:\Use-LogMessage))
-        $workerJob.RunspacePool = $consumerRunspacePool
+    #Spawn Logging Consumer
+    $workerJob = [Powershell]::Create().AddScript((Get-Content Function:\Use-LogMessage))
+    $workerJob.RunspacePool = $consumerRunspacePool
 
-
-        $LoggingWorkerJobs.Add(@{
-            Job = $workerJob
-            Result = $workerJob.BeginInvoke()
-        })
-    }
-
+    $Script:LoggingWorker["Job"] = $workerJob
+    $Script:LoggingWorker["Result"] = $workerJob.BeginInvoke()
 
     #region Handle Module Removal
     $ExecutionContext.SessionState.Module.OnRemove = {
         $Script:LoggingEventQueue.CompleteAdding()
 
-        Write-Verbose -Message ("{0} :: Stopping running consumer instances." -f $MyInvocation.MyCommand)
+        Write-Verbose -Message ("{0} :: Stopping running consumer instance." -f $MyInvocation.MyCommand)
 
-        foreach ( $worker in $LoggingWorkerJobs ) {
-            Write-Verbose -Message ("{0} :: Stopping : {1}" -f $MyInvocation.MyCommand,$worker.Job.InstanceId)
-            $worker.Job.EndInvoke($worker.Result) | Out-Null
+        [int] $logCount = $Script:LoggingWorker["Job"].EndInvoke($Script:LoggingWorker["Result"])[0]
+        Write-Verbose -Message ("{0} :: Stopping : {1}." -f $MyInvocation.MyCommand, $Script:LoggingWorker["Job"].InstanceId)
+        $Script:LoggingWorker["Job"].Dispose()
 
-            $worker.Job.Dispose()
-        }
+        Write-Verbose -Message ("{0} :: Logged {1} messages in total." -f $MyInvocation.MyCommand, $logCount)
 
         [System.GC]::Collect()
     }

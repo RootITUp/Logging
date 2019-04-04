@@ -1,43 +1,41 @@
 function Use-LogMessage {
     [CmdletBinding()]
-    param()
-
-    $CustomTargets = $Logging.CustomTargets
-
-    Initialize-LoggingTarget
+    [OutputType([int])]
+    param(
+    )
+    [int] $loggedMessages = 0
 
     foreach ($logMessage in $LoggingEventQueue.GetConsumingEnumerable()) {
-        if ($CustomTargets -ne $Logging.CustomTargets) {
-            $CustomTargets = $Logging.CustomTargets
-            Initialize-LoggingTarget
-        }
+        [String] $loggingFormat = $Logging.Format
+        [int] $loggingSeverity = Get-LevelNumber -Level $Logging.Level
 
-        if ($Logging.Targets.Count) {
-            $Targets = $Logging.Targets
-        }
-        else {
-            $Targets = $null
-        }
+        [System.Threading.Monitor]::Enter($Logging.Targets)
+        try {
+            #Enumerating through a collection is intrinsically not a thread-safe procedure
+            for ($targetEnum = $Logging.Targets.GetEnumerator(); $targetEnum.MoveNext(); ) {
+                $logTarget = $targetEnum.Value
 
-        foreach ($targetName in $Targets.Keys) {
-            $LoggerFormat = $Logging.Format
-            $LoggerLevel = Get-LevelNumber -Level $Logging.Level
+                [int] $targetSeverity = $loggingSeverity
+                [String] $targetFormat = $loggingFormat
 
-            $Target = $Targets[$targetName]
-
-            if ($Target) {
-                if ($Target.Level) {
-                    $LoggerLevel = Get-LevelNumber -Level $Target.Level
+                if ($logTarget.Level) {
+                    $targetSeverity = Get-LevelNumber -Level $logTarget.Level
                 }
-                if ($Target.Format) {
-                    $LoggerFormat = $Target.Format
-                }
-                $Configuration = $Target
-            }
 
-            if ($logMessage.LevelNo -ge $LoggerLevel) {
-                & $LogTargets[$targetName].Logger $logMessage $LoggerFormat $Configuration
+                if ($logTarget.Format) {
+                    $targetFormat = $logTarget.Format
+                }
+
+                if ($logMessage.LevelNo -ge $targetSeverity) {
+                    & $LogTargets[$targetEnum.Key].Logger $logMessage $targetFormat $logTarget $ParentHost
+                    $loggedMessages++
+                }
             }
+        }
+        finally {
+            [System.Threading.Monitor]::Exit($Logging.Targets)
         }
     }
+
+    return $loggedMessages
 }

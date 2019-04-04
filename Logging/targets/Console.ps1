@@ -4,14 +4,16 @@
     Configuration = @{
         Level        = @{Required = $false; Type = [string]}
         Format       = @{Required = $false; Type = [string]}
-        ColorMapping = @{Required = $false; Type = [hashtable]}
+        ColorMapping = @{Required = $false; Type = [hashtable] }
     }
     Logger = {
         param(
             $Log,
             $Format,
-            $Configuration
+            $Configuration,
+            $ParentHost
         )
+
 
         $ColorMapping = @{
             'DEBUG'   = 'Blue'
@@ -36,18 +38,22 @@
         $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
         $mtx.WaitOne()
 
-        $Text = Replace-Token -String $Format -Source $Log
+        try {
+            #This call seems to require quite some time
+            $Text = Replace-Token -String $Format -Source $Log
 
-        if ($Log.ExecInfo) {
-            $Text += "`n" + $Log.ExecInfo.InvocationInfo.PositionMessage
+            if ($Log.ExecInfo) {
+                $Text += "`n" + $Log.ExecInfo.InvocationInfo.PositionMessage
+            }
+
+            $OldColor = $ParentHost.UI.RawUI.ForegroundColor
+            $ParentHost.UI.RawUI.ForegroundColor = $ColorMapping[$Log.Level]
+            $ParentHost.UI.WriteLine($Text)
+            $ParentHost.UI.RawUI.ForegroundColor = $OldColor
         }
-
-        $OldColor = $ParentHost.UI.RawUI.ForegroundColor
-        $ParentHost.UI.RawUI.ForegroundColor = $ColorMapping[$Log.Level]
-        $ParentHost.UI.WriteLine($Text)
-        $ParentHost.UI.RawUI.ForegroundColor = $OldColor
-
-        [void] $mtx.ReleaseMutex()
-        $mtx.Dispose()
+        finally {
+            [void] $mtx.ReleaseMutex()
+            $mtx.Dispose()
+        }
     }
 }

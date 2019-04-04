@@ -19,7 +19,6 @@ $LN = [hashtable]::Synchronized(@{
     'DEBUG' = $DEBUG
 })
 
-New-Variable -Name Dispatcher   -Value ([hashtable]::Synchronized(@{})) -Option Constant
 New-Variable -Name LevelNames   -Value $LN -Option Constant
 New-Variable -Name Logging      -Value ([hashtable]::Synchronized(@{})) -Option Constant
 New-Variable -Name LogTargets   -Value ([hashtable]::Synchronized(@{})) -Option Constant
@@ -36,7 +35,8 @@ $Defaults = @{
 $Logging.Level      = $Defaults.Level
 $Logging.Format     = $Defaults.Format
 $Logging.CallerScope = $Defaults.CallerScope
-$Logging.Targets    = [hashtable] @{}
+$Logging.Targets    = [hashtable]::Synchronized(@{})
+$Logging.CustomTargets = [String]::Empty
 
 # Dot source public/private functions
 $PublicFunctions = @(Get-ChildItem -Path (Join-Path -Path $PSScriptRoot -ChildPath 'public/*.ps1') -Recurse -ErrorAction SilentlyContinue)
