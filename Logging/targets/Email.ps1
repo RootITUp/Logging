@@ -1,14 +1,15 @@
 ﻿@{
     Name = 'Email'
+    Description = 'Send log message to email recipients'
     Configuration = @{
-        SMTPServer  = @{Required = $true;   Type = [string]}
-        From        = @{Required = $true;   Type = [string]}
-        To          = @{Required = $true;   Type = [string]}
-        Subject     = @{Required = $false;  Type = [string]}
-        Credential  = @{Required = $false;  Type = [pscredential]}
-        Level       = @{Required = $false;  Type = [string]}
-        Port        = @{Required = $false;  Type = [int]}
-        UseSsl      = @{Required = $false;  Type = [bool]}
+        SMTPServer  = @{Required = $true;   Type = [string];        Default = $null}
+        From        = @{Required = $true;   Type = [string];        Default = $null}
+        To          = @{Required = $true;   Type = [string];        Default = $null}
+        Subject     = @{Required = $false;  Type = [string];        Default = '[%{level:-7}] %{message}'}
+        Credential  = @{Required = $false;  Type = [pscredential];  Default = $null}
+        Level       = @{Required = $false;  Type = [string];        Default = Get-LoggingDefaultLevel}
+        Port        = @{Required = $false;  Type = [int];           Default = 25}
+        UseSsl      = @{Required = $false;  Type = [bool];          Default = $false}
     }
     Logger = {
         param(
@@ -17,35 +18,23 @@
             [hashtable] $Configuration
         )
 
-        $Params = @{}
-
-        $Params['SmtpServer'] = $Configuration.SMTPServer
-        $Params['From'] = $Configuration.From
-        $Params['To'] = $Configuration.To.Split(',').Trim()
-        $Params['Body'] = Replace-Token -String $Format -Source $Log
-        $Params['Port'] = $Configuration.Port
-        $Params['UseSsl'] = $Configuration.UseSsl
-
-        if ($Configuration.Subject) {
-            $Params['Subject'] = Replace-Token -String $Configuration.Subject -Source $Log
-        } else {
-            $Params['Subject'] = Replace-Token -String '[%{level:-7}] %{message}' -Source $Log
+        $Params = @{
+            SmtpServer = $Configuration.SMTPServer
+            From = $Configuration.From
+            To = $Configuration.To.Split(',').Trim()
+            Port = $Configuration.Port
+            UseSsl = $Configuration.UseSsl
+            Subject = Replace-Token -String '[%{level:-7}] %{message}' -Source $Log
         }
 
         if ($Configuration.Credential) {
             $Params['Credential'] = $Configuration.Credential
         }
 
-        if ($Configuration.Port) {
-            $Params['Port'] = $Configuration.Port
-        }
-
-        if ($Configuration.UseSsl) {
-            $Params['UseSsl'] = $Configuration.UseSsl
-        }
-
         if ($Log.Body) {
-            $Params['Body'] += "`n`n{0}" -f ($Log.Body | ConvertTo-Json)
+            $Params['Body'] += "{0}`n`n{1}" -f ((Replace-Token -String $Format -Source $Log), ($Log.Body | ConvertTo-Json))
+        } else {
+            $Params['Body'] = Replace-Token -String $Format -Source $Log
         }
 
         Send-MailMessage @Params
