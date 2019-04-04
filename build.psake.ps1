@@ -10,6 +10,7 @@ function Update-AdditionalReleaseArtifact {
 
     Write-Host 'Getting release notes'
     $ReleaseDescription = (gc $ReleaseFile) -join "`r`n"
+    Clear-Content -Path $ReleaseFile
 
     if ($env:APPVEYOR) {
         Set-AppveyorBuildVariable -Name ReleaseDescription -Value $ReleaseDescription
