@@ -1,1 +1,4 @@
-- [NEW] Added Windows EventLog target (thx to @tadas)
+- [NEW] Added support for target default config
+- [NEW] Added support for target initilization scriptblock
+- [NEW] Added DynamicParam generation function
+- [MOD] Synchronized variables are now Constant instead of ReadOnly (thx to @tosoikea)
