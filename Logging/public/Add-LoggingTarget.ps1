@@ -43,5 +43,8 @@ function Add-LoggingTarget {
     End {
         $Logging.Targets[$PSBoundParameters.Name] = Merge-DefaultConfig -Target $PSBoundParameters.Name -Configuration $Configuration
 
+        if ($LogTargets[$PSBoundParameters.Name].Init -is [scriptblock]) {
+            & $LogTargets[$PSBoundParameters.Name].Init $Configuration
+        }
     }
 }
