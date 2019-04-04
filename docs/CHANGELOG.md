@@ -1,17 +1,6 @@
 ## 2.9.1 (2019-03-15)
 
 - [NEW] Added Windows EventLog target (thx to @tadas)
-
-
-- [NEW] Added Windows EventLog target (thx to @tadas)
-
-
-- [NEW] Added Windows EventLog target (thx to @tadas)
-
-
-- [NEW] Added Windows EventLog target (thx to @tadas)
-
-
 - [FIX] Fixed Write-Log -Arguments detection
 - [ADD] powershellgallery publishing on build
 
