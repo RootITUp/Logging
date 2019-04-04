@@ -1,13 +1,13 @@
 ﻿@{
     Name = 'WinEventLog'
     Configuration = @{
-        LogName  = @{Required = $true; Type = [string]}
-        Source   = @{Required = $true; Type = [string]}
+        LogName  = @{Required = $true; Type = [string]; Default = $null}
+        Source   = @{Required = $true; Type = [string]; Default = $null}
     }
     Logger = {
         param(
-            $Log,
-            $Format,
+            [hashtable] $Log,
+            [string] $Format,
             [hashtable] $Configuration
         )
 
