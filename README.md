@@ -1,7 +1,7 @@
 <p align="center">
-  <a href="https://www.powershellgallery.com/packages/logging" target="_blank" rel="noopener noreferrer">
-    <img src="https://github.com/EsOsO/Logging/blob/static/img/logo.svg" width="300px" alt="Powershell Logging logo">
     <h3>Powershell Logging Module</h3>
+  <a href="https://www.powershellgallery.com/packages/logging" target="_blank" rel="noopener noreferrer">
+    <img src="https://github.com/EsOsO/Logging/blob/static/img/logo.svg" width="300px" alt="Powershell Logging logo" />
   </a>
 </p>
 
