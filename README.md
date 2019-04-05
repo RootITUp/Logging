@@ -7,13 +7,13 @@
 
 <p align="center">
   <a href="https://ci.appveyor.com/project/EsOsO/logging">
-    <img src="https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/master?svg=true" alt="Build Status">
+    <img src="https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/master?svg=true" alt="Build Status" />
   </a>
   <a href="https://logging.readthedocs.io/en/latest/?badge=latest">
-    <img src="https://readthedocs.org/projects/logging/badge/?version=latest" alt="Documentation">
+    <img src="https://readthedocs.org/projects/logging/badge/?version=latest" alt="Documentation" />
   </a>
   <a href="https://www.powershellgallery.com/packages/logging">
-    <img src="https://img.shields.io/powershellgallery/dt/logging.svg" alt="Join the Wasmer Community">
+    <img src="https://img.shields.io/powershellgallery/dt/logging.svg" alt="Join the Wasmer Community" />
   </a>
   <img src="https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg" alt="Contributor Covenant" />
 </p>
