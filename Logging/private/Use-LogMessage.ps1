@@ -29,16 +29,21 @@ function Use-LogMessage {
                 }
 
                 if ($logMessage.LevelNo -ge $targetSeverity) {
-                    & $LogTargets[$targetEnum.Key].Logger $logMessage $targetFormat $logTarget $ParentHost
-                    $logsWritten++
-
+                    Invoke-Command -ScriptBlock $LogTargets[$targetEnum.Key].Logger -ArgumentList @($logMessage, $targetFormat, $logTarget, $ParentHost)
                     $messageDiscarded = $false
+                    $logsWritten++
                 }
             }
 
-            if(!$messageDiscarded){
+            if (!$messageDiscarded) {
                 [System.Threading.Interlocked]::Increment($LoggingMessagerCount)
             }
+        }
+        catch {
+            $lastColor = [Console]::ForegroundColor.value__
+            [Console]::ForegroundColor = [ConsoleColor]::Red
+            [Console]::WriteLine($_)
+            [Console]::ForegroundColor = $lastColor
         }
         finally {
             [System.Threading.Monitor]::Exit($Logging.Targets)

@@ -34,10 +34,7 @@ function Start-LoggingManager {
     $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
 
     $consumerRunspacePool = [RunspaceFactory]::CreateRunspacePool($initialState)
-    $consumerRunspacePool.SetMinRunspaces(1)
-    $consumerRunspacePool.SetMaxRunspaces([int] $env:NUMBER_OF_PROCESSORS + 1)
     $consumerRunspacePool.Open()
-
 
     #Spawn Logging Consumer
     $workerJob = [Powershell]::Create().AddScript((Get-Content Function:\Use-LogMessage))
