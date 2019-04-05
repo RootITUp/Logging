@@ -15,6 +15,7 @@
   <a href="https://www.powershellgallery.com/packages/logging">
     <img src="https://img.shields.io/powershellgallery/dt/logging.svg" alt="Join the Wasmer Community">
   </a>
+  <img src="https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg" alt="Contributor Covenant" />
 </p>
 
 ## Introduction
