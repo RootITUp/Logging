@@ -29,11 +29,6 @@ Describe -Tags Build, Unit 'Logging manifest' {
 InModuleScope Logging {
     Describe 'Internal Vars' {
         It 'sets up internal variables' {
-            Test-Path Variable:LoggingEventQueue | Should Be $true
-            Test-Path Variable:LoggingWorker | Should Be $true
-            Test-Path Variable:LoggingMessagerCount | Should Be $true
-
-
             Test-Path Variable:LevelNames | Should Be $true
             Test-Path Variable:Logging | Should Be $true
             Test-Path Variable:LogTargets | Should Be $true
@@ -209,6 +204,13 @@ InModuleScope Logging {
     }
 
     Describe 'Logging Producer-Consumer'{
+
+        It 'should start logging manager when log requested' {
+            Write-Log -Message "Test"
+            Test-Path Variable:LoggingEventQueue | Should Be $true
+            Test-Path Variable:LoggingWorker | Should Be $true
+            Test-Path Variable:LoggingMessagerCount | Should Be $true
+        }
 
         It 'should not start a second logging manager'{
             [boolean] $isError = $false

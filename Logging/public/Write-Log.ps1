@@ -1,6 +1,3 @@
-#Requires -Version 5.0
-using namespace System.Threading;
-
 <#
     .SYNOPSIS
         Emits a log record

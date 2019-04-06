@@ -1,8 +1,3 @@
-#Requires -Version 5.0
-using namespace System.Collections.Concurrent;
-using namespace System.Management.Automation.Runspaces;
-using namespace System.Collections.Generic;
-
 function Start-LoggingManager {
     [CmdletBinding()]
     param()
@@ -16,7 +11,7 @@ function Start-LoggingManager {
     [String] $moduleBase = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Module.Path)
 
     Set-Variable -Name "LoggingMessagerCount" -Option Constant -Scope Script -Value ([ref]0)
-    Set-Variable -Name "LoggingEventQueue" -Option Constant -Scope Script -Value ([BlockingCollection[hashtable]]::new(100))
+    Set-Variable -Name "LoggingEventQueue" -Option Constant -Scope Script -Value ([System.Collections.Concurrent.BlockingCollection[hashtable]]::new(100))
     Set-Variable -Name "LoggingWorker" -Option Constant -Scope Script -Value (@{ })
 
 
@@ -28,9 +23,9 @@ function Start-LoggingManager {
     )
 
     foreach ( $sessionVariable in $sessionVariables) {
-        $initialState.Variables.Add([SessionStateVariableEntry]::new($sessionVariable, (Get-Variable -Name $sessionVariable -ErrorAction Stop).Value, '', [System.Management.Automation.ScopedItemOptions]::AllScope))
+        $initialState.Variables.Add([System.Management.Automation.Runspaces.SessionStateVariableEntry]::new($sessionVariable, (Get-Variable -Name $sessionVariable -ErrorAction Stop).Value, '', [System.Management.Automation.ScopedItemOptions]::AllScope))
     }
-    $initialState.Variables.Add((New-Object SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
+    $initialState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
 
     #Import module for usage
     $initialState.ImportPSModulesFromPath($moduleBase)
