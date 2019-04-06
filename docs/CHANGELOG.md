@@ -1,17 +1,12 @@
-## 2.9.1 (2019-03-15)
+## 2.10.0 (2019-04-04)
 
-- [NEW] Added Windows EventLog target (thx to @tadas)
-
-
-- [NEW] Added Windows EventLog target (thx to @tadas)
-
-
-- [NEW] Added Windows EventLog target (thx to @tadas)
+- [NEW] Added support for target default config
+- [NEW] Added support for target initilization scriptblock
+- [NEW] Added DynamicParam generation function
+- [MOD] Synchronized variables are now Constant instead of ReadOnly (thx to @tosoikea)
 
 
 - [NEW] Added Windows EventLog target (thx to @tadas)
-
-
 - [FIX] Fixed Write-Log -Arguments detection
 - [ADD] powershellgallery publishing on build
 
@@ -85,6 +80,7 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 

@@ -1,1 +1,0 @@
-- [NEW] Added Windows EventLog target (thx to @tadas)
