@@ -68,8 +68,14 @@ Function Write-Log {
         $PSBoundParameters["Level"] = "INFO"
     }
 
+    Begin{
+        if (!(Get-Variable -Name "LoggingEventQueue" -Scope Script -ErrorAction Ignore)) {
+            Start-LoggingManager
+        }
+    }
+
     End {
-        $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
+        $levelNumber = Get-LevelNumber -Level $PSBoundParameters.Level
         if ($PSBoundParameters.ContainsKey('Arguments')) {
             $text = $Message -f $Arguments
         }
@@ -81,8 +87,8 @@ Function Write-Log {
 
         $logMessage = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
-            level     = Get-LevelName -Level $LevelNo
-            levelno   = $LevelNo
+            level     = Get-LevelName -Level $levelNumber
+            levelno   = $levelNumber
             lineno    = $invocationInfo.ScriptLineNumber
             pathname  = $invocationInfo.ScriptName
             filename  = $FileName
@@ -97,6 +103,5 @@ Function Write-Log {
         }
 
         $Script:LoggingEventQueue.Add($logMessage)
-        Write-Host "ADDED"
     }
 }

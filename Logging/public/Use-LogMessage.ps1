@@ -1,8 +1,18 @@
+<#
+.SYNOPSIS
+Spawned by LoggingManager to consume log messages.
+
+.DESCRIPTION
+Do not call this method manually. This method will block until log messages
+are laid into the LoggingEventQueue and is then going to properly handle the logging.
+#>
+
 function Use-LogMessage {
     [CmdletBinding()]
     [OutputType([int])]
     param(
     )
+
     [int] $logsWritten = 0
 
     foreach ($logMessage in $LoggingEventQueue.GetConsumingEnumerable()) {

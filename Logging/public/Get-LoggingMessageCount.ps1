@@ -21,5 +21,9 @@ function Get-LoggingMessageCount {
     [CmdletBinding()]
     param()
 
+    if (!(Get-Variable -Name "LoggingMessagerCount" -Scope Script -ErrorAction Ignore)) {
+        Start-LoggingManager
+    }
+
     return $Script:LoggingMessagerCount.Value
 }

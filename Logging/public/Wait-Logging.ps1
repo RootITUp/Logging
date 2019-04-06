@@ -18,6 +18,10 @@ function Wait-Logging {
     [CmdletBinding(HelpUri='https://logging.readthedocs.io/en/latest/functions/Wait-Logging.md')]
     param()
 
+    if (!(Get-Variable -Name "LoggingEventQueue" -Scope Script -ErrorAction Ignore)) {
+        return
+    }
+
     while ($Script:LoggingEventQueue.Count -gt 0) {
         Start-Sleep -Milliseconds 10
     }
