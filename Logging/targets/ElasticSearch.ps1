@@ -12,9 +12,8 @@
     }
     Logger = {
         param(
-            $Log,
-            $Format,
-            $Configuration
+            [hashtable] $Log,
+            [hashtable] $Configuration
         )
 
         Function ConvertTo-FlatterHashTable {

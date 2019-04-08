@@ -12,7 +12,6 @@
     Logger = {
         param(
             [hashtable] $Log,
-            [string] $Format,
             [hashtable] $Configuration
         )
 
@@ -22,7 +21,7 @@
             $Log.Remove('Body')
         }
 
-        $Text = Replace-Token -String $Format -Source $Log
+        $Text = Replace-Token -String $Configuration.Format -Source $Log
 
         $Params = @{
             Append      = $Configuration.Append

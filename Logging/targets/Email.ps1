@@ -13,8 +13,7 @@
     }
     Logger = {
         param(
-            $Log,
-            $Format,
+            [hashtable] $Log,
             [hashtable] $Configuration
         )
 
@@ -25,6 +24,7 @@
             Port = $Configuration.Port
             UseSsl = $Configuration.UseSsl
             Subject = Replace-Token -String '[%{level:-7}] %{message}' -Source $Log
+            Body = Replace-Token -String $Configuration.Format -Source $Log
         }
 
         if ($Configuration.Credential) {
@@ -32,9 +32,7 @@
         }
 
         if ($Log.Body) {
-            $Params['Body'] += "{0}`n`n{1}" -f ((Replace-Token -String $Format -Source $Log), ($Log.Body | ConvertTo-Json))
-        } else {
-            $Params['Body'] = Replace-Token -String $Format -Source $Log
+            $Params.Body += "`n`n{0}" -f ($Log.Body | ConvertTo-Json)
         }
 
         Send-MailMessage @Params
