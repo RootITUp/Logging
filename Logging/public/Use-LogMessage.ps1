@@ -17,7 +17,7 @@ function Use-LogMessage {
 
     foreach ($logMessage in $LoggingEventQueue.GetConsumingEnumerable()) {
         [String] $loggingFormat = $Logging.Format
-        [int] $loggingSeverity = Get-LevelNumber -Level $Logging.Level
+        [int] $loggingSeverity = $Logging.LevelNo
 
         [System.Threading.Monitor]::Enter($Logging.Targets)
         try {
@@ -27,19 +27,8 @@ function Use-LogMessage {
             for ($targetEnum = $Logging.Targets.GetEnumerator(); $targetEnum.MoveNext(); ) {
                 $logTarget = $targetEnum.Value
 
-                [int] $targetSeverity = $loggingSeverity
-                [String] $targetFormat = $loggingFormat
-
-                if ($logTarget.Level) {
-                    $targetSeverity = Get-LevelNumber -Level $logTarget.Level
-                }
-
-                if ($logTarget.Format) {
-                    $targetFormat = $logTarget.Format
-                }
-
-                if ($logMessage.LevelNo -ge $targetSeverity) {
-                    Invoke-Command -ScriptBlock $LogTargets[$targetEnum.Key].Logger -ArgumentList @($logMessage, $targetFormat, $logTarget, $ParentHost)
+                if ($logMessage.LevelNo -ge $logTarget.LevelNo) {
+                    Invoke-Command -ScriptBlock $LogTargets[$targetEnum.Key].Logger -ArgumentList @($logMessage, $logTarget)
                     $messageDiscarded = $false
                     $logsWritten++
                 }
