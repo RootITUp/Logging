@@ -54,7 +54,7 @@ Function Write-Log {
         [array] $Arguments,
         [Parameter(Position = 4,
             Mandatory = $false)]
-        [object] $Body,
+        [object] $Body = $null,
         [Parameter(Position = 5,
             Mandatory = $false)]
         [System.Management.Automation.ErrorRecord] $ExceptionInfo = $null
@@ -91,12 +91,9 @@ Function Write-Log {
             filename  = $FileName
             caller    = Get-CallerNameInScope
             message   = $text
+            body      = $Body
             execinfo  = $ExceptionInfo
             pid       = $PID
-        }
-
-        if ($Body) {
-            $logMessage.body = $Body
         }
 
         $Script:LoggingEventQueue.Add($logMessage)
