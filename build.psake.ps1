@@ -50,7 +50,7 @@ Properties {
 
 FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
 
-Task Default -Depends PublishModule, BuildDocs
+Task Default -Depends PublishModule, Build
 
 Task Init {
     Set-Location $env:BHProjectPath
@@ -148,7 +148,7 @@ Task IncrementVersion -Depends BuildDocs {
     Pop-Location
 }
 
-Task Build -Depends IncrementVersion -precondition {$BranchName -eq 'master'} {
+Task Build -Depends IncrementVersion {
     if (-not (Test-Path $BuildBaseModule)) {New-Item -Path $BuildBaseModule -ItemType Directory | Out-Null}
     if (-not (Test-Path $BuildVersionedModule)) {New-Item -Path $BuildVersionedModule -ItemType Directory | Out-Null}
 
