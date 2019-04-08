@@ -52,8 +52,6 @@ function New-LoggingDynamicParam {
         $DynamicParams
     )
 
-    Write-Verbose -Message ("{0} :: Requested dynamic param for {1}" -f $MyInvocation.MyCommand, $Name)
-
     if (!$DynamicParams) {
         $DynamicParams = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
     }
@@ -78,8 +76,6 @@ function New-LoggingDynamicParam {
             $allowedValues += Get-LevelsName
         }
     }
-
-    Write-Verbose -Message ("{0} :: Currently configured validate set size : {1}" -f $MyInvocation.MyCommand, $allowedValues.Length)
 
     $validateSetAttribute = [System.Management.Automation.ValidateSetAttribute]::new($allowedValues)
     $attributeCollection.Add($validateSetAttribute)
