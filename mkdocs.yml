@@ -20,10 +20,12 @@ nav:
     - Get-LoggingCallerScope: Get-LoggingCallerScope.md
     - Get-LoggingDefaultFormat: Get-LoggingDefaultFormat.md
     - Get-LoggingDefaultLevel: Get-LoggingDefaultLevel.md
+    - Get-LoggingMessageCount: Get-LoggingMessageCount.md
     - Get-LoggingTarget: Get-LoggingTarget.md
     - Set-LoggingCallerScope: Set-LoggingCallerScope.md
     - Set-LoggingCustomTarget: Set-LoggingCustomTarget.md
     - Set-LoggingDefaultFormat: Set-LoggingDefaultFormat.md
     - Set-LoggingDefaultLevel: Set-LoggingDefaultLevel.md
+    - Use-LogMessage: Use-LogMessage.md
     - Wait-Logging: Wait-Logging.md
     - Write-Log: Write-Log.md
