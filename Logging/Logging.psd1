@@ -95,16 +95,16 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Logging','Log','Console','File','ElasticSearch','Slack','Email'
+        Tags = 'Logging','Log','Console','File','ElasticSearch','Slack','Email', 'Windows'
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/EsOsO/Logging/blobl/master/docs/LICENSE'
+        LicenseUri = 'https://github.com/EsOsO/Logging/blob/master/docs/LICENSE'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/EsOsO/Logging'
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://github.com/EsOsO/Logging/blob/static/img/logo.svg'
 
         # ReleaseNotes of this module
         ReleaseNotes = ''
