@@ -84,7 +84,7 @@ Function Write-Log {
 
         $logMessage = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
-            level     = Get-LevelName -Level $levelNumber
+            level     = $PSBoundParameters.Level
             levelno   = $levelNumber
             lineno    = $invocationInfo.ScriptLineNumber
             pathname  = $invocationInfo.ScriptName
