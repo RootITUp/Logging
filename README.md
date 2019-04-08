@@ -1,5 +1,5 @@
+<h3 align="center">Powershell Logging Module</h3>
 <p align="center">
-  <h3>Powershell Logging Module</h3>
   <a href="https://www.powershellgallery.com/packages/logging" target="_blank" rel="noopener noreferrer">
     <img src="https://github.com/EsOsO/Logging/blob/static/img/logo.svg" width="300px" alt="Powershell Logging logo" />
   </a>
@@ -7,7 +7,10 @@
 
 <p align="center">
   <a href="https://ci.appveyor.com/project/EsOsO/logging">
-    <img src="https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/master?svg=true" alt="Build Status" />
+    <img src="https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/master?svg=true&passingText=master&pendignText=master&failingText=master" alt="Master Build Status" />
+  </a>
+  <a href="https://ci.appveyor.com/project/EsOsO/logging">
+    <img src="https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/dev?svg=true&passingText=develop&pendignText=develop&failingText=develop" alt="Develop Build Status" />
   </a>
   <a href="https://logging.readthedocs.io/en/latest/?badge=latest">
     <img src="https://readthedocs.org/projects/logging/badge/?version=latest" alt="Documentation" />
