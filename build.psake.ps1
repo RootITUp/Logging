@@ -148,7 +148,7 @@ Task IncrementVersion -Depends BuildDocs {
     Pop-Location
 }
 
-Task Build -Depends IncrementVersion {
+Task Build -Depends IncrementVersion -precondition {$BranchName -eq 'master'} {
     if (-not (Test-Path $BuildBaseModule)) {New-Item -Path $BuildBaseModule -ItemType Directory | Out-Null}
     if (-not (Test-Path $BuildVersionedModule)) {New-Item -Path $BuildVersionedModule -ItemType Directory | Out-Null}
 
@@ -162,7 +162,7 @@ Task Build -Depends IncrementVersion {
     Push-AppveyorArtifact -Path $ArtifactPath
 }
 
-Task PublishModule -Depends Build {
+Task PublishModule -Depends Build -precondition {$BranchName -eq 'master'} {
     Write-Host "PublishModule: Publishing module to powershellgallery"
     Publish-Module -Path $BuildVersionedModule -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY
 }
