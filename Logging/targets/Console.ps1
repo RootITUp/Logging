@@ -21,7 +21,7 @@
             $Color = $Configuration.ColorMapping[$Level]
 
             if ($Color -notin ([System.Enum]::GetNames([System.ConsoleColor]))) {
-                $ParentHost.UI.WriteErrorLine("ERROR: Cannot use custom color '$Color': not a valid [System.ConsoleColor] value")
+                $Host.UI.WriteErrorLine("ERROR: Cannot use custom color '$Color': not a valid [System.ConsoleColor] value")
                 continue
             }
         }
@@ -43,8 +43,8 @@
             }
 
             $FGColor = $Configuration.ColorMapping[$Log.Level]
-            $BGColor = $ParentHost.UI.RawUI.BackgroundColor
-            $ParentHost.UI.WriteLine($FGColor, $BGColor, $logText)
+            $BGColor = $Host.UI.RawUI.BackgroundColor
+            $Host.UI.WriteLine($FGColor, $BGColor, $logText)
         }
         catch {
             [Console]::WriteLine($_)
