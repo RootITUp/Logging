@@ -12,8 +12,7 @@
                                                                 }
         }
     }
-
-    Init = {
+    Init          = {
         param(
             [hashtable] $Configuration
         )
@@ -27,26 +26,33 @@
             }
         }
     }
-
     Logger = {
         param(
             $Log,
             $Format,
-            $Configuration
+            $Configuration,
+            $ParentHost
         )
 
         $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
-
-        $Text = Replace-Token -String $Format -Source $Log
-
-        if ($Log.ExecInfo) {
-            $Text += "`n" + $Log.ExecInfo.InvocationInfo.PositionMessage
-        }
-
         $mtx.WaitOne()
-        $ParentHost.UI.WriteLine($Configuration.ColorMapping[$Log.Level], $ParentHost.UI.RawUI.BackgroundColor, $Text)
-        [void] $mtx.ReleaseMutex()
 
-        $mtx.Dispose()
+        try {
+            #This call seems to require quite some time
+            $logText = Replace-Token -String $Format -Source $Log
+
+            if (![String]::IsNullOrWhiteSpace($Log.ExecInfo)) {
+                $logText += "`n" + $Log.ExecInfo.InvocationInfo.PositionMessage
+            }
+            
+            $ParentHost.UI.WriteLine($Configuration.ColorMapping[$Log.Level], $ParentHost.UI.RawUI.BackgroundColor, $logText)
+        }
+        catch {
+            [Console]::WriteLine($_)
+        }
+        finally {
+            [void] $mtx.ReleaseMutex()
+            $mtx.Dispose()
+        }
     }
 }

@@ -55,11 +55,11 @@ function New-LoggingDynamicParam {
     Write-Verbose -Message ("{0} :: Requested dynamic param for {1}" -f $MyInvocation.MyCommand, $Name)
 
     if (!$DynamicParams) {
-        $DynamicParams = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+        $DynamicParams = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
     }
 
-    $attributeCollection = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
-    $attribute = New-Object System.Management.Automation.ParameterAttribute
+    $attributeCollection = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()
+    $attribute = [System.Management.Automation.ParameterAttribute]::new()
 
     $attribute.ParameterSetName = '__AllParameterSets'
     $attribute.Mandatory = $Mandatory
@@ -81,10 +81,10 @@ function New-LoggingDynamicParam {
 
     Write-Verbose -Message ("{0} :: Currently configured validate set size : {1}" -f $MyInvocation.MyCommand, $allowedValues.Length)
 
-    $validateSetAttribute = New-Object System.Management.Automation.ValidateSetAttribute($allowedValues)
+    $validateSetAttribute = [System.Management.Automation.ValidateSetAttribute]::new($allowedValues)
     $attributeCollection.Add($validateSetAttribute)
 
-    $dynamicParam = New-Object System.Management.Automation.RuntimeDefinedParameter($Name, [string], $attributeCollection)
+    $dynamicParam = [System.Management.Automation.RuntimeDefinedParameter]::new($Name, [string], $attributeCollection)
 
     $DynamicParams.Add($Name, $dynamicParam)
 

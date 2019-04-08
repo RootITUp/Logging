@@ -47,16 +47,16 @@ Function Write-Log {
     [CmdletBinding()]
     param(
         [Parameter(Position = 2,
-                   Mandatory = $true)]
+            Mandatory = $true)]
         [string] $Message,
         [Parameter(Position = 3,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [array] $Arguments,
         [Parameter(Position = 4,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [object] $Body,
         [Parameter(Position = 5,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [System.Management.Automation.ErrorRecord] $ExceptionInfo = $null
     )
 
@@ -65,22 +65,29 @@ Function Write-Log {
         $PSBoundParameters["Level"] = "INFO"
     }
 
+    Begin{
+        if (!(Get-Variable -Name "LoggingEventQueue" -Scope Script -ErrorAction Ignore)) {
+            Start-LoggingManager
+        }
+    }
+
     End {
-        $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
+        $levelNumber = Get-LevelNumber -Level $PSBoundParameters.Level
         if ($PSBoundParameters.ContainsKey('Arguments')) {
             $text = $Message -f $Arguments
-        } else {
+        }
+        else {
             $text = $Message
         }
 
-        $InvocationInfo = (Get-PSCallStack).InvocationInfo
+        $invocationInfo = (Get-PSCallStack).InvocationInfo
 
-        $mess = [hashtable] @{
+        $logMessage = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
-            level     = Get-LevelName -Level $LevelNo
-            levelno   = $LevelNo
-            lineno    = $InvocationInfo.ScriptLineNumber
-            pathname  = $InvocationInfo.ScriptName
+            level     = Get-LevelName -Level $levelNumber
+            levelno   = $levelNumber
+            lineno    = $invocationInfo.ScriptLineNumber
+            pathname  = $invocationInfo.ScriptName
             filename  = $FileName
             caller    = Get-CallerNameInScope
             message   = $text
@@ -88,7 +95,10 @@ Function Write-Log {
             pid       = $PID
         }
 
-        if ($Body) { $mess.body = $Body }
-        [void] $MessageQueue.Add($mess)
+        if ($Body) {
+            $logMessage.body = $Body
+        }
+
+        $Script:LoggingEventQueue.Add($logMessage)
     }
 }
