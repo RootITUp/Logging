@@ -38,6 +38,7 @@ function Set-LoggingVariables {
     }
 
     $Script:Logging.Level = $Defaults.Level
+    $Script:Logging.LevelNo = Get-LevelNumber -Level $Defaults.Level
     $Script:Logging.Format = $Defaults.Format
     $Script:Logging.CallerScope = $Defaults.CallerScope
     $Script:Logging.Targets = [hashtable]::Synchronized(@{})
