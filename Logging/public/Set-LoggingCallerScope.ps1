@@ -30,6 +30,7 @@ function Set-LoggingCallerScope {
     param(
         [int]$CallerScope = $Defaults.CallerScope
     )
+
     Wait-Logging
     $Logging.CallerScope = $CallerScope
 }

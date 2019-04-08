@@ -34,7 +34,7 @@ DynamicParam{
 
 function New-LoggingDynamicParam {
     [OutputType([System.Management.Automation.RuntimeDefinedParameterDictionary])]
-    [CmdletBinding(DefaultParameterSetName="DynamicTarget")]
+    [CmdletBinding(DefaultParameterSetName = "DynamicTarget")]
     param(
         [Parameter(Mandatory = $true, ParameterSetName = "DynamicLevel")]
         [Parameter(Mandatory = $true, ParameterSetName = "DynamicTarget")]
