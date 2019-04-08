@@ -35,7 +35,7 @@ function Start-LoggingManager {
 
     #Spawn Logging Consumer
     $workerJob = [Powershell]::Create()
-    
+
     $workerCommand = $workerJob.AddCommand("Use-LogMessage")
     $workerCommand = $workerCommand.AddParameter("ErrorAction", "Stop")
 
