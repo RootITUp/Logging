@@ -187,5 +187,9 @@ InModuleScope Logging {
             Set-LoggingCallerScope -CallerScope $newScope
             Get-LoggingCallerScope | Should -Be $newScope
         }
+
+        It 'should prevent setting the caller scope to a value less than 1' {
+            { Set-LoggingCallerScope -CallerScope 0 } | Should -Throw
+        }
     }
 }

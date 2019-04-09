@@ -28,6 +28,7 @@
 function Set-LoggingCallerScope {
     [CmdletBinding(HelpUri='https://logging.readthedocs.io/en/latest/functions/Set-LoggingCallerScope.md')]
     param(
+        [ValidateScript({$_ -ge 1})]
         [int]$CallerScope = $Defaults.CallerScope
     )
     Wait-Logging
