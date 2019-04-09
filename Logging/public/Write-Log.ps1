@@ -89,7 +89,7 @@ Function Write-Log {
             lineno    = $InvocationInfo.ScriptLineNumber
             pathname  = $PathName
             filename  = $FileName
-            caller    = Get-CallerNameInScope
+            caller    = $InvocationInfo.Command
             message   = $text
             execinfo  = $ExceptionInfo
             pid       = $PID
