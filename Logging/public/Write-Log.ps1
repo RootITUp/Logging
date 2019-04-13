@@ -80,7 +80,7 @@ Function Write-Log {
             $text = $Message
         }
 
-        $invocationInfo = (Get-PSCallStack).InvocationInfo
+        $invocationInfo = (Get-PSCallStack)[$Logging.CallerScope]
 
         $logMessage = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
