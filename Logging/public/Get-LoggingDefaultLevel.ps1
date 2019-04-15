@@ -18,8 +18,8 @@
         https://github.com/EsOsO/Logging/blob/master/Logging/public/Get-LoggingDefaultLevel.ps1
 #>
 function Get-LoggingDefaultLevel {
-    [CmdletBinding(HelpUri='https://logging.readthedocs.io/en/latest/functions/Get-LoggingDefaultLevel.md')]
+    [CmdletBinding(HelpUri = 'https://logging.readthedocs.io/en/latest/functions/Get-LoggingDefaultLevel.md')]
     param()
 
-    return Get-LevelName -Level $Logging.Level
+    return Get-LevelName -Level $Logging.LevelNo
 }

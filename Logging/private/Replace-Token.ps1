@@ -6,13 +6,16 @@ function Replace-Token {
         [object] $Source
     )
 
-    $re = [regex] '%{(?<token>\w+?)?(?::?\+(?<datefmtU>(?:%[ABCDGHIMRSTUVWXYZabcdeghjklmnprstuwxy].*?)+))?(?::?\+(?<datefmt>(?:.*?)+))?(?::(?<padding>-?\d+))?}'
-    $re.Replace($String, {
-        param($match)
-        $token = $match.Groups['token'].value
-        $datefmt = $match.Groups['datefmt'].value
-        $datefmtU = $match.Groups['datefmtU'].value
-        $padding = $match.Groups['padding'].value
+    [regex] $tokenMatcher = '%{(?<token>\w+?)?(?::?\+(?<datefmtU>(?:%[ABCDGHIMRSTUVWXYZabcdeghjklmnprstuwxy].*?)+))?(?::?\+(?<datefmt>(?:.*?)+))?(?::(?<padding>-?\d+))?}'
+    $tokenMatches = @()
+    $tokenMatches += $tokenMatcher.Matches($String)
+    [array]::Reverse($tokenMatches)
+
+    foreach ( $match in $tokenMatches ) {
+        $token      = $match.Groups["token"].value
+        $datefmt    = $match.Groups["datefmt"].value
+        $datefmtU   = $match.Groups["datefmtU"].value
+        $padding    = $match.Groups["padding"].value
 
         if ($token -and -not $datefmt -and -not $datefmtU) {
             $var = $Source.$token
@@ -29,9 +32,11 @@ function Replace-Token {
         if ($padding) {
             $tpl = "{0,$padding}"
         } else {
-            $tpl = '{0}'
+            $tpl = "{0}"
         }
 
-        return ($tpl -f $var)
-    })
+        $String = $String.Substring(0, $match.Index) + ($tpl -f $var) + $String.Substring($match.Index + $match.Length)
+    }
+
+    return $String
 }

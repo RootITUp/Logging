@@ -9,13 +9,12 @@
     }
     Logger = {
         param(
-            $Log,
-            $Format,
-            $Configuration
+            [hashtable] $Log,
+            [hashtable] $Configuration
         )
 
         $Text = @{
-            text = Replace-Token -String $Format -Source $Log
+            text = Replace-Token -String $Configuration.Format -Source $Log
         }
 
         if ($Configuration.BotName) { $Text['username'] = $Configuration.BotName }

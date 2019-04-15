@@ -1,7 +1,6 @@
 Remove-Module Logging -Force -ErrorAction SilentlyContinue
 
 $ManifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
-$ChangeLogPath  = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
 
 Import-Module $ManifestPath -Force
 
@@ -29,16 +28,12 @@ Describe -Tags Build, Unit 'Logging manifest' {
 InModuleScope Logging {
     Describe 'Internal Vars' {
         It 'sets up internal variables' {
-            Test-Path Variable:Dispatcher | Should Be $true
             Test-Path Variable:LevelNames | Should Be $true
             Test-Path Variable:Logging | Should Be $true
             Test-Path Variable:LogTargets | Should Be $true
             Test-Path Variable:ScriptRoot | Should Be $true
-            Test-Path Variable:MessageQueue | Should Be $true
-        }
-
-        It 'stes up Session State' {
-            Test-Path Variable:InitialSessionState | Should Be $true
+            #Test-Path Variable:Dispatcher | Should Be $true
+            #Test-Path Variable:MessageQueue | Should Be $true
         }
     }
 
@@ -151,15 +146,17 @@ InModuleScope Logging {
     }
 
     Describe 'Logging Targets' {
+        $TargetsPath    = '{0}\..\Logging\targets' -f $PSScriptRoot
+        $Targets = Get-ChildItem -Path $TargetsPath -Filter '*.ps1'
+
         It 'loads the logging targets' {
-            $Targets = $InitialSessionState.Variables.Item('LogTargets').Value
-            $Targets.Count | Should Be 7
+            $LogTargets.Count | Should Be $Targets.Count
         }
 
         It 'returns the loaded logging targets' {
             $AvailableTargets = Get-LoggingAvailableTarget
             $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
-            $AvailableTargets.Count | Should Be 7
+            $AvailableTargets.Count | Should Be $Targets.Count
         }
     }
 
@@ -186,6 +183,45 @@ InModuleScope Logging {
             Get-LoggingCallerScope | Should -Be $Defaults.CallerScope
             Set-LoggingCallerScope -CallerScope $newScope
             Get-LoggingCallerScope | Should -Be $newScope
+        }
+    }
+
+    Describe 'Dynamic Parameter' {
+        It 'should contain the default levels'{
+            $dynamicDictionary = New-LoggingDynamicParam -Name "PesterTest" -Level
+
+            [String[]] $allowedValues = $dynamicDictionary["PesterTest"].Attributes[1].ValidValues
+
+            "ERROR" -in $allowedValues | Should -Be $true
+            "DEBUG" -in $allowedValues | Should -Be $true
+        }
+        It 'should contain the default targets'{
+            $dynamicDictionary = New-LoggingDynamicParam -Name "PesterTest" -Target
+
+            [String[]] $allowedValues = $dynamicDictionary["PesterTest"].Attributes[1].ValidValues
+
+            "File" -in $allowedValues | Should -Be $true
+            "Console" -in $allowedValues | Should -Be $true
+        }
+    }
+
+    Describe 'Logging Producer-Consumer'{
+
+        It 'should start logging manager when log requested' {
+            Write-Log -Message "Test"
+            Test-Path Variable:LoggingEventQueue | Should Be $true
+            Test-Path Variable:LoggingWorker | Should Be $true
+            Test-Path Variable:LoggingMessagerCount | Should Be $true
+        }
+
+        It 'should not start a second logging manager'{
+            [boolean] $isError = $false
+            try{
+                Start-LoggingManager
+            }catch [System.InvalidOperationException]{
+                $isError = $true
+            }
+            $isError | Should -Be $true
         }
     }
 }

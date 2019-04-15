@@ -28,11 +28,11 @@
 
 #### Download Repo
 
-* Download [the zip](https://github.com/EsOsO/Logging/archive/master.zip)
+* Download [the zip](https://github.com/EsOsO/Logging/releases/latest)
 * Ublock the zip file (`Unblock-File -Path <path_to_zip>`)
 * Unzip the content of "Logging-master" to:
-    - C:\Program Files\WindowsPowerShell\Modules\Logging **[System wide]**
-    - D:\Users\\{username}\Documents\WindowsPowerShell\Modules\Logging **[User only]**
+  * C:\Program Files\WindowsPowerShell\Modules\Logging **[System wide]**
+  * D:\Users\\{username}\Documents\WindowsPowerShell\Modules\Logging **[User only]**
 
 ```powershell
 > Import-Module Logging

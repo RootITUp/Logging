@@ -31,10 +31,13 @@ test: false
 
 deploy:
   tag: $(ReleaseVersion)
-  description: $(ReleaseDescription)
+  description: "# What's new in $(ReleaseVersion)
+  $(ReleaseDescription)"
   force_update: true
   draft: false
   prerelease: false
   provider: GitHub
   auth_token:
     secure: +823CdXZbrvfhBVAbcsRT/CGVmREYmkH5g5TC8+1HWjGt0SHZtgS4AWVBbeyfzLl
+  on:
+    branch: master

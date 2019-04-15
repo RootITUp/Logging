@@ -33,6 +33,7 @@ function Set-LoggingDefaultLevel {
     }
 
     End {
-        $Logging.Level = Get-LevelNumber -Level $PSBoundParameters.Level
+        $Logging.Level = $PSBoundParameters.Level
+        $Logging.LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
     }
 }

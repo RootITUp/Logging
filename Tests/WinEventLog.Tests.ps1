@@ -34,7 +34,7 @@ Describe -Tags Targets, TargetWinEventLog 'WinEventLog target' {
         # Wasn't able to get a 'Write-EventLog' mock working inside of the .Logger scriptblocks which
         # are already loaded into the module. Instead, load the scriptblock for testing here
         $Module = . $TargetImplementationPath
-        & $Module.Logger $Message $LoggerFormat $Configuration
+        & $Module.Logger $Message $Configuration
 
         Assert-MockCalled -CommandName 'Write-EventLog' -Times 1 -Exactly -ParameterFilter {
             ($LogName   -eq 'Application') -and

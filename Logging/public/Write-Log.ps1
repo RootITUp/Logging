@@ -47,16 +47,16 @@ Function Write-Log {
     [CmdletBinding()]
     param(
         [Parameter(Position = 2,
-                   Mandatory = $true)]
+            Mandatory = $true)]
         [string] $Message,
         [Parameter(Position = 3,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [array] $Arguments,
         [Parameter(Position = 4,
-                   Mandatory = $false)]
-        [object] $Body,
+            Mandatory = $false)]
+        [object] $Body = $null,
         [Parameter(Position = 5,
-                   Mandatory = $false)]
+            Mandatory = $false)]
         [System.Management.Automation.ErrorRecord] $ExceptionInfo = $null
     )
 
@@ -65,30 +65,43 @@ Function Write-Log {
         $PSBoundParameters["Level"] = "INFO"
     }
 
+    Begin {
+        if (!(Get-Variable -Name "LoggingEventQueue" -Scope Script -ErrorAction Ignore)) {
+            Start-LoggingManager
+        }
+    }
+
     End {
-        $LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
+        $levelNumber = Get-LevelNumber -Level $PSBoundParameters.Level
         if ($PSBoundParameters.ContainsKey('Arguments')) {
             $text = $Message -f $Arguments
         } else {
             $text = $Message
         }
 
-        $InvocationInfo = (Get-PSCallStack).InvocationInfo
+        $invocationInfo = (Get-PSCallStack)[$Logging.CallerScope]
 
-        $mess = [hashtable] @{
+        # Split-Path throws an exception if called with a -Path that is null or empty.
+        if (-not [string]::IsNullOrEmpty($invocationInfo.ScriptName)) {
+            $fileName = Split-Path -Path $invocationInfo.ScriptName -Leaf
+        } else {
+            $fileName = ''
+        }
+
+        $logMessage = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
-            level     = Get-LevelName -Level $LevelNo
-            levelno   = $LevelNo
-            lineno    = $InvocationInfo.ScriptLineNumber
-            pathname  = $InvocationInfo.ScriptName
-            filename  = $FileName
-            caller    = Get-CallerNameInScope
+            level     = $PSBoundParameters.Level
+            levelno   = $levelNumber
+            lineno    = $invocationInfo.ScriptLineNumber
+            pathname  = $invocationInfo.ScriptName
+            filename  = $fileName
+            caller    = $invocationInfo.Command
             message   = $text
+            body      = $Body
             execinfo  = $ExceptionInfo
             pid       = $PID
         }
 
-        if ($Body) { $mess.body = $Body }
-        [void] $MessageQueue.Add($mess)
+        $Script:LoggingEventQueue.Add($logMessage)
     }
 }

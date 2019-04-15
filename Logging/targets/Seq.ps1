@@ -9,9 +9,8 @@
     }
     Logger = {
         param(
-            $Log,
-            $Format,
-            [hashtable]$Configuration
+            [hashtable] $Log,
+            [hashtable] $Configuration
         )
 
         $Body = @{

@@ -7,7 +7,6 @@
     Logger = {
         param(
             [hashtable] $Log,
-            [string] $Format,
             [hashtable] $Configuration
         )
 

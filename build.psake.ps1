@@ -50,7 +50,7 @@ Properties {
 
 FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
 
-Task Default -Depends PublishModule
+Task Default -Depends PublishModule, Build
 
 Task Init {
     Set-Location $env:BHProjectPath
@@ -155,6 +155,10 @@ Task Build -Depends IncrementVersion {
     Write-Host "Build: Copying module to $ArtifactFolder"
     Copy-Item -Path $env:BHModulePath\* -Destination $BuildVersionedModule -Recurse
 
+    Write-Host "Build: Generating catalog file"
+    $CatalogFilePath = '{0}\{1}.cat' -f $BuildVersionedModule, $env:BHProjectName
+    New-FileCatalog -CatalogVersion 2 -CatalogFilePath $CatalogFilePath -Path $env:BHModulePath
+
     Write-Host "Build: Compressing release to $ArtifactPath"
     Compress-Archive -Path $BuildBaseModule -DestinationPath $ArtifactPath
 
@@ -162,7 +166,7 @@ Task Build -Depends IncrementVersion {
     Push-AppveyorArtifact -Path $ArtifactPath
 }
 
-Task PublishModule -Depends Build {
+Task PublishModule -Depends Build -precondition {$BranchName -eq 'master'} {
     Write-Host "PublishModule: Publishing module to powershellgallery"
     Publish-Module -Path $BuildVersionedModule -NuGetApiKey $env:APPVEYOR_NUGET_API_KEY
 }

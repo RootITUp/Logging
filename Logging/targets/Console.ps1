@@ -12,7 +12,6 @@
                                                                 }
         }
     }
-
     Init = {
         param(
             [hashtable] $Configuration
@@ -22,31 +21,37 @@
             $Color = $Configuration.ColorMapping[$Level]
 
             if ($Color -notin ([System.Enum]::GetNames([System.ConsoleColor]))) {
-                $ParentHost.UI.WriteErrorLine("ERROR: Cannot use custom color '$Color': not a valid [System.ConsoleColor] value")
+                $Host.UI.WriteErrorLine("ERROR: Cannot use custom color '$Color': not a valid [System.ConsoleColor] value")
                 continue
             }
         }
     }
-
     Logger = {
         param(
-            $Log,
-            $Format,
-            $Configuration
+            [hashtable] $Log,
+            [hashtable] $Configuration
         )
 
         $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
-
-        $Text = Replace-Token -String $Format -Source $Log
-
-        if ($Log.ExecInfo) {
-            $Text += "`n" + $Log.ExecInfo.InvocationInfo.PositionMessage
-        }
-
         $mtx.WaitOne()
-        $ParentHost.UI.WriteLine($Configuration.ColorMapping[$Log.Level], $ParentHost.UI.RawUI.BackgroundColor, $Text)
-        [void] $mtx.ReleaseMutex()
 
-        $mtx.Dispose()
+        try {
+            $logText = Replace-Token -String $Configuration.Format -Source $Log
+
+            if (![String]::IsNullOrWhiteSpace($Log.ExecInfo)) {
+                $logText += "`n" + $Log.ExecInfo.InvocationInfo.PositionMessage
+            }
+
+            $FGColor = $Configuration.ColorMapping[$Log.Level]
+            $BGColor = $Host.UI.RawUI.BackgroundColor
+            $Host.UI.WriteLine($FGColor, $BGColor, $logText)
+        }
+        catch {
+            [Console]::WriteLine($_)
+        }
+        finally {
+            [void] $mtx.ReleaseMutex()
+            $mtx.Dispose()
+        }
     }
 }
