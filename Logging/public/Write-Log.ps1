@@ -79,7 +79,14 @@ Function Write-Log {
             $text = $Message
         }
 
-        $invocationInfo = (Get-PSCallStack).InvocationInfo
+        $invocationInfo = (Get-PSCallStack)[$Logging.CallerScope]
+
+        # Split-Path throws an exception if called with a -Path that is null or empty.
+        if (-not [string]::IsNullOrEmpty($invocationInfo.ScriptName)) {
+            $fileName = Split-Path -Path $invocationInfo.ScriptName -Leaf
+        } else {
+            $fileName = ''
+        }
 
         $logMessage = [hashtable] @{
             timestamp = Get-Date -UFormat $Defaults.Timestamp
@@ -87,8 +94,8 @@ Function Write-Log {
             levelno   = $levelNumber
             lineno    = $invocationInfo.ScriptLineNumber
             pathname  = $invocationInfo.ScriptName
-            filename  = $FileName
-            caller    = Get-CallerNameInScope
+            filename  = $fileName
+            caller    = $invocationInfo.Command
             message   = $text
             body      = $Body
             execinfo  = $ExceptionInfo
