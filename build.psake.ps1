@@ -155,9 +155,9 @@ Task Build -Depends IncrementVersion {
     Write-Host "Build: Copying module to $ArtifactFolder"
     Copy-Item -Path $env:BHModulePath\* -Destination $BuildVersionedModule -Recurse
 
-    Write-Host "Build: Generating catalog file"
-    $CatalogFilePath = '{0}\{1}.cat' -f $BuildVersionedModule, $env:BHProjectName
-    New-FileCatalog -CatalogVersion 2 -CatalogFilePath $CatalogFilePath -Path $env:BHModulePath
+    # Write-Host "Build: Generating catalog file"
+    # $CatalogFilePath = '{0}\{1}.cat' -f $BuildVersionedModule, $env:BHProjectName
+    # New-FileCatalog -CatalogVersion 2 -CatalogFilePath $CatalogFilePath -Path $env:BHModulePath
 
     Write-Host "Build: Compressing release to $ArtifactPath"
     Compress-Archive -Path $BuildBaseModule -DestinationPath $ArtifactPath
