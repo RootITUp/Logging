@@ -1,4 +1,14 @@
-# Changelog
+## 3.0.0 (2019-04-15)
+
+
+This major release shouldn't break anything.
+It should improve logging performance to a new level thanks to the amazing work of @tosoikea.
+
+- [NEW] Advanced Logging Manager (thx to @tosoikea)
+- [NEW] Module catalog generation on build
+- [FIX] Filename token (thx to @lookcloser)
+- [MOD] Code cleanup
+
 
 ## 2.10.0 (2019-04-04)
 
@@ -83,6 +93,7 @@
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
