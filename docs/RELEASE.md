@@ -1,1 +1,0 @@
-- [FIX] removed catalog generation until I get more grasp on the process

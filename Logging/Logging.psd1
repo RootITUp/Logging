@@ -12,7 +12,7 @@
 RootModule = 'Logging.psm1'
 
 # Version number of this module.
-ModuleVersion = '3.0.0'
+ModuleVersion = '4.0.3'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

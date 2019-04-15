@@ -1,4 +1,8 @@
-# Changelog
+# CHANGELOG
+
+## 4.0.3 (2019-04-15)
+
+- [FIX] removed catalog generation until I get more grasp on the process
 
 ## 3.0.0 (2019-04-15)
 
@@ -94,6 +98,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
