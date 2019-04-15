@@ -1,6 +1,7 @@
 Remove-Module Logging -Force -ErrorAction SilentlyContinue
 
 $ManifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
+$ChangeLogPath  = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
 
 Import-Module $ManifestPath -Force
 
@@ -146,17 +147,14 @@ InModuleScope Logging {
     }
 
     Describe 'Logging Targets' {
-        $TargetsPath    = '{0}\..\Logging\targets' -f $PSScriptRoot
-        $Targets = Get-ChildItem -Path $TargetsPath -Filter '*.ps1'
-
         It 'loads the logging targets' {
-            $LogTargets.Count | Should Be $Targets.Count
+            $LogTargets.Count | Should Be 7
         }
 
         It 'returns the loaded logging targets' {
             $AvailableTargets = Get-LoggingAvailableTarget
             $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
-            $AvailableTargets.Count | Should Be $Targets.Count
+            $AvailableTargets.Count | Should Be 7
         }
     }
 
@@ -194,7 +192,7 @@ InModuleScope Logging {
 
             "ERROR" -in $allowedValues | Should -Be $true
             "DEBUG" -in $allowedValues | Should -Be $true
-        }
+        }        
         It 'should contain the default targets'{
             $dynamicDictionary = New-LoggingDynamicParam -Name "PesterTest" -Target
 
