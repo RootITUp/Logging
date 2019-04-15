@@ -8,7 +8,6 @@ image: 'Visual Studio 2017'
 branches:
   only:
     - master
-    - dev
 
 skip_commits:
   message: /\[skip ci\]/
@@ -41,15 +40,3 @@ deploy:
     secure: +823CdXZbrvfhBVAbcsRT/CGVmREYmkH5g5TC8+1HWjGt0SHZtgS4AWVBbeyfzLl
   on:
     branch: master
-
-deploy:
-  tag: $(ReleaseVersion)
-  description: Alpha release
-  force_update: true
-  draft: false
-  prerelease: true
-  provider: GitHub
-  auth_token:
-    secure: +823CdXZbrvfhBVAbcsRT/CGVmREYmkH5g5TC8+1HWjGt0SHZtgS4AWVBbeyfzLl
-  on:
-    branch: dev
