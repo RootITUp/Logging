@@ -14,6 +14,9 @@ jobs:
         persistCredentials: true
 
       - powershell: |
+          choco install -y gitversion.portable
+
+      - powershell: |
           .\psake.ps1 -TaskList Test -Verbose
         displayName: 'Execute Tests'
         env:
@@ -26,14 +29,15 @@ jobs:
       - task: PublishTestResults@2
         inputs:
           testRunner: 'NUnit'
-          testResultsFiles: '**/Unit/TestResults.unit.xml'
+          testResultsFiles: '**/TestResults.unit.xml'
           testRunTitle: 'PS_Win2016_Unit'
         displayName: 'Publish Unit Test Results'
         condition: in(variables['Agent.JobStatus'], 'Succeeded', 'SucceededWithIssues', 'Failed')
 
       - task: PublishCodeCoverageResults@1
         inputs:
-          summaryFileLocation: '**/Unit/CodeCoverage.xml'
+          codeCoverageTool: JaCoCo
+          summaryFileLocation: '**/CodeCoverage.xml'
           failIfCoverageEmpty: true
         displayName: 'Publish Unit Test Code Coverage'
         condition: and(in(variables['Agent.JobStatus'], 'Succeeded', 'SucceededWithIssues', 'Failed'), eq(variables['System.PullRequest.IsFork'], false))
