@@ -1,5 +1,6 @@
-## 3.0.0 (2019-04-15)
+# Changelog
 
+## 3.0.0 (2019-04-15)
 
 This major release shouldn't break anything.
 It should improve logging performance to a new level thanks to the amazing work of @tosoikea.

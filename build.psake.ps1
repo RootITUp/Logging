@@ -20,7 +20,7 @@ function Update-AdditionalReleaseArtifact {
 
     "# CHANGELOG`r`n" | Out-File $ChangelogTemp -Encoding ascii
     ("## {0} ({1})`r`n" -f $Version, $CommitDate) | Out-File $ChangelogTemp -Append -Encoding ascii
-    ("{0}`r`n`r`n" -f $ReleaseDescription) | Out-File $ChangelogTemp -Append -Encoding ascii
+    ("{0}`r`n" -f $ReleaseDescription) | Out-File $ChangelogTemp -Append -Encoding ascii
     ("{0}`r`n" -f $Changelog) | Out-File $ChangelogTemp -Append -Encoding ascii
 
     Copy-Item $ChangelogTemp $ChangelogFile -Force
