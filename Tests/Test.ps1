@@ -10,8 +10,8 @@ Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'; Format = '%{fi
 function Invoke-CallerFunction {
     [CmdletBinding()]
     param()
-    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
     Set-LoggingDefaultFormat -Format '[%{filename}] [%{caller}] %{message}'
+    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
 
     1..5 | ForEach-Object {
         Write-Log -Level (Get-Random 'DEBUG', 'INFO', 'WARNING', 'ERROR') -Message 'Hello, World! (With caller scope)'
@@ -31,8 +31,8 @@ function Write-CustomLog {
 }
 
 function Invoke-CallerFunctionWithCustomLog {
-    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
     Set-LoggingDefaultFormat -Format '[%{filename}] [%{caller}] %{message}'
+    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
     Set-LoggingCallerScope -CallerScope 2
 
     1..5 | ForEach-Object {
