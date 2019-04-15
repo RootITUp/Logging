@@ -14,7 +14,7 @@ jobs:
         persistCredentials: true
 
       - powershell: |
-        .\psake.ps1 -TaskList Test -Verbose
+          .\psake.ps1 -TaskList Test -Verbose
         displayName: 'Execute Tests'
         env:
           azureApplicationId: $(azureApplicationId)
