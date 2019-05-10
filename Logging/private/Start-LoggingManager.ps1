@@ -14,9 +14,7 @@ function Start-LoggingManager {
     Set-Variable -Name "LoggingEventQueue" -Option Constant -Scope Script -Value ([System.Collections.Concurrent.BlockingCollection[hashtable]]::new(100))
     Set-Variable -Name "LoggingWorker" -Option Constant -Scope Script -Value (@{ })
 
-
     $initialState = [InitialSessionState]::CreateDefault()
-    $initialState.ApartmentState = 'MTA'
 
     [String[]] $sessionVariables = @(
         "ScriptRoot", "LevelNames", "Logging", "LogTargets", "LoggingEventQueue", "LoggingMessagerCount"
@@ -30,8 +28,8 @@ function Start-LoggingManager {
     #Import module for usage
     $initialState.ImportPSModulesFromPath($moduleBase)
 
-    $consumerRunspacePool = [RunspaceFactory]::CreateRunspacePool($initialState)
-    $consumerRunspacePool.Open()
+    Set-Variable -Name "LoggingConsumerRunspace" -Value ([runspacefactory]::CreateRunspace($initialState)) -Scope Script -Option Constant
+    $Script:LoggingConsumerRunspace.Open()
 
     #Spawn Logging Consumer
     $workerJob = [Powershell]::Create()
@@ -39,7 +37,7 @@ function Start-LoggingManager {
     $workerCommand = $workerJob.AddCommand("Use-LogMessage")
     $workerCommand = $workerCommand.AddParameter("ErrorAction", "Stop")
 
-    $workerJob.RunspacePool = $consumerRunspacePool
+    $workerJob.Runspace = $Script:LoggingConsumerRunspace
 
     $Script:LoggingWorker["Job"] = $workerJob
     $Script:LoggingWorker["Result"] = $workerJob.BeginInvoke()
@@ -53,6 +51,9 @@ function Start-LoggingManager {
         [int] $logCount = $Script:LoggingWorker["Job"].EndInvoke($Script:LoggingWorker["Result"])[0]
         Write-Verbose -Message ("{0} :: Stopping : {1}." -f $MyInvocation.MyCommand, $Script:LoggingWorker["Job"].InstanceId)
         $Script:LoggingWorker["Job"].Dispose()
+
+        #Dispose Runspace
+        $Script:LoggingConsumerRunspace.Dispose()
 
         Write-Verbose -Message ("{0} :: Logged {1} times." -f $MyInvocation.MyCommand, $logCount)
 
