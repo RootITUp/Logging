@@ -2,7 +2,7 @@ function Start-LoggingManager {
     [CmdletBinding()]
     param()
 
-    if (Get-Variable -Name "LoggingEventQueue" -Scope Script -ErrorAction Ignore) {
+    if (Get-Variable -Name "LoggingEventQueue" -ErrorAction Ignore) {
         throw [System.InvalidOperationException]::new("LoggingManager is already started.")
     }
 
@@ -29,7 +29,7 @@ function Start-LoggingManager {
     $initialState.ImportPSModulesFromPath($moduleBase)
 
     Set-Variable -Name "LoggingConsumerRunspace" -Value ([runspacefactory]::CreateRunspace($initialState)) -Scope Script -Option Constant
-    $Script:LoggingConsumerRunspace.Open()
+    $LoggingConsumerRunspace.Open()
 
     #Spawn Logging Consumer
     $workerJob = [Powershell]::Create()
@@ -39,21 +39,22 @@ function Start-LoggingManager {
 
     $workerJob.Runspace = $Script:LoggingConsumerRunspace
 
-    $Script:LoggingWorker["Job"] = $workerJob
-    $Script:LoggingWorker["Result"] = $workerJob.BeginInvoke()
+    #Start log consumer
+    $LoggingWorker["Job"] = $workerJob
+    $LoggingWorker["Result"] = $workerJob.BeginInvoke()
 
     #region Handle Module Removal
     $ExecutionContext.SessionState.Module.OnRemove = {
-        $Script:LoggingEventQueue.CompleteAdding()
+        $LoggingEventQueue.CompleteAdding()
 
         Write-Verbose -Message ("{0} :: Stopping running consumer instance." -f $MyInvocation.MyCommand)
 
-        [int] $logCount = $Script:LoggingWorker["Job"].EndInvoke($Script:LoggingWorker["Result"])[0]
-        Write-Verbose -Message ("{0} :: Stopping : {1}." -f $MyInvocation.MyCommand, $Script:LoggingWorker["Job"].InstanceId)
-        $Script:LoggingWorker["Job"].Dispose()
+        [int] $logCount = $LoggingWorker["Job"].EndInvoke($LoggingWorker["Result"])[0]
+        Write-Verbose -Message ("{0} :: Stopping : {1}." -f $MyInvocation.MyCommand, $LoggingWorker["Job"].InstanceId)
+        $LoggingWorker["Job"].Dispose()
 
         #Dispose Runspace
-        $Script:LoggingConsumerRunspace.Dispose()
+        $LoggingConsumerRunspace.Dispose()
 
         Write-Verbose -Message ("{0} :: Logged {1} times." -f $MyInvocation.MyCommand, $logCount)
 

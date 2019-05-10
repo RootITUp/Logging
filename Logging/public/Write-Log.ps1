@@ -65,12 +65,6 @@ Function Write-Log {
         $PSBoundParameters["Level"] = "INFO"
     }
 
-    Begin {
-        if (!(Get-Variable -Name "LoggingEventQueue" -Scope Script -ErrorAction Ignore)) {
-            Start-LoggingManager
-        }
-    }
-
     End {
         $levelNumber = Get-LevelNumber -Level $PSBoundParameters.Level
         if ($PSBoundParameters.ContainsKey('Arguments')) {
@@ -102,6 +96,7 @@ Function Write-Log {
             pid       = $PID
         }
 
-        $Script:LoggingEventQueue.Add($logMessage)
+        #This variable is initiated via Start-LoggingManager
+        $LoggingEventQueue.Add($logMessage)
     }
 }
