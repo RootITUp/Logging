@@ -1,19 +1,4 @@
-<#
-    .SYNOPSIS
-        Spawned by LoggingManager to consume log messages.
-    .DESCRIPTION
-        Do not call this method manually. This method will block until log messages
-        are laid into the LoggingEventQueue and is then going to properly handle the logging.
-    .EXAMPLE
-        DO NOT RUN MANUALLY
-    .LINK
-        https://logging.readthedocs.io/en/latest/functions/Use-LogMessage.md
-    .LINK
-        https://github.com/EsOsO/Logging/blob/master/Logging/public/Use-LogMessage.ps1
-#>
-
 function Use-LogMessage {
-    [CmdletBinding(HelpUri = 'https://logging.readthedocs.io/en/latest/functions/Use-LogMessage.md')]
     [OutputType([int])]
     param(
     )
