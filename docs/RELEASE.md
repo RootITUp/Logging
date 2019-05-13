@@ -1,0 +1,1 @@
+- [NEW] Added timestamputc to log message properties
