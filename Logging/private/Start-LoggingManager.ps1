@@ -24,10 +24,9 @@ function Start-LoggingManager {
     foreach ( $sessionVariable in $sessionVariables) {
         $initialState.Variables.Add([System.Management.Automation.Runspaces.SessionStateVariableEntry]::new($sessionVariable, (Get-Variable -Name $sessionVariable -ErrorAction Stop).Value, '', [System.Management.Automation.ScopedItemOptions]::AllScope))
     }
-    # $initialState.Variables.Add((New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList 'ParentHost', $Host, ''))
 
-    #Import module for usage
-    $initialState.ImportPSModulesFromPath($moduleBase)
+    $ISS.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Token', (Get-Content Function:\Replace-Token)))
+    $ISS.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Use-LogMessage', (Get-Content Function:\Use-LogMessage)))
 
     $consumerRunspacePool = [RunspaceFactory]::CreateRunspacePool($initialState)
     $consumerRunspacePool.Open()
