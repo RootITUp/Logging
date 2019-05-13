@@ -16,7 +16,6 @@ function Start-LoggingManager {
 
 
     $initialState = [InitialSessionState]::CreateDefault()
-    $initialState.ApartmentState = 'MTA'
 
     [String[]] $sessionVariables = @(
         "ScriptRoot", "LevelNames", "Logging", "LogTargets", "LoggingEventQueue", "LoggingMessagerCount"
