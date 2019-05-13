@@ -41,6 +41,7 @@ The Log object has a number of attributes that are replaced in the format string
 | Format         | Description |
 | -------------- | ----------- |
 | `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 14:22:45+02*). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
+| `%{timestamputc}` | UTC Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 12:22:45+02*). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
 | `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*) |
 | `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*) |
 | `%{lineno}`    | The line number on wich the write occured |
@@ -103,6 +104,11 @@ In these scenarios, it is possible to set the caller scope using `Set-LoggingCal
 ```powershell
 # Write-CustomLog is the wrapper logging cmdlet
 # If the default caller scope is used, it would print 'Write-CustomLog' everytime
+# filename has value only if the code below is executed in a script
+
+Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'; Format = '[%{filename}] [%{caller}] %{message}'}
+Set-LoggingCallerScope 2
+
 function Write-CustomLog {
     [CmdletBinding()]
     param(
@@ -114,12 +120,6 @@ function Write-CustomLog {
 }
 
 function Invoke-CallerFunctionWithCustomLog {
-    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
-    Set-LoggingDefaultFormat -Format '[%{filename}] [%{caller}] %{message}'
-
-    # Set the scope to find the caller information from
-    Set-LoggingCallerScope -CallerScope 2
-
     1..5 | ForEach-Object {
         # In this example, during execution of Write-Log the numeric scope represents the following:
         # 0 - Write-Log scope
