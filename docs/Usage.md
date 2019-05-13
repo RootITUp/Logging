@@ -104,6 +104,11 @@ In these scenarios, it is possible to set the caller scope using `Set-LoggingCal
 ```powershell
 # Write-CustomLog is the wrapper logging cmdlet
 # If the default caller scope is used, it would print 'Write-CustomLog' everytime
+# filename has value only if the code below is executed in a script
+
+Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'; Format = '[%{filename}] [%{caller}] %{message}'}
+Set-LoggingCallerScope 2
+
 function Write-CustomLog {
     [CmdletBinding()]
     param(
@@ -115,12 +120,6 @@ function Write-CustomLog {
 }
 
 function Invoke-CallerFunctionWithCustomLog {
-    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
-    Set-LoggingDefaultFormat -Format '[%{filename}] [%{caller}] %{message}'
-
-    # Set the scope to find the caller information from
-    Set-LoggingCallerScope -CallerScope 2
-
     1..5 | ForEach-Object {
         # In this example, during execution of Write-Log the numeric scope represents the following:
         # 0 - Write-Log scope
