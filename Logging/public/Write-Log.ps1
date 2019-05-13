@@ -89,17 +89,18 @@ Function Write-Log {
         }
 
         $logMessage = [hashtable] @{
-            timestamp = Get-Date -UFormat $Defaults.Timestamp
-            level     = $PSBoundParameters.Level
-            levelno   = $levelNumber
-            lineno    = $invocationInfo.ScriptLineNumber
-            pathname  = $invocationInfo.ScriptName
-            filename  = $fileName
-            caller    = $invocationInfo.Command
-            message   = $text
-            body      = $Body
-            execinfo  = $ExceptionInfo
-            pid       = $PID
+            timestamp    = Get-Date -UFormat $Defaults.Timestamp
+            timestamputc = Get-Date ([datetime]::UtcNow) -UFormat $Defaults.Timestamp
+            level        = $PSBoundParameters.Level
+            levelno      = $levelNumber
+            lineno       = $invocationInfo.ScriptLineNumber
+            pathname     = $invocationInfo.ScriptName
+            filename     = $fileName
+            caller       = $invocationInfo.Command
+            message      = $text
+            body         = $Body
+            execinfo     = $ExceptionInfo
+            pid          = $PID
         }
 
         $Script:LoggingEventQueue.Add($logMessage)
