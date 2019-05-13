@@ -1,1 +1,2 @@
 - [NEW] Added timestamputc to log message properties
+- [NEW] Added Icons configuration to Slack target to map Log Levels to emoji
