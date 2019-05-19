@@ -1,17 +1,17 @@
 Remove-Module Logging -Force
-Import-Module .\Logging\Logging.psm1
+Import-Module ..\Logging\Logging.psm1
 
-Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'; Format = '%{filename} %{lineno} %{message}'}
+Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'; Format = '[%{timestamputc}] %{filename} [lineno: %{lineno}] %{message}'}
 
-1..100 | Foreach-Object {
+1..10 | Foreach-Object {
     Write-Log -Level (Get-Random 'DEBUG', 'INFO', 'WARNING', 'ERROR') -Message 'Hello, World!'
 }
+
+Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'; Format = '[%{timestamputc}] %{filename} [%{caller}] %{message}'}
 
 function Invoke-CallerFunction {
     [CmdletBinding()]
     param()
-    Set-LoggingDefaultFormat -Format '[%{filename}] [%{caller}] %{message}'
-    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
 
     1..5 | ForEach-Object {
         Write-Log -Level (Get-Random 'DEBUG', 'INFO', 'WARNING', 'ERROR') -Message 'Hello, World! (With caller scope)'
@@ -31,9 +31,6 @@ function Write-CustomLog {
 }
 
 function Invoke-CallerFunctionWithCustomLog {
-    Set-LoggingDefaultFormat -Format '[%{filename}] [%{caller}] %{message}'
-    Add-LoggingTarget -Name Console -Configuration @{Level = 'DEBUG'}
-    Set-LoggingCallerScope -CallerScope 2
 
     1..5 | ForEach-Object {
         Write-CustomLog -Level (Get-Random 'DEBUG', 'INFO', 'WARNING', 'ERROR') -Message 'Hello, World! (With caller scope at level 2)'
@@ -41,5 +38,3 @@ function Invoke-CallerFunctionWithCustomLog {
 }
 
 Invoke-CallerFunctionWithCustomLog
-
-Wait-Logging
