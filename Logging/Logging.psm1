@@ -21,10 +21,5 @@ Set-LoggingVariables
 
 Initialize-LoggingTarget
 
-<#
-    DO NOT start LoggingManager for children.
-    This would result in endless loop (until OOM)!
-#>
-if (-not (Get-Variable -Name "LoggingEventQueue" -ErrorAction Ignore)) {
-    Start-LoggingManager
-}
+#Module no longer loaded inside Start-LoggingManager
+Start-LoggingManager

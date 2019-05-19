@@ -7,7 +7,7 @@ function Start-LoggingManager {
     Set-Variable -Name 'LoggingWorker' -Option Constant -Scope Script -Value (@{})
 
     $ISS = [InitialSessionState]::CreateDefault()
-    if (Get-Member -InputObject $initialState -Name "ApartmentState" -MemberType Property) {
+    if (Get-Member -InputObject $ISS -Name "ApartmentState" -MemberType Property) {
         $ISS.ApartmentState = [System.Threading.ApartmentState]::MTA
     }
 
@@ -19,24 +19,23 @@ function Start-LoggingManager {
     $ISS.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Use-LogMessage', (Get-Content Function:\Use-LogMessage)))
 
     #Setup runspace
-    Set-Variable -Name "ConsumerRunspace" -Value ([runspacefactory]::CreateRunspace($initialState)) -Scope Script -Option Constant
+    Set-Variable -Name "ConsumerRunspace" -Value ([runspacefactory]::CreateRunspace($ISS)) -Scope Script -Option Constant
     $Script:ConsumerRunspace.Name = "Logging_ConsumerRunspace"
-    $Script:ConsumerRunspace = [RunspaceFactory]::CreateRunspacePool($ISS)
     $Script:ConsumerRunspace.Open()
 
     # Spawn Logging Consumer
-    $workerJob = [Powershell]::Create()
-    $workerJob.Runspace = $Script:ConsumerRunspace
+    $Private:workerJob = [Powershell]::Create()
+    $Private:workerJob.Runspace = $Script:ConsumerRunspace
 
-    $workerCommand = $workerJob.AddCommand('Use-LogMessage')
-    $workerCommand = $workerCommand.AddParameter('ErrorAction', 'Stop')
+    $Private:workerCommand = $Private:workerJob.AddCommand('Use-LogMessage')
+    $Private:workerCommand = $Private:workerCommand.AddParameter('ErrorAction', 'Stop')
 
-    $Script:LoggingWorker['Job'] = $workerJob
-    $Script:LoggingWorker['Result'] = $workerJob.BeginInvoke()
+    $Script:LoggingWorker['Job'] = $Private:workerJob
+    $Script:LoggingWorker['Result'] = $Private:workerJob.BeginInvoke()
 
     #region Handle Module Removal
     $ExecutionContext.SessionState.Module.OnRemove = {
-        $LoggingEventQueue.CompleteAdding()
+        $Script:LoggingEventQueue.CompleteAdding()
 
         Write-Verbose -Message ('{0} :: Stopping running consumer instance.' -f $MyInvocation.MyCommand)
 
