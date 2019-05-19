@@ -31,5 +31,5 @@ function Get-LoggingMessageCount {
     param()
 
     #This variable is initiated via Start-LoggingManager
-    return $LoggingMessagerCount.Value
+    return $Script:LoggingMessagerCount.Value
 }

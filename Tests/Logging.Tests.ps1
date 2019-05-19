@@ -1,7 +1,6 @@
 Remove-Module Logging -Force -ErrorAction SilentlyContinue
 
-$ManifestPath   = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
-
+Set-Variable -Name "ManifestPath" -Value ('{0}\..\Logging\Logging.psd1' -f $PSScriptRoot) -Option ReadOnly -Force -Scope Global
 Import-Module $ManifestPath -Force
 
 Describe -Tags Build, Unit 'Logging manifest' {
@@ -32,8 +31,6 @@ InModuleScope Logging {
             Test-Path Variable:Logging | Should Be $true
             Test-Path Variable:LogTargets | Should Be $true
             Test-Path Variable:ScriptRoot | Should Be $true
-            #Test-Path Variable:Dispatcher | Should Be $true
-            #Test-Path Variable:MessageQueue | Should Be $true
         }
     }
 
@@ -207,21 +204,76 @@ InModuleScope Logging {
 
     Describe 'Logging Producer-Consumer'{
 
-        It 'should start logging manager when log requested' {
-            Write-Log -Message "Test"
+        It 'should start logging manager after module import' {
             Test-Path Variable:LoggingEventQueue | Should Be $true
             Test-Path Variable:LoggingWorker | Should Be $true
             Test-Path Variable:LoggingMessagerCount | Should Be $true
         }
 
-        It 'should not start a second logging manager'{
-            [boolean] $isError = $false
-            try{
-                Start-LoggingManager
-            }catch [System.InvalidOperationException]{
-                $isError = $true
+        It 'should be able to handle [light] load' {
+            #Reset
+            Remove-Module Logging -Force -ErrorAction SilentlyContinue
+            Import-Module $ManifestPath -Force
+
+            [int] $desiredCount = 100
+            [string] $smallLog = [System.IO.Path]::GetTempFileName()
+            Add-LoggingTarget -Name File -Configuration @{Path = $smallLog; Encoding = "UTF8" }
+
+            for ([int] $lI = 0; $lI -lt $desiredCount; $lI++) {
+                Write-Log -Level WARNING -Message "Test : $lI"
             }
-            $isError | Should -Be $true
+
+            #give time to process
+            Wait-Logging
+
+            [int] $messageCount = Get-LoggingMessageCount
+            if ($messageCount -ne $desiredCount) {
+                Write-Error -Message "Needed : $desiredCount Logged : $messageCount" -ErrorAction Stop
+            }
+        }
+
+        It 'should be able to handle [medium] load' {
+            #Reset
+            Remove-Module Logging -Force -ErrorAction SilentlyContinue
+            Import-Module $ManifestPath -Force
+
+            [int] $desiredCount = 1000
+            [string] $mediumLog = [System.IO.Path]::GetTempFileName()
+            Add-LoggingTarget -Name File -Configuration @{Path = $mediumLog; Encoding = "UTF8" }
+
+            for ([int] $lI = 0; $lI -lt $desiredCount; $lI++) {
+                Write-Log -Level WARNING -Message "Test : $lI"
+            }
+
+            #give time to process
+            Wait-Logging
+
+            [int] $messageCount = Get-LoggingMessageCount
+            if ($messageCount -ne $desiredCount) {
+                Write-Error -Message "Needed : $desiredCount Logged : $messageCount" -ErrorAction Stop
+            }
+        }
+
+        It 'should be able to handle [high] load' {
+            #Reset
+            Remove-Module Logging -Force -ErrorAction SilentlyContinue
+            Import-Module $ManifestPath -Force
+
+            [int] $desiredCount = 10000
+            [string] $highLog = [System.IO.Path]::GetTempFileName()
+            Add-LoggingTarget -Name File -Configuration @{Path = $highLog; Encoding = "UTF8" }
+
+            for ([int] $lI = 0; $lI -lt $desiredCount; $lI++) {
+                Write-Log -Level WARNING -Message "Test : $lI" -ErrorAction Stop
+            }
+
+            #give time to process
+            Wait-Logging
+
+            [int] $messageCount = Get-LoggingMessageCount
+            if ($messageCount -ne $desiredCount) {
+                Write-Error -Message "Needed : $desiredCount Logged : $messageCount"
+            }
         }
     }
 }
