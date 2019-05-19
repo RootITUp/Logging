@@ -15,6 +15,9 @@ function Start-LoggingManager {
     Set-Variable -Name "LoggingWorker" -Option Constant -Scope Script -Value (@{ })
 
     $initialState = [InitialSessionState]::CreateDefault()
+    if (Get-Member -InputObject $initialState -Name "ApartmentState" -MemberType Property) {
+        $initialState.ApartmentState = [System.Threading.ApartmentState]::MTA
+    }
 
     [String[]] $sessionVariables = @(
         "ScriptRoot", "LevelNames", "Logging", "LogTargets", "LoggingEventQueue", "LoggingMessagerCount"
@@ -29,6 +32,7 @@ function Start-LoggingManager {
     $initialState.ImportPSModulesFromPath($moduleBase)
 
     Set-Variable -Name "LoggingConsumerRunspace" -Value ([runspacefactory]::CreateRunspace($initialState)) -Scope Script -Option Constant
+    $LoggingConsumerRunspace.Name = "Logging_Consumer_Runspace"
     $LoggingConsumerRunspace.Open()
 
     #Spawn Logging Consumer

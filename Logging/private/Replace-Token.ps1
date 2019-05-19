@@ -12,21 +12,23 @@ function Replace-Token {
     [array]::Reverse($tokenMatches)
 
     foreach ( $match in $tokenMatches ) {
+        [String] $formattedDate = [String]::Empty
+
         $token      = $match.Groups["token"].value
         $datefmt    = $match.Groups["datefmt"].value
         $datefmtU   = $match.Groups["datefmtU"].value
         $padding    = $match.Groups["padding"].value
 
         if ($token -and -not $datefmt -and -not $datefmtU) {
-            $var = $Source.$token
+            $formattedDate = $Source.$token
         } elseif ($token -and $datefmtU) {
-            $var = Get-Date $Source.$token -UFormat $datefmtU
+            $formattedDate = Get-Date $Source.$token -UFormat $datefmtU
         } elseif ($token -and $datefmt) {
-            $var = Get-Date $Source.$token -Format $datefmt
+            $formattedDate = Get-Date $Source.$token -Format $datefmt
         } elseif ($datefmtU -and -not $token) {
-            $var = Get-Date -UFormat $datefmtU
+            $formattedDate = Get-Date -UFormat $datefmtU
         } elseif ($datefmt -and -not $token) {
-            $var = Get-Date -Format $datefmt
+            $formattedDate = Get-Date -Format $datefmt
         }
 
         if ($padding) {
@@ -35,7 +37,7 @@ function Replace-Token {
             $tpl = "{0}"
         }
 
-        $String = $String.Substring(0, $match.Index) + ($tpl -f $var) + $String.Substring($match.Index + $match.Length)
+        $String = $String.Substring(0, $match.Index) + ($tpl -f $formatedDate) + $String.Substring($match.Index + $match.Length)
     }
 
     return $String

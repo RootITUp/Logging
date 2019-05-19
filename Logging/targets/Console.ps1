@@ -26,14 +26,11 @@
             }
         }
     }
-    Logger = {
+    Logger        = {
         param(
             [hashtable] $Log,
             [hashtable] $Configuration
         )
-
-        $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
-        $mtx.WaitOne()
 
         try {
             $logText = Replace-Token -String $Configuration.Format -Source $Log
@@ -49,10 +46,6 @@
         }
         catch {
             [Console]::Error.WriteLine($_)
-        }
-        finally {
-            [void] $mtx.ReleaseMutex()
-            $mtx.Dispose()
         }
     }
 }
