@@ -1,7 +1,7 @@
 function Use-LogMessage {
+    [CmdletBinding()]
     [OutputType([int])]
-    param(
-    )
+    param()
 
     [int] $logsWritten = 0
 
