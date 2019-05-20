@@ -63,13 +63,6 @@ Task Init {
     Write-Host ('Git Version (Stable): {0}' -f $StableVersion)
     Write-Host ('Git Branch: {0}' -f $BranchName)
 
-    Exec {git config --global credential.helper store}
-
-    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
-
-    # Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
-    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
-
     if ($env:APPVEYOR) {
         Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
     }
@@ -110,7 +103,7 @@ Task Tests -Depends CodeAnalisys {
     }
 }
 
-Task BuildDocs -Depends Tests {
+Task BuildDocs -Depends Tests -precondition {$BranchName -eq 'master'} {
     Import-Module $env:BHPSModuleManifest -Global
 
     Write-Host 'BuildDocs: Generating Help for exported functions'
@@ -128,8 +121,14 @@ Task BuildDocs -Depends Tests {
     Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
 }
 
-Task IncrementVersion -Depends BuildDocs {
+Task IncrementVersion -Depends BuildDocs -precondition {$BranchName -eq 'master'} {
     Update-AdditionalReleaseArtifact -Version $SemVer -CommitDate $env:GitVersion_CommitDate
+    Exec {git config --global credential.helper store}
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+
+    Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
+    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
 
     Write-Host 'Git: Committing new release'
     Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
@@ -148,7 +147,7 @@ Task IncrementVersion -Depends BuildDocs {
     Pop-Location
 }
 
-Task Build -Depends IncrementVersion {
+Task Build -Depends IncrementVersion -precondition {$BranchName -eq 'master'} {
     if (-not (Test-Path $BuildBaseModule)) {New-Item -Path $BuildBaseModule -ItemType Directory | Out-Null}
     if (-not (Test-Path $BuildVersionedModule)) {New-Item -Path $BuildVersionedModule -ItemType Directory | Out-Null}
 
