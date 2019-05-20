@@ -213,15 +213,5 @@ InModuleScope Logging {
             Test-Path Variable:LoggingWorker | Should Be $true
             Test-Path Variable:LoggingMessagerCount | Should Be $true
         }
-
-        It 'should not start a second logging manager'{
-            [boolean] $isError = $false
-            try{
-                Start-LoggingManager
-            }catch [System.InvalidOperationException]{
-                $isError = $true
-            }
-            $isError | Should -Be $true
-        }
     }
 }
