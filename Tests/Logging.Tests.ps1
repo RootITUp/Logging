@@ -1,6 +1,7 @@
 Remove-Module Logging -Force -ErrorAction SilentlyContinue
 
-Set-Variable -Name "ManifestPath" -Value ('{0}\..\Logging\Logging.psd1' -f $PSScriptRoot) -Option ReadOnly -Force -Scope Global
+$ManifestPath = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
+
 Import-Module $ManifestPath -Force
 
 Describe -Tags Build, Unit 'Logging manifest' {
