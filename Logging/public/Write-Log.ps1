@@ -49,6 +49,7 @@ Function Write-Log {
         [Parameter(Position = 2,
             Mandatory = $true)]
         [string] $Message,
+        [ValidateNotNullOrEmpty()]
         [Parameter(Position = 3,
             Mandatory = $false)]
         [array] $Arguments,
@@ -65,27 +66,19 @@ Function Write-Log {
         $PSBoundParameters["Level"] = "INFO"
     }
 
-    Begin {
-        if (!(Get-Variable -Name "LoggingEventQueue" -Scope Script -ErrorAction Ignore)) {
-            Start-LoggingManager
-        }
-    }
-
     End {
-        $levelNumber = Get-LevelNumber -Level $PSBoundParameters.Level
-        if ($PSBoundParameters.ContainsKey('Arguments')) {
-            $text = $Message -f $Arguments
-        } else {
-            $text = $Message
+        [String] $messageText = $Message
+        if ($Arguments) {
+            $messageText = $messageText -f $Arguments
         }
 
+        $levelNumber = Get-LevelNumber -Level $PSBoundParameters.Level
         $invocationInfo = (Get-PSCallStack)[$Logging.CallerScope]
 
         # Split-Path throws an exception if called with a -Path that is null or empty.
+        [string] $fileName = [string]::Empty
         if (-not [string]::IsNullOrEmpty($invocationInfo.ScriptName)) {
             $fileName = Split-Path -Path $invocationInfo.ScriptName -Leaf
-        } else {
-            $fileName = ''
         }
 
         $logMessage = [hashtable] @{
@@ -97,12 +90,13 @@ Function Write-Log {
             pathname     = $invocationInfo.ScriptName
             filename     = $fileName
             caller       = $invocationInfo.Command
-            message      = $text
+            message      = $messageText
             body         = $Body
             execinfo     = $ExceptionInfo
             pid          = $PID
         }
 
+        #This variable is initiated via Start-LoggingManager
         $Script:LoggingEventQueue.Add($logMessage)
     }
 }

@@ -6,37 +6,45 @@ function Replace-Token {
         [object] $Source
     )
 
+    [string] $result = $String
     [regex] $tokenMatcher = '%{(?<token>\w+?)?(?::?\+(?<datefmtU>(?:%[ABCDGHIMRSTUVWXYZabcdeghjklmnprstuwxy].*?)+))?(?::?\+(?<datefmt>(?:.*?)+))?(?::(?<padding>-?\d+))?}'
     $tokenMatches = @()
     $tokenMatches += $tokenMatcher.Matches($String)
+
+
     [array]::Reverse($tokenMatches)
 
     foreach ( $match in $tokenMatches ) {
-        $token      = $match.Groups["token"].value
-        $datefmt    = $match.Groups["datefmt"].value
-        $datefmtU   = $match.Groups["datefmtU"].value
-        $padding    = $match.Groups["padding"].value
+        $formattedEntry = [string]::Empty
+        $tokenContent = [string]::Empty
 
-        if ($token -and -not $datefmt -and -not $datefmtU) {
-            $var = $Source.$token
-        } elseif ($token -and $datefmtU) {
-            $var = Get-Date $Source.$token -UFormat $datefmtU
-        } elseif ($token -and $datefmt) {
-            $var = Get-Date $Source.$token -Format $datefmt
-        } elseif ($datefmtU -and -not $token) {
-            $var = Get-Date -UFormat $datefmtU
-        } elseif ($datefmt -and -not $token) {
-            $var = Get-Date -Format $datefmt
+        $token = $match.Groups["token"].value
+        $datefmt = $match.Groups["datefmt"].value
+        $datefmtU = $match.Groups["datefmtU"].value
+        $padding = $match.Groups["padding"].value
+
+        [hashtable] $dateParam = @{ }
+        if (-not [string]::IsNullOrWhiteSpace($token)) {
+            $tokenContent = $Source.$token
+            $dateParam["Date"] = $tokenContent
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($datefmtU)) {
+            $formattedEntry = Get-Date @dateParam -UFormat $datefmtU
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace($datefmt)) {
+            $formattedEntry = Get-Date @dateParam -Format $datefmt
+        }
+        else {
+            $formattedEntry = $tokenContent
         }
 
         if ($padding) {
-            $tpl = "{0,$padding}"
-        } else {
-            $tpl = "{0}"
+            $formattedEntry = "{0,$padding}" -f $formattedEntry
         }
 
-        $String = $String.Substring(0, $match.Index) + ($tpl -f $var) + $String.Substring($match.Index + $match.Length)
+        $result = $result.Substring(0, $match.Index) + $formattedEntry + $result.Substring($match.Index + $match.Length)
     }
 
-    return $String
+    return $result
 }

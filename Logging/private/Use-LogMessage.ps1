@@ -9,16 +9,16 @@ function Use-LogMessage {
         [string] $loggingFormat = $Logging.Format
         [int] $loggingSeverity = $Logging.LevelNo
 
-        [System.Threading.Monitor]::Enter($Logging.Targets)
         try {
             [boolean] $messageDiscarded = $true
 
-            # Enumerating through a collection is intrinsically not a thread-safe procedure
-            for ($targetEnum = $Logging.Targets.GetEnumerator(); $targetEnum.MoveNext();) {
-                $logTarget = $targetEnum.Value
+            #Enumerating through a collection is intrinsically not a thread-safe procedure
+            for ($targetEnum = $Logging.Targets.GetEnumerator(); $targetEnum.MoveNext(); ) {
+                [hashtable] $targetConfiguration = $targetEnum.Current.Value
+                [String] $loggingTarget = $targetEnum.Current.Key
 
-                if ($logMessage.LevelNo -ge $logTarget.LevelNo) {
-                    Invoke-Command -ScriptBlock $LogTargets[$targetEnum.Key].Logger -ArgumentList @($logMessage, $logTarget)
+                if ($logMessage.LevelNo -ge $targetConfiguration.LevelNo) {
+                    Invoke-Command -ScriptBlock $LogTargets[$loggingTarget].Logger -ArgumentList @($logMessage, $targetConfiguration)
                     $messageDiscarded = $false
                     $logsWritten++
                 }
@@ -33,9 +33,6 @@ function Use-LogMessage {
             [Console]::ForegroundColor = [ConsoleColor]::Red
             [Console]::WriteLine($_)
             [Console]::ForegroundColor = $lastColor
-        }
-        finally {
-            [System.Threading.Monitor]::Exit($Logging.Targets)
         }
     }
 
