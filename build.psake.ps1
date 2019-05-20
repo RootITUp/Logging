@@ -61,8 +61,8 @@ Task Init {
 
     Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
 
-    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
     Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
+    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
 
     if ($env:APPVEYOR) {
         Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
