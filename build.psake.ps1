@@ -57,22 +57,22 @@ Task Init {
 
     New-Item -Path $env:BHBuildOutput -ItemType Directory | Out-Null
 
-    Exec {git config --global credential.helper store}
-
-    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
-
-    Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
-    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
-
-    if ($env:APPVEYOR) {
-        Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
-    }
-
     Write-Host ('Working folder: {0}' -f $PWD)
     Write-Host ('Build output: {0}' -f $env:BHBuildOutput)
     Write-Host ('Git Version: {0}' -f $SemVer)
     Write-Host ('Git Version (Stable): {0}' -f $StableVersion)
     Write-Host ('Git Branch: {0}' -f $BranchName)
+
+    Exec {git config --global credential.helper store}
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+
+    # Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
+    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
+
+    if ($env:APPVEYOR) {
+        Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
+    }
 
     $PendingChanges = git status --porcelain
     if ($null -ne $PendingChanges) {
