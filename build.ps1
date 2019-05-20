@@ -10,6 +10,7 @@ Install-Module Pester -Force -SkipPublisherCheck
 Import-Module Psake, BuildHelpers, platyPS, PSScriptAnalyzer
 
 Set-BuildEnvironment
+Get-Module
 
 Invoke-psake -buildFile .\build.psake.ps1 -taskList $Task -nologo
 
