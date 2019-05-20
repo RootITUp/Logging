@@ -30,9 +30,6 @@ function Get-LoggingMessageCount {
     [CmdletBinding(HelpUri = 'https://logging.readthedocs.io/en/latest/functions/Get-LoggingMessageCount.md')]
     param()
 
-    if (!(Get-Variable -Name "LoggingMessagerCount" -Scope Script -ErrorAction Ignore)) {
-        Start-LoggingManager
-    }
-
+    #This variable is initiated via Start-LoggingManager
     return $Script:LoggingMessagerCount.Value
 }

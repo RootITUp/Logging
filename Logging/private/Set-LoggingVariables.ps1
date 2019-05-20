@@ -14,21 +14,24 @@ function Set-LoggingVariables {
     $Script:ERROR_ = 40
 
     $initialLevels = [hashtable]::Synchronized(@{
-        $NOTSET   = 'NOTSET'
-        $ERROR_   = 'ERROR'
-        $WARNING  = 'WARNING'
-        $INFO     = 'INFO'
-        $DEBUG    = 'DEBUG'
-        'NOTSET'  = $NOTSET
-        'ERROR'   = $ERROR_
-        'WARNING' = $WARNING
-        'INFO'    = $INFO
-        'DEBUG'   = $DEBUG
-    })
+            $NOTSET   = 'NOTSET'
+            $ERROR_   = 'ERROR'
+            $WARNING  = 'WARNING'
+            $INFO     = 'INFO'
+            $DEBUG    = 'DEBUG'
+            'NOTSET'  = $NOTSET
+            'ERROR'   = $ERROR_
+            'WARNING' = $WARNING
+            'INFO'    = $INFO
+            'DEBUG'   = $DEBUG
+        })
 
     New-Variable -Name LevelNames   -Scope Script -Option Constant -Value $initialLevels
-    New-Variable -Name Logging      -Scope Script -Option Constant -Value ([hashtable]::Synchronized(@{}))
-    New-Variable -Name LogTargets   -Scope Script -Option Constant -Value ([hashtable]::Synchronized(@{}))
+    New-Variable -Name Logging      -Scope Script -Option Constant -Value ([hashtable]::Synchronized(@{ }))
+
+    New-Variable -Name LogTargets   -Scope Script -Option Constant -Value ([hashtable]::Synchronized(@{ }))
+
+
     New-Variable -Name ScriptRoot   -Scope Script -Option Constant -Value ([System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Module.Path))
     New-Variable -Name Defaults     -Scope Script -Option Constant -Value @{
         Level       = $Script:NOTSET
@@ -41,6 +44,12 @@ function Set-LoggingVariables {
     $Script:Logging.LevelNo = Get-LevelNumber -Level $Defaults.Level
     $Script:Logging.Format = $Defaults.Format
     $Script:Logging.CallerScope = $Defaults.CallerScope
-    $Script:Logging.Targets = [hashtable]::Synchronized(@{})
     $Script:Logging.CustomTargets = [String]::Empty
+
+    <#
+        LogTargets are exposed via Get-LogTargets.
+        With a hashtable, a user can call (Get-LogTargets).Remove(...) resulting in an error inside the
+        logging consumer LogTargets.GetEnumerator()!
+    #>
+    $Script:Logging.Targets = ([System.Collections.Concurrent.ConcurrentDictionary[string, hashtable]]::new())
 }
