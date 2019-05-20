@@ -32,6 +32,9 @@
             [hashtable] $Configuration
         )
 
+        $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
+        $mtx.WaitOne()
+
         try {
             $logText = Replace-Token -String $Configuration.Format -Source $Log
 
@@ -40,12 +43,17 @@
             }
 
             #[Console] is thread safe
-            [Console]::ForegroundColor = $Configuration.ColorMapping[$Log.Level]
+            if ($Configuration.ColorMapping.ContainsKey($Log.Level)) {
+                [Console]::ForegroundColor = $Configuration.ColorMapping[$Log.Level]
+            }
             [Console]::WriteLine($logText)
             [Console]::ResetColor()
         }
         catch {
             [Console]::Error.WriteLine($_)
+        } finally {
+            [void] $mtx.ReleaseMutex()
+            $mtx.Dispose()
         }
     }
 }
