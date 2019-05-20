@@ -26,6 +26,5 @@ nav:
     - Set-LoggingCustomTarget: Set-LoggingCustomTarget.md
     - Set-LoggingDefaultFormat: Set-LoggingDefaultFormat.md
     - Set-LoggingDefaultLevel: Set-LoggingDefaultLevel.md
-    - Use-LogMessage: Use-LogMessage.md
     - Wait-Logging: Wait-Logging.md
     - Write-Log: Write-Log.md

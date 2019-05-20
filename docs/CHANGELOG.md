@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 4.1.1 (2019-05-20)
+
+- [NEW] Added timestamputc to log message properties #48
+- [NEW] Added Icons configuration to Slack target to map Log Levels to emoji #53
+- [FIX] Removed self loading in runspace
+- [FIX] Moved Use-LogMessage to private functions
+- [FIX] Added timeout to Wait-Logging to avoid hangs
+
 ## 4.0.3 (2019-04-15)
 
 - [FIX] removed catalog generation until I get more grasp on the process
@@ -98,6 +106,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
