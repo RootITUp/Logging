@@ -115,10 +115,6 @@ Task BuildDocs -Depends Tests -precondition {$BranchName -eq 'master'} {
     }
 
     Remove-Module $env:BHProjectName -Force
-
-    Write-Host 'Git: Committing updated docs'
-    Exec {git add --all}
-    Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
 }
 
 Task IncrementVersion -Depends BuildDocs -precondition {$BranchName -eq 'master'} {
@@ -130,8 +126,9 @@ Task IncrementVersion -Depends BuildDocs -precondition {$BranchName -eq 'master'
     Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
     Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
 
-    Write-Host 'Git: Committing new release'
-    Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
+    Write-Host 'Git: Committing updated docs'
+    Exec {git add --all}
+    Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
 
     Write-Host 'Git: Tagging branch'
     Exec {git tag $SemVer}
@@ -143,8 +140,6 @@ Task IncrementVersion -Depends BuildDocs -precondition {$BranchName -eq 'master'
 
     Write-Host 'Git: Pushing tags to origin'
     Exec {git push -q origin $BranchName --tags}
-
-    Pop-Location
 }
 
 Task Build -Depends IncrementVersion -precondition {$BranchName -eq 'master'} {
