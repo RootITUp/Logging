@@ -20,3 +20,6 @@ Export-ModuleMember -Function $PublicFunctions.BaseName
 Set-LoggingVariables
 
 Initialize-LoggingTarget
+
+#Module no longer loaded inside Start-LoggingManager
+Start-LoggingManager

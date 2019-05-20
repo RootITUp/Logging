@@ -1,0 +1,5 @@
+- [NEW] Added timestamputc to log message properties #48
+- [NEW] Added Icons configuration to Slack target to map Log Levels to emoji #53
+- [FIX] Removed self loading in runspace
+- [FIX] Moved Use-LogMessage to private functions
+- [FIX] Added timeout to Wait-Logging to avoid hangs
