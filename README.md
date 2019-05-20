@@ -55,5 +55,5 @@ Special thanks to:
 [get-powershell-blog]: http://get-powershellblog.blogspot.com/2017/03/write-faq-n-manual-part1.html
 [runspaces]: https://learn-powershell.net/tag/runspace/
 [github]: https://github.com/EsOsO
-[license]: https://github.com/EsOsO/Logging/blob/master/docs/LICENSE
+[license]: https://github.com/EsOsO/Logging/blob/master/docs/LICENSE.md
 [coc]: https://github.com/EsOsO/Logging/blob/master/docs/CODE_OF_CONDUCT.md
