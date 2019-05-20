@@ -50,23 +50,12 @@ Properties {
 
 FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
 
-Task Default -Depends PublishModule, Build
+Task Default -Depends Tests, Build, PublishModule
 
 Task Init {
     Set-Location $env:BHProjectPath
 
     New-Item -Path $env:BHBuildOutput -ItemType Directory | Out-Null
-
-    Exec {git config --global credential.helper store}
-
-    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
-
-    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
-    Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
-
-    if ($env:APPVEYOR) {
-        Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
-    }
 
     Write-Host ('Working folder: {0}' -f $PWD)
     Write-Host ('Build output: {0}' -f $env:BHBuildOutput)
@@ -74,16 +63,20 @@ Task Init {
     Write-Host ('Git Version (Stable): {0}' -f $StableVersion)
     Write-Host ('Git Branch: {0}' -f $BranchName)
 
+    if ($env:APPVEYOR) {
+        Set-AppveyorBuildVariable -Name 'ReleaseVersion' -Value $SemVer
+    }
+
     $PendingChanges = git status --porcelain
     if ($null -ne $PendingChanges) {
         throw 'You have pending changes, aborting release'
     }
 
-    Write-Host 'Git: Fetchin origin'
-    Exec {git fetch origin}
+    # Write-Host 'Git: Fetchin origin'
+    # Exec {git fetch origin}
 
-    Write-Host "Git: Merging origin/$BranchName"
-    Exec {git merge origin/$BranchName --ff-only}
+    # Write-Host "Git: Merging origin/$BranchName"
+    # Exec {git merge origin/$BranchName --ff-only}
 }
 
 Task CodeAnalisys -Depends Init {
@@ -110,7 +103,7 @@ Task Tests -Depends CodeAnalisys {
     }
 }
 
-Task BuildDocs -Depends Tests {
+Task BuildDocs -Depends Tests -precondition {$BranchName -eq 'master'} {
     Import-Module $env:BHPSModuleManifest -Global
 
     Write-Host 'BuildDocs: Generating Help for exported functions'
@@ -122,17 +115,20 @@ Task BuildDocs -Depends Tests {
     }
 
     Remove-Module $env:BHProjectName -Force
+}
+
+Task IncrementVersion -Depends BuildDocs -precondition {$BranchName -eq 'master'} {
+    Update-AdditionalReleaseArtifact -Version $SemVer -CommitDate $env:GitVersion_CommitDate
+    Exec {git config --global credential.helper store}
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:APPVEYOR_PERSONAL_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+
+    Exec {git config --global user.email "$env:APPVEYOR_GITHUB_EMAIL"}
+    Exec {git config --global user.name "$env:APPVEYOR_GITHUB_USERNAME"}
 
     Write-Host 'Git: Committing updated docs'
     Exec {git add --all}
     Exec {git commit -am "Updated docs [skip ci]" --allow-empty}
-}
-
-Task IncrementVersion -Depends BuildDocs {
-    Update-AdditionalReleaseArtifact -Version $SemVer -CommitDate $env:GitVersion_CommitDate
-
-    Write-Host 'Git: Committing new release'
-    Exec {git commit -am "Create release $SemVer [skip ci]" --allow-empty}
 
     Write-Host 'Git: Tagging branch'
     Exec {git tag $SemVer}
@@ -144,11 +140,9 @@ Task IncrementVersion -Depends BuildDocs {
 
     Write-Host 'Git: Pushing tags to origin'
     Exec {git push -q origin $BranchName --tags}
-
-    Pop-Location
 }
 
-Task Build -Depends IncrementVersion {
+Task Build -Depends IncrementVersion -precondition {$BranchName -eq 'master'} {
     if (-not (Test-Path $BuildBaseModule)) {New-Item -Path $BuildBaseModule -ItemType Directory | Out-Null}
     if (-not (Test-Path $BuildVersionedModule)) {New-Item -Path $BuildVersionedModule -ItemType Directory | Out-Null}
 

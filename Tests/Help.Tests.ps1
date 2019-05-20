@@ -1,7 +1,6 @@
 Remove-Module Logging -Force -ErrorAction SilentlyContinue
 
 $ManifestPath = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
-$ChangeLogPath = '{0}\..\CHANGELOG.md' -f $PSScriptRoot
 
 Import-Module $ManifestPath -Force
 
