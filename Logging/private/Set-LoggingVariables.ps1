@@ -31,7 +31,6 @@ function Set-LoggingVariables {
 
     New-Variable -Name LogTargets   -Scope Script -Option Constant -Value ([hashtable]::Synchronized(@{ }))
 
-
     New-Variable -Name ScriptRoot   -Scope Script -Option Constant -Value ([System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Module.Path))
     New-Variable -Name Defaults     -Scope Script -Option Constant -Value @{
         Level       = $Script:NOTSET
