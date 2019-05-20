@@ -79,11 +79,11 @@ Task Init {
         throw 'You have pending changes, aborting release'
     }
 
-    Write-Host 'Git: Fetchin origin'
-    Exec {git fetch origin}
+    # Write-Host 'Git: Fetchin origin'
+    # Exec {git fetch origin}
 
-    Write-Host "Git: Merging origin/$BranchName"
-    Exec {git merge origin/$BranchName --ff-only}
+    # Write-Host "Git: Merging origin/$BranchName"
+    # Exec {git merge origin/$BranchName --ff-only}
 }
 
 Task CodeAnalisys -Depends Init {

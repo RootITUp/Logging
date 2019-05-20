@@ -2,6 +2,8 @@ param (
     [string[]] $Task = 'Default'
 )
 
+$VerbosePreference = 'Continue'
+
 # Grab nuget bits, install modules, set build variables, start build.
 Get-PackageProvider -Name NuGet -ForceBootstrap | Out-Null
 
