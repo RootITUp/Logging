@@ -49,7 +49,6 @@ Function Write-Log {
         [Parameter(Position = 2,
             Mandatory = $true)]
         [string] $Message,
-        [ValidateNotNullOrEmpty()]
         [Parameter(Position = 3,
             Mandatory = $false)]
         [array] $Arguments,
@@ -67,8 +66,9 @@ Function Write-Log {
     }
 
     End {
-        [String] $messageText = $Message
-        if ($Arguments) {
+        [string] $messageText = $Message
+
+        if ($PSBoundParameters.ContainsKey('Arguments')) {
             $messageText = $messageText -f $Arguments
         }
 
