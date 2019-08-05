@@ -1,11 +1,11 @@
 function Set-LoggingVariables {
 
     #Already setup
-    if ($Logging -and $LogTargets -and $LevelNames) {
+    if ($Script:Logging -and $Script:LevelNames) {
         return
     }
 
-    Write-Verbose -Message ("{0} :: Initial variable setup.")
+    Write-Verbose -Message 'Initial variable setup.'
 
     $Script:NOTSET = 0
     $Script:DEBUG = 10
@@ -13,42 +13,35 @@ function Set-LoggingVariables {
     $Script:WARNING = 30
     $Script:ERROR_ = 40
 
-    $initialLevels = [hashtable]::Synchronized(@{
-            $NOTSET   = 'NOTSET'
-            $ERROR_   = 'ERROR'
-            $WARNING  = 'WARNING'
-            $INFO     = 'INFO'
-            $DEBUG    = 'DEBUG'
-            'NOTSET'  = $NOTSET
-            'ERROR'   = $ERROR_
-            'WARNING' = $WARNING
-            'INFO'    = $INFO
-            'DEBUG'   = $DEBUG
-        })
+    New-Variable -Name LevelNames           -Scope Script -Option ReadOnly -Value ([hashtable]::Synchronized(@{
+        $NOTSET   = 'NOTSET'
+        $ERROR_   = 'ERROR'
+        $WARNING  = 'WARNING'
+        $INFO     = 'INFO'
+        $DEBUG    = 'DEBUG'
+        'NOTSET'  = $NOTSET
+        'ERROR'   = $ERROR_
+        'WARNING' = $WARNING
+        'INFO'    = $INFO
+        'DEBUG'   = $DEBUG
+    }))
 
-    New-Variable -Name LevelNames   -Scope Script -Option Constant -Value $initialLevels
-    New-Variable -Name Logging      -Scope Script -Option Constant -Value ([hashtable]::Synchronized(@{ }))
-
-    New-Variable -Name LogTargets   -Scope Script -Option Constant -Value ([hashtable]::Synchronized(@{ }))
-
-    New-Variable -Name ScriptRoot   -Scope Script -Option Constant -Value ([System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Module.Path))
-    New-Variable -Name Defaults     -Scope Script -Option Constant -Value @{
-        Level       = $Script:NOTSET
+    New-Variable -Name ScriptRoot           -Scope Script -Option ReadOnly -Value ([System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Module.Path))
+    New-Variable -Name Defaults             -Scope Script -Option ReadOnly -Value @{
+        Level       = $LevelNames[$LevelNames['NOTSET']]
+        LevelNo     = $LevelNames['NOTSET']
         Format      = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
         Timestamp   = '%Y-%m-%dT%T%Z'
         CallerScope = 1
     }
 
-    $Script:Logging.Level = $Defaults.Level
-    $Script:Logging.LevelNo = Get-LevelNumber -Level $Defaults.Level
-    $Script:Logging.Format = $Defaults.Format
-    $Script:Logging.CallerScope = $Defaults.CallerScope
-    $Script:Logging.CustomTargets = [String]::Empty
-
-    <#
-        LogTargets are exposed via Get-LogTargets.
-        With a hashtable, a user can call (Get-LogTargets).Remove(...) resulting in an error inside the
-        logging consumer LogTargets.GetEnumerator()!
-    #>
-    $Script:Logging.Targets = ([System.Collections.Concurrent.ConcurrentDictionary[string, hashtable]]::new())
+    New-Variable -Name Logging              -Scope Script -Option ReadOnly -Value ([hashtable]::Synchronized(@{
+        Level          = $Defaults.Level
+        LevelNo        = $Defaults.LevelNo
+        Format         = $Defaults.Format
+        CallerScope    = $Defaults.CallerScope
+        CustomTargets  = [String]::Empty
+        Targets        = ([System.Collections.Concurrent.ConcurrentDictionary[string, hashtable]]::new())
+        EnabledTargets = ([System.Collections.Concurrent.ConcurrentDictionary[string, hashtable]]::new())
+    }))
 }

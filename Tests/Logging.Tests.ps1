@@ -6,6 +6,10 @@ Import-Module $ManifestPath -Force
 
 Describe -Tags Build 'Logging manifest' {
     $script:Manifest = $null
+    It 'has a manifest' {
+        $ManifestPath | Should Exist
+    }
+
     It 'has a valid manifest' {
         {
             $script:Manifest = Test-ModuleManifest -Path $ManifestPath -ErrorAction Stop -WarningAction SilentlyContinue
@@ -13,7 +17,7 @@ Describe -Tags Build 'Logging manifest' {
     }
 
     It 'has a valid name in the manifest' {
-        $script:Manifest.Name | Should Be Logging
+        $script:Manifest.Name | Should Be 'Logging'
     }
 
     It 'has a valid guid in the manifest' {
@@ -28,19 +32,20 @@ Describe -Tags Build 'Logging manifest' {
 InModuleScope Logging {
     Describe -Tags Build 'Internal Vars' {
         It 'sets up internal variables' {
-            Test-Path Variable:LevelNames | Should Be $true
             Test-Path Variable:Logging | Should Be $true
-            Test-Path Variable:LogTargets | Should Be $true
-            Test-Path Variable:ScriptRoot | Should Be $true
+            Test-Path Variable:Defaults | Should Be $true
+            Test-Path Variable:LevelNames | Should Be $true
+            Test-Path Variable:LoggingRunspace | Should Be $true
+            Test-Path Variable:LoggingEventQueue | Should Be $true
         }
     }
 
     Describe -Tags Build 'Token replacement' {
         $TimeStamp = Get-Date -UFormat '%Y-%m-%dT%T%Z'
         $Object = [PSCustomObject] @{
-            message = 'Test'
+            message   = 'Test'
             timestamp = $TimeStamp
-            level = 'INFO'
+            level     = 'INFO'
         }
 
         It 'should return a string with token replaced' {
@@ -104,7 +109,7 @@ InModuleScope Logging {
 
         It 'should return loggin level name' {
             Get-LevelName -Level 10 | Should Be 'DEBUG'
-            {Get-LevelName -Level 'DEBUG'} | Should Throw
+            { Get-LevelName -Level 'DEBUG' } | Should Throw
         }
 
         It 'should return logging levels number' {
@@ -113,8 +118,8 @@ InModuleScope Logging {
         }
 
         It 'should throw on invalid level' {
-            {Get-LevelNumber -Level 11} | Should Throw
-            {Get-LevelNumber -Level 'LEVEL_UNKNOWN'} | Should Throw
+            { Get-LevelNumber -Level 11 } | Should Throw
+            { Get-LevelNumber -Level 'LEVEL_UNKNOWN' } | Should Throw
         }
 
         It 'should add a new logging level' {
@@ -144,16 +149,17 @@ InModuleScope Logging {
     }
 
     Describe -Tags Build 'Logging Targets' {
-        $TargetsPath    = '{0}\..\Logging\targets' -f $PSScriptRoot
+        $TargetsPath = '{0}\..\Logging\targets' -f $PSScriptRoot
         $Targets = Get-ChildItem -Path $TargetsPath -Filter '*.ps1'
 
         It 'loads the logging targets' {
-            $LogTargets.Count | Should Be $Targets.Count
+            $Logging.Targets.Count | Should Be $Targets.Count
         }
 
         It 'returns the loaded logging targets' {
             $AvailableTargets = Get-LoggingAvailableTarget
-            $AvailableTargets | Should Be System.Collections.Hashtable+SyncHashtable
+            # not sure how to test System.Collections.Concurrent.ConcurrentDictionary[string, hashtable]
+            # $AvailableTargets | Should Be []
             $AvailableTargets.Count | Should Be $Targets.Count
         }
     }
@@ -185,7 +191,7 @@ InModuleScope Logging {
     }
 
     Describe -Tags Build 'Dynamic Parameter' {
-        It 'should contain the default levels'{
+        It 'should contain the default levels' {
             $dynamicDictionary = New-LoggingDynamicParam -Name "PesterTest" -Level
 
             [String[]] $allowedValues = $dynamicDictionary["PesterTest"].Attributes[1].ValidValues
@@ -193,7 +199,8 @@ InModuleScope Logging {
             "ERROR" -in $allowedValues | Should -Be $true
             "DEBUG" -in $allowedValues | Should -Be $true
         }
-        It 'should contain the default targets'{
+
+        It 'should contain the default targets' {
             $dynamicDictionary = New-LoggingDynamicParam -Name "PesterTest" -Target
 
             [String[]] $allowedValues = $dynamicDictionary["PesterTest"].Attributes[1].ValidValues
@@ -203,11 +210,10 @@ InModuleScope Logging {
         }
     }
 
-    Describe -Tags Build 'Logging Producer-Consumer'{
+    Describe -Tags Build 'Logging Producer-Consumer' {
         It 'should start logging manager after module import' {
             Test-Path Variable:LoggingEventQueue | Should Be $true
-            Test-Path Variable:LoggingWorker | Should Be $true
-            Test-Path Variable:LoggingMessagerCount | Should Be $true
+            Test-Path Variable:LoggingRunspace | Should Be $true
         }
     }
 }
@@ -218,36 +224,35 @@ Describe -Tags Unit 'Performance load' {
     BeforeEach {
         Remove-Module Logging -Force
         Import-Module $ManifestPath -Force
+        Start-Sleep -Seconds 1
     }
 
     It 'should be able to handle [light] load' {
         [int] $desiredCount = 100
         [string] $smallLog = [System.IO.Path]::GetTempFileName()
-        Add-LoggingTarget -Name File -Configuration @{Path = $smallLog; Encoding = "UTF8" }
+
+        Add-LoggingTarget -Name File -Configuration @{Path = $smallLog }
 
         for ([int] $lI = 0; $lI -lt $desiredCount; $lI++) {
-            Write-Log -Level WARNING -Message "Test : $lI"
+            Write-Log -Level WARNING -Message 'Test: {0}' -Arguments $lI
         }
 
-        #give time to process
         Wait-Logging
-
-        Get-LoggingMessageCount | Should -Be $desiredCount
+        (Get-Content $smallLog).Count | Should -Be $desiredCount
     }
 
     It 'should be able to handle [medium] load' {
         [int] $desiredCount = 1000
         [string] $mediumLog = [System.IO.Path]::GetTempFileName()
-        Add-LoggingTarget -Name File -Configuration @{Path = $mediumLog; Encoding = "UTF8" }
+
+        Add-LoggingTarget -Name File -Configuration @{Path = $mediumLog }
 
         for ([int] $lI = 0; $lI -lt $desiredCount; $lI++) {
-            Write-Log -Level WARNING -Message "Test : $lI"
+            Write-Log -Level WARNING -Message 'Test: {0}' -Arguments $lI
         }
 
-        #give time to process
         Wait-Logging
-
-        Get-LoggingMessageCount | Should -Be $desiredCount
+        (Get-Content $mediumLog).Count | Should -Be $desiredCount
     }
 
     It 'should be able to handle [high] load' {
@@ -256,12 +261,10 @@ Describe -Tags Unit 'Performance load' {
         Add-LoggingTarget -Name File -Configuration @{Path = $highLog; Encoding = "UTF8" }
 
         for ([int] $lI = 0; $lI -lt $desiredCount; $lI++) {
-            Write-Log -Level WARNING -Message "Test : $lI" -ErrorAction Stop
+            Write-Log -Level WARNING -Message 'Test: {0}' -Arguments $lI
         }
 
-        #give time to process
         Wait-Logging
-
-        Get-LoggingMessageCount | Should -Be $desiredCount
+        (Get-Content $highLog).Count | Should -Be $desiredCount
     }
 }

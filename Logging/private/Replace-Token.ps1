@@ -11,10 +11,9 @@ function Replace-Token {
     $tokenMatches = @()
     $tokenMatches += $tokenMatcher.Matches($String)
 
-
     [array]::Reverse($tokenMatches)
 
-    foreach ( $match in $tokenMatches ) {
+    foreach ($match in $tokenMatches) {
         $formattedEntry = [string]::Empty
         $tokenContent = [string]::Empty
 

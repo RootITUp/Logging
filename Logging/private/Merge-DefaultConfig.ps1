@@ -4,8 +4,8 @@ function Merge-DefaultConfig {
         [hashtable] $Configuration
     )
 
-    $DefaultConfiguration = $LogTargets[$Target].Configuration
-    $ParamsRequired = $LogTargets[$Target].ParamsRequired
+    $DefaultConfiguration = $Script:Logging.Targets[$Target].Defaults
+    $ParamsRequired = $Script:Logging.Targets[$Target].ParamsRequired
 
     $result = @{}
 

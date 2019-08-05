@@ -34,5 +34,5 @@ function Set-LoggingDefaultFormat {
         [string] $Format = $Defaults.Format
     )
     Wait-Logging
-    $Logging.Format = $Format
+    $Script:Logging.Format = $Format
 }

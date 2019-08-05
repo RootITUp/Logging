@@ -18,5 +18,5 @@ function Get-LoggingCallerScope {
     [CmdletBinding()]
     param()
 
-    return $Logging.CallerScope
+    return $Script:Logging.CallerScope
 }

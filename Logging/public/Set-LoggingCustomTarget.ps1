@@ -31,6 +31,12 @@ function Set-LoggingCustomTarget {
         [ValidateScript({Test-Path -Path $_ -PathType Container})]
         [string] $Path
     )
+
+    Write-Verbose 'Stopping Logging Manager'
+    Stop-LoggingManager
+
     $Script:Logging.CustomTargets = $Path
-    Initialize-LoggingTarget
+
+    Write-Verbose 'Starting Logging Manager'
+    Start-LoggingManager
 }

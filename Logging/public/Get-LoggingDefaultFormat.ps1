@@ -18,5 +18,5 @@ function Get-LoggingDefaultFormat {
     [CmdletBinding()]
     param()
 
-    return $Logging.Format
+    return $Script:Logging.Format
 }

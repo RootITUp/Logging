@@ -25,6 +25,8 @@ function Wait-Logging {
 
     $start = [datetime]::Now
 
+    Start-Sleep -Milliseconds 10
+
     while ($Script:LoggingEventQueue.Count -gt 0) {
         Start-Sleep -Milliseconds 10
 

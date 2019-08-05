@@ -16,5 +16,5 @@ function Get-LoggingAvailableTarget {
     [CmdletBinding(HelpUri='https://logging.readthedocs.io/en/latest/functions/Get-LoggingAvailableTarget.md')]
     param()
 
-    return $LogTargets
+    return $Script:Logging.Targets
 }

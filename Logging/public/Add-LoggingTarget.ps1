@@ -28,14 +28,14 @@ function Add-LoggingTarget {
     )
 
     DynamicParam {
-        New-LoggingDynamicParam -Name "Name" -Target
+        New-LoggingDynamicParam -Name 'Name' -Target
     }
 
     End {
-        $Logging.Targets[$PSBoundParameters.Name] = Merge-DefaultConfig -Target $PSBoundParameters.Name -Configuration $Configuration
+        $Script:Logging.EnabledTargets[$PSBoundParameters.Name] = Merge-DefaultConfig -Target $PSBoundParameters.Name -Configuration $Configuration
 
-        if ($LogTargets[$PSBoundParameters.Name].Init -is [scriptblock]) {
-            & $LogTargets[$PSBoundParameters.Name].Init $Configuration
+        if ($Script:Logging.EnabledTargets[$PSBoundParameters.Name].Init -is [scriptblock]) {
+            & $Script:Logging.EnabledTargets[$PSBoundParameters.Name].Init $Configuration
         }
     }
 }

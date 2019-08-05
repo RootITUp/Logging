@@ -73,7 +73,7 @@ Function Write-Log {
         }
 
         $levelNumber = Get-LevelNumber -Level $PSBoundParameters.Level
-        $invocationInfo = (Get-PSCallStack)[$Logging.CallerScope]
+        $invocationInfo = (Get-PSCallStack)[$Script:Logging.CallerScope]
 
         # Split-Path throws an exception if called with a -Path that is null or empty.
         [string] $fileName = [string]::Empty

@@ -32,5 +32,5 @@ function Set-LoggingCallerScope {
     )
 
     Wait-Logging
-    $Logging.CallerScope = $CallerScope
+    $Script:Logging.CallerScope = $CallerScope
 }

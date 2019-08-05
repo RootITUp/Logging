@@ -70,7 +70,7 @@ function New-LoggingDynamicParam {
 
     switch ($PSCmdlet.ParameterSetName) {
         "DynamicTarget" {
-            $allowedValues += $LogTargets.Keys
+            $allowedValues += $Script:Logging.Targets.Keys
         }
         "DynamicLevel" {
             $allowedValues += Get-LevelsName

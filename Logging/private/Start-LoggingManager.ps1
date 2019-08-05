@@ -2,53 +2,92 @@ function Start-LoggingManager {
     [CmdletBinding()]
     param()
 
-    Set-Variable -Name 'LoggingMessagerCount' -Option Constant -Scope Script -Value ([ref]0)
-    Set-Variable -Name 'LoggingEventQueue' -Option Constant -Scope Script -Value ([System.Collections.Concurrent.BlockingCollection[hashtable]]::new(100))
-    Set-Variable -Name 'LoggingWorker' -Option Constant -Scope Script -Value (@{})
+    New-Variable -Name LoggingEventQueue    -Scope Script -Value ([System.Collections.Concurrent.BlockingCollection[hashtable]]::new(100))
+    New-Variable -Name LoggingRunspace      -Scope Script -Option ReadOnly -Value ([hashtable]::Synchronized(@{ }))
 
-    $ISS = [InitialSessionState]::CreateDefault()
-    if (Get-Member -InputObject $ISS -Name "ApartmentState" -MemberType Property) {
-        $ISS.ApartmentState = [System.Threading.ApartmentState]::MTA
+    $InitialSessionState = [initialsessionstate]::CreateDefault()
+
+    if ($InitialSessionState.psobject.Properties['ApartmentState']) {
+        $InitialSessionState.ApartmentState = [System.Threading.ApartmentState]::MTA
     }
 
-    foreach ( $sessionVariable in 'ScriptRoot', 'LevelNames', 'Logging', 'LogTargets', 'LoggingEventQueue', 'LoggingMessagerCount') {
-        $ISS.Variables.Add([System.Management.Automation.Runspaces.SessionStateVariableEntry]::new($sessionVariable, (Get-Variable -Name $sessionVariable -ErrorAction Stop).Value, '', [System.Management.Automation.ScopedItemOptions]::AllScope))
+    # Importing variables into runspace
+    foreach ($sessionVariable in 'ScriptRoot', 'LevelNames', 'Logging', 'LoggingEventQueue') {
+        $Value = Get-Variable -Name $sessionVariable -ErrorAction Continue -ValueOnly
+        Write-Verbose "Importing variable $sessionVariable`: $Value into runspace"
+        $v = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList $sessionVariable, $Value, '', ([System.Management.Automation.ScopedItemOptions]::AllScope)
+        $InitialSessionState.Variables.Add($v)
     }
 
-    $ISS.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Replace-Token', (Get-Content Function:\Replace-Token)))
-    $ISS.Commands.Add((New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList 'Use-LogMessage', (Get-Content Function:\Use-LogMessage)))
+    # Importing functions into runspace
+    foreach ($Function in 'Replace-Token', 'Initialize-LoggingTarget') {
+        Write-Verbose "Importing function $($Function) into runspace"
+        $Body = Get-Content Function:\$Function
+        $f = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList $Function, $Body
+        $InitialSessionState.Commands.Add($f)
+    }
 
     #Setup runspace
-    Set-Variable -Name "ConsumerRunspace" -Value ([runspacefactory]::CreateRunspace($ISS)) -Scope Script -Option Constant
-    $Script:ConsumerRunspace.Name = "Logging_ConsumerRunspace"
-    $Script:ConsumerRunspace.Open()
+    $LoggingRunspace.Runspace = [runspacefactory]::CreateRunspace($InitialSessionState)
+    $LoggingRunspace.Runspace.Name = 'LoggingQueueConsumer'
+    $LoggingRunspace.Runspace.Open()
+    $LoggingRunspace.Runspace.SessionStateProxy.SetVariable('ParentHost', $Host)
+    $LoggingRunspace.Runspace.SessionStateProxy.SetVariable('VerbosePreference', $VerbosePreference)
 
     # Spawn Logging Consumer
-    $Private:workerJob = [Powershell]::Create()
-    $Private:workerJob.Runspace = $Script:ConsumerRunspace
+    $Consumer = {
+        Initialize-LoggingTarget
 
-    $Private:workerCommand = $Private:workerJob.AddCommand('Use-LogMessage')
-    $Private:workerCommand = $Private:workerCommand.AddParameter('ErrorAction', 'Stop')
+        Write-Verbose 'Spinning up consumer runspace'
+        foreach ($Log in $LoggingEventQueue.GetConsumingEnumerable()) {
+            if ($Logging.EnabledTargets) {
+                $ParentHost.NotifyBeginApplication()
 
-    $Script:LoggingWorker['Job'] = $Private:workerJob
-    $Script:LoggingWorker['Result'] = $Private:workerJob.BeginInvoke()
+                try {
+                    #Enumerating through a collection is intrinsically not a thread-safe procedure
+                    for ($targetEnum = $Logging.EnabledTargets.GetEnumerator(); $targetEnum.MoveNext(); ) {
+                        [string] $LoggingTarget = $targetEnum.Current.key
+                        [hashtable] $TargetConfiguration = $targetEnum.Current.Value
+                        $Logger = [scriptblock] $Script:Logging.Targets[$LoggingTarget].Logger
+
+                        if ($Log.LevelNo -ge $TargetConfiguration.LevelNo) {
+                            Invoke-Command -ScriptBlock $Logger -ArgumentList @($Log, $TargetConfiguration)
+                        }
+                    }
+                } catch {
+                    $ParentHost.UI.WriteErrorLine($_)
+                } finally {
+                    $ParentHost.NotifyEndApplication()
+                }
+            }
+        }
+
+        Write-Verbose 'Killing consumer runspace'
+    }
+
+    $LoggingRunspace.Powershell = [Powershell]::Create().AddScript($Consumer, $true)
+    $LoggingRunspace.Powershell.Runspace = $LoggingRunspace.Runspace
+    $LoggingRunspace.Handle = $LoggingRunspace.Powershell.BeginInvoke()
 
     #region Handle Module Removal
-    $ExecutionContext.SessionState.Module.OnRemove = {
+    $OnRemoval = {
         $Script:LoggingEventQueue.CompleteAdding()
+        $Script:LoggingEventQueue.Dispose()
 
-        Write-Verbose -Message ('{0} :: Stopping running consumer instance.' -f $MyInvocation.MyCommand)
+        Write-Verbose -Message ('Stopping: {0}' -f $LoggingRunspace.Powershell.InstanceId)
+        [void] $LoggingRunspace.Powershell.EndInvoke($LoggingRunspace.Handle)
+        [void] $LoggingRunspace.Powershell.Dispose()
 
-        [int] $logCount = $Script:LoggingWorker["Job"].EndInvoke($Script:LoggingWorker["Result"])[0]
-        Write-Verbose -Message ("{0} :: Stopping : {1}." -f $MyInvocation.MyCommand, $Script:LoggingWorker["Job"].InstanceId)
-        $Script:LoggingWorker["Job"].Dispose()
-
-        #Dispose Runspace
-        $Script:ConsumerRunspace.Dispose()
-
-        Write-Verbose -Message ('{0} :: Logged {1} times.' -f $MyInvocation.MyCommand, $logCount)
+        Remove-Variable Logging -Scope Script -Force
+        Remove-Variable Defaults -Scope Script -Force
+        Remove-Variable LevelNames -Scope Script -Force
+        Remove-Variable LoggingRunspace -Scope Script -Force
+        Remove-Variable LoggingEventQueue -Scope Script -Force
 
         [System.GC]::Collect()
     }
+
+    $ExecutionContext.SessionState.Module.OnRemove += $OnRemoval
+    $Script:LoggingRunspace.EngineEvent = Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
     #endregion Handle Module Removal
 }

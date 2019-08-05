@@ -21,5 +21,5 @@ function Get-LoggingDefaultLevel {
     [CmdletBinding(HelpUri = 'https://logging.readthedocs.io/en/latest/functions/Get-LoggingDefaultLevel.md')]
     param()
 
-    return Get-LevelName -Level $Logging.LevelNo
+    return Get-LevelName -Level $Script:Logging.LevelNo
 }
