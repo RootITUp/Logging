@@ -7,13 +7,17 @@ $TargetFile = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\
 $TargetImplementationPath = '{0}\..\Logging\targets\{1}' -f $PSScriptRoot, $TargetFile
 
 Describe -Tags Targets, TargetWinEventLog 'WinEventLog target' {
+    # Give time to the runspace to init the targets
+    Start-Sleep -Milliseconds 100
 
     It 'should be available in the module' {
-        (Get-LoggingAvailableTarget)['WinEventLog'] | Should Not BeNullOrEmpty
+        $Targets = Get-LoggingAvailableTarget
+        $Targets.WinEventLog | Should Not BeNullOrEmpty
     }
 
     It 'should have two required parameters' {
-        (Get-LoggingAvailableTarget)['WinEventLog'].ParamsRequired | Should Be @('LogName', 'Source')
+        $Targets = Get-LoggingAvailableTarget
+        $Targets.WinEventLog.ParamsRequired | Should Be @('LogName', 'Source')
     }
 
     It 'should call Write-EventLog' {
@@ -25,7 +29,9 @@ Describe -Tags Targets, TargetWinEventLog 'WinEventLog target' {
             message = 'Hello, Windows Event Log!'
             body    = @{ EventId = 123 }
         }
+
         $LoggerFormat  = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
+
         $Configuration = @{
             LogName = 'Application'
             Source  = 'PesterTestSource'
