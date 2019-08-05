@@ -20,7 +20,7 @@ environment:
     secure: qOw7foLVABiwY5Y4Th58VNI8sbyJpNwvkFSI9DFxqII=
 
 before_build:
-  - ps: C:\ProgramData\chocolatey\bin\gitversion.exe /l console /output buildserver
+  - gitversion /l console /output buildserver
 
 build_script:
   - ps: . .\build.ps1
