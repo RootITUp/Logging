@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 4.2.2 (2019-08-05)
+
+In this minor release we fixed an annoying issue about how the module loads the available targets.
+Now the loading routine is run inside the runspace to isolate the scope where the targets scriptblock is created.
+
+- [BUG] Major code update to address issue #63
+- [FIX] `Set-LoggingDefaultLevel` sets default level on cofigured targets too (#61, #58)
+- [MOD] Removed validation on parameter Arguments
+
 ## 4.1.1 (2019-05-20)
 
 - [NEW] Added timestamputc to log message properties #48
@@ -106,6 +115,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
