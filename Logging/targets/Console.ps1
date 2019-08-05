@@ -1,9 +1,9 @@
-﻿@{
+@{
     Name = 'Console'
     Description = 'Writes messages to console with different colors.'
     Configuration = @{
-        Level        = @{Required = $false; Type = [string];    Default = Get-LoggingDefaultLevel}
-        Format       = @{Required = $false; Type = [string];    Default = Get-LoggingDefaultFormat}
+        Level        = @{Required = $false; Type = [string];    Default = $Logging.Level}
+        Format       = @{Required = $false; Type = [string];    Default = $Logging.Format}
         ColorMapping = @{Required = $false; Type = [hashtable]; Default = @{
                                                                     'DEBUG'   = 'Blue'
                                                                     'INFO'    = 'Green'
@@ -26,14 +26,11 @@
             }
         }
     }
-    Logger        = {
+    Logger = {
         param(
             [hashtable] $Log,
             [hashtable] $Configuration
         )
-
-        $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
-        $mtx.WaitOne()
 
         try {
             $logText = Replace-Token -String $Configuration.Format -Source $Log
@@ -50,10 +47,7 @@
             [Console]::ResetColor()
         }
         catch {
-            [Console]::Error.WriteLine($_)
-        } finally {
-            [void] $mtx.ReleaseMutex()
-            $mtx.Dispose()
+            $ParentHost.UI.WriteErrorLine($_)
         }
     }
 }

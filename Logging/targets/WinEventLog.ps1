@@ -1,4 +1,4 @@
-﻿@{
+@{
     Name = 'WinEventLog'
     Configuration = @{
         LogName  = @{Required = $true; Type = [string]; Default = $null}

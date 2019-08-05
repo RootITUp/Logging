@@ -7,7 +7,7 @@
         To          = @{Required = $true;   Type = [string];        Default = $null}
         Subject     = @{Required = $false;  Type = [string];        Default = '[%{level:-7}] %{message}'}
         Credential  = @{Required = $false;  Type = [pscredential];  Default = $null}
-        Level       = @{Required = $false;  Type = [string];        Default = Get-LoggingDefaultLevel}
+        Level       = @{Required = $false;  Type = [string];        Default = $Logging.Level}
         Port        = @{Required = $false;  Type = [int];           Default = 25}
         UseSsl      = @{Required = $false;  Type = [bool];          Default = $false}
     }

@@ -5,7 +5,7 @@
         Url        = @{Required = $true;  Type = [string];    Default = $null}
         ApiKey     = @{Required = $false; Type = [string];    Default = $null}
         Properties = @{Required = $true;  Type = [hashtable]; Default = $null}
-        Level      = @{Required = $false; Type = [string];    Default = Get-LoggingDefaultLevel}
+        Level      = @{Required = $false; Type = [string];    Default = $Logging.Level}
     }
     Logger = {
         param(

@@ -11,8 +11,8 @@
                 'DEBUG'   = ':eyes:'
             }
         }
-        Level   = @{Required = $false; Type = [string]; Default = Get-LoggingDefaultLevel }
-        Format  = @{Required = $false; Type = [string]; Default = Get-LoggingDefaultFormat }
+        Level   = @{Required = $false; Type = [string]; Default = $Logging.Level}
+        Format  = @{Required = $false; Type = [string]; Default = $Logging.Format}
     }
     Logger = {
         param(

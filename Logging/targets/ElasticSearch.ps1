@@ -6,7 +6,7 @@
         ServerName      = @{Required = $true;   Type = [string]; Default = $null}
         ServerPort      = @{Required = $true;   Type = [int]; Default = 9200}
         Flatten         = @{Required = $false;  Type = [bool]; Default = $false}
-        Level           = @{Required = $false;  Type = [string]; Default = Get-LoggingDefaultLevel}
+        Level           = @{Required = $false;  Type = [string]; Default = $Logging.Level}
         Authorization   = @{Required = $false;  Type = [string]; Default = $null}
         Https           = @{Required = $false;  Type = [bool]; Default = $false}
     }
