@@ -140,13 +140,14 @@ The *Targets* property stores the used logging targets, it's where you define wh
 
 Keys of the hashtable depends on the target you are configuring. The module ships with 7 targets but you can write your own for specific usage.
 
-* Console
-* File
-* ElasticSearch
-* Slack
-* Email
-* Seq
-* WinEventLog
+* [Console](#Console)
+* [ElasticSearch](#ElasticSearch)
+* [Email](#Email)
+* [File](#File)
+* [Seq](#Seq)
+* [Slack](#Slack)
+* [Teams](#Teams)
+* [WinEventLog](#WinEventLog)
 
 #### Console
 
@@ -161,8 +162,11 @@ The mutex name to acquire is ```ConsoleMtx```
                                     #                Only need to specify the levels you wish to override
 }
 ```
+
 ##### Colors
+
 Default Console Colors
+
 ```powershell
 $ColorMapping = @{
     'DEBUG'   = 'Blue'
@@ -173,6 +177,7 @@ $ColorMapping = @{
 ```
 
 Each color will be verified against `[System.ConsoleColor]`. If it is invalid, an error will appear on the screen along with the orignal message.
+
 ```powershell
 Add-LoggingTarget -Name Console -Configuration @{
     ColorMapping = @{
@@ -222,7 +227,7 @@ Write-Log -Level 'WARNING' -Message 'Hello, Powershell!' -Body $Body
 
 ##### NoFlatten
 
-```
+```json
       {
         "_index": "powershell-2018-05-10",
         "_type": "doc",
@@ -247,7 +252,7 @@ Write-Log -Level 'WARNING' -Message 'Hello, Powershell!' -Body $Body
 
 ##### Flatten
 
-```
+```json
       {
         "_index": "powershell-2018-05-10",
         "_type": "doc",
@@ -320,10 +325,13 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
 #### WinEventLog
 
 Before you can log events you need to make sure that the LogName and Source exists. This needs to be done only once (run as an Administrator)
+
 ```powershell
 > New-EventLog -LogName <NOTSET> -Source <NOTSET>
 ```
+
 You can now log to the EventLog from your script
+
 ```powershell
 > Add-LoggingTarget -Name WinEventLog -Configuration @{
     LogName = <NOTSET>          # <Required> Name of the log to which the events are written (eg. 'Application', 'System' and etc.)
@@ -333,6 +341,26 @@ Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{ EventID = 123 }
 }
+```
+
+#### Teams
+
+```powershell
+> Add-LoggingTarget -Name Teams -Configuration @{
+    WebHook     = <NOTSET>          # <Required> Sets the Teams Connector URI (eg. 'https://outlook.office.com/webhook/...')
+    Details     = $true             # <Not required> Prints Log message details like PID, caller etc.
+    Level       = <NOTSET>          # <Not required> Sets the logging format for this target
+    Colors      = @{                # <Not required> Maps log levels to badge colors
+        'DEBUG'   = 'blue'
+        'INFO'    = 'brightgreen'
+        'WARNING' = 'orange'
+        'ERROR'   = 'red'
+    }
+}
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
 ```
 
 ### CustomTargets
