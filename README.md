@@ -12,11 +12,8 @@
   <a href="https://ci.appveyor.com/project/EsOsO/logging">
     <img src="https://ci.appveyor.com/api/projects/status/wij05u9qud1lin3b/branch/dev?svg=true&passingText=develop&pendignText=develop&failingText=develop" alt="Develop Build Status" />
   </a>
-  <a href="https://logging.readthedocs.io/en/latest/?badge=latest">
-    <img src="https://readthedocs.org/projects/logging/badge/?version=latest" alt="Documentation" />
-  </a>
   <a href="https://www.powershellgallery.com/packages/logging">
-    <img src="https://img.shields.io/powershellgallery/dt/logging.svg" alt="Join the Wasmer Community" />
+    <img src="https://img.shields.io/powershellgallery/dt/logging.svg" alt="Powershell gallery downloads" />
   </a>
   <img src="https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg" alt="Contributor Covenant" />
 </p>
@@ -45,10 +42,11 @@ This project is licensed under the [MIT License][license]
 ---
 
 Special thanks to:
+
 - Mark Kraus (@markekraus) for his work on [CI/CD pipeline][get-powershell-blog]
 - Boe Prox (@proxb) for his work on [runspaces][runspaces]
 
-[module-doc]: https://logging.readthedocs.io
+[module-doc]: https://github.com/EsOsO/Logging/wiki
 [changelog]: https://github.com/EsOsO/Logging/blob/master/docs/CHANGELOG.md
 [github-logging]: https://github.com/EsOsO/Logging
 [contribute]: https://github.com/EsOsO/Logging/blob/master/docs/CONTRIBUTING.md
