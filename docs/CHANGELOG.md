@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.2.3 (2019-08-27)
+
+
+
 ## 4.2.2 (2019-08-05)
 
 In this minor release we fixed an annoying issue about how the module loads the available targets.
@@ -115,6 +119,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
