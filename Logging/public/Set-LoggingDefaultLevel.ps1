@@ -35,8 +35,8 @@ function Set-LoggingDefaultLevel {
     End {
         $Script:Logging.Level = $PSBoundParameters.Level
         $Script:Logging.LevelNo = Get-LevelNumber -Level $PSBoundParameters.Level
-        foreach ($Target in $Script:Logging.Targets.Values) {
-            $Target['Level'] = $Script:Logging.Level
+        foreach ($Target in ($Script:Logging.Targets.Values | Where-Object {$_.Defaults.Contains('Level')})) {
+            $Target.Defaults.Level.Default = $Script:Logging.Level
         }
     }
 }
