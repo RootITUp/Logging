@@ -27,5 +27,5 @@ function Initialize-LoggingTarget {
     }
 
     $ParentHost.NotifyEndApplication()
-    [System.Threading.Monitor]::Enter($LoggingRunspace.syncRoot)
+    [System.Threading.Monitor]::Exit($LoggingRunspace.syncRoot)
 }
