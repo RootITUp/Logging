@@ -146,6 +146,16 @@ InModuleScope Logging {
             Set-LoggingDefaultLevel -Level INFO
             Get-LoggingDefaultLevel | Should Be 'INFO'
         }
+
+        It 'change the logging level of available targets' {
+            Add-LoggingTarget -Name Console
+            (Get-LoggingTarget -Name Console).Level | Should Be 'INFO'
+        }
+        It 'change the logging level of already configured targets' {
+            Set-LoggingDefaultLevel -Level DEBUG
+            (Get-LoggingTarget -Name Console).Level | Should Be 'DEBUG'
+        }
+
     }
 
     Describe -Tags Build 'Logging Targets' {
@@ -165,15 +175,29 @@ InModuleScope Logging {
     }
 
     Describe -Tags Build 'Logging Format' {
-        It 'should be the default format' {
+        It 'gets the default format' {
             Get-LoggingDefaultFormat | Should Be $Defaults.Format
         }
 
-        It 'should change the default logging format' {
+        It 'sets the default logging format' {
             $NewFormat = '[%{level:-7}] %{message}'
             Get-LoggingDefaultFormat | Should Be $Defaults.Format
             Set-LoggingDefaultFormat -Format $NewFormat
             Get-LoggingDefaultFormat | Should Be $NewFormat
+        }
+
+        It 'change the logging format of already configured targets' {
+            $NewFormat = '[%{level:-7}] %{message}'
+            Add-LoggingTarget -Name Console
+            Set-LoggingDefaultFormat -Format $NewFormat
+            (Get-LoggingTarget -Name Console).Format | Should Be $NewFormat
+        }
+
+        It 'change the default format of available targets' {
+            $NewFormat = '[%{level:-7}] %{message}'
+            Set-LoggingDefaultFormat -Format $NewFormat
+            Add-LoggingTarget -Name Console
+            (Get-LoggingTarget -Name Console).Format | Should Be $NewFormat
         }
     }
 

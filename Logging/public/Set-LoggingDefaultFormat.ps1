@@ -33,6 +33,21 @@ function Set-LoggingDefaultFormat {
     param(
         [string] $Format = $Defaults.Format
     )
+
     Wait-Logging
     $Script:Logging.Format = $Format
+
+    # Setting format on already configured targets
+    foreach ($Target in $Script:Logging.EnabledTargets.Values) {
+        if ($Target.ContainsKey('Format')) {
+            $Target['Format'] = $Script:Logging.Format
+        }
+    }
+
+    # Setting format on available targets
+    foreach ($Target in $Script:Logging.Targets.Values) {
+        if ($Target.Defaults.ContainsKey('Format')) {
+            $Target.Defaults.Format.Default = $Script:Logging.Format
+        }
+    }
 }

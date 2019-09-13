@@ -23,8 +23,8 @@ function Get-LoggingTarget {
     )
 
     if ($PSBoundParameters.Name) {
-        return $Script:Logging.Targets[$Name]
+        return $Script:Logging.EnabledTargets[$Name]
     }
 
-    return $Script:Logging.Targets
+    return $Script:Logging.EnabledTargets
 }
