@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 4.2.6 (2019-09-13)
+
+
+In this release we worked out an issue about setting default
+level or formatting was not honored by the already configured
+targets (#67) and one about level ignored when dispatching messages
+to targets (#68)
+
+Thanks to: @ZamElek
+
 ## 4.2.3 (2019-08-27)
 
 
@@ -119,6 +129,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
