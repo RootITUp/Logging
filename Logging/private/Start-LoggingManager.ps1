@@ -20,7 +20,7 @@ function Start-LoggingManager {
     }
 
     # Importing functions into runspace
-    foreach ($Function in 'Replace-Token', 'Initialize-LoggingTarget') {
+    foreach ($Function in 'Replace-Token', 'Initialize-LoggingTarget', 'Get-LevelNumber') {
         Write-Verbose "Importing function $($Function) into runspace"
         $Body = Get-Content Function:\$Function
         $f = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList $Function, $Body
@@ -50,7 +50,9 @@ function Start-LoggingManager {
                         [hashtable] $TargetConfiguration = $targetEnum.Current.Value
                         $Logger = [scriptblock] $Script:Logging.Targets[$LoggingTarget].Logger
 
-                        if ($Log.LevelNo -ge $TargetConfiguration.LevelNo) {
+                        $targetLevelNo = Get-LevelNumber -Level $TargetConfiguration.Level
+
+                        if ($Log.LevelNo -ge $targetLevelNo) {
                             Invoke-Command -ScriptBlock $Logger -ArgumentList @($Log, $TargetConfiguration)
                         }
                     }
