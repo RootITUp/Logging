@@ -3,6 +3,7 @@
     Configuration = @{
         LogName  = @{Required = $true; Type = [string]; Default = $null}
         Source   = @{Required = $true; Type = [string]; Default = $null}
+        Level    = @{Required = $false; Type = [string]; Default = $Logging.Level}
     }
     Logger = {
         param(
