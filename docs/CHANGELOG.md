@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.2.7 (2019-09-19)
+
+
+
 ## 4.2.6 (2019-09-13)
 
 
@@ -129,6 +133,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
