@@ -38,7 +38,6 @@ function Start-LoggingManager {
     $Consumer = {
         Initialize-LoggingTarget
 
-        Write-Verbose 'Spinning up consumer runspace'
         foreach ($Log in $LoggingEventQueue.GetConsumingEnumerable()) {
             if ($Logging.EnabledTargets) {
                 $ParentHost.NotifyBeginApplication()
@@ -63,8 +62,6 @@ function Start-LoggingManager {
                 }
             }
         }
-
-        Write-Verbose 'Killing consumer runspace'
     }
 
     $LoggingRunspace.Powershell = [Powershell]::Create().AddScript($Consumer, $true)
@@ -76,7 +73,6 @@ function Start-LoggingManager {
         $Script:LoggingEventQueue.CompleteAdding()
         $Script:LoggingEventQueue.Dispose()
 
-        Write-Verbose -Message ('Stopping: {0}' -f $LoggingRunspace.Powershell.InstanceId)
         [void] $LoggingRunspace.Powershell.EndInvoke($LoggingRunspace.Handle)
         [void] $LoggingRunspace.Powershell.Dispose()
 
