@@ -28,14 +28,14 @@ function Wait-Logging {
     Start-Sleep -Milliseconds 10
 
     while ($Script:LoggingEventQueue.Count -gt 0) {
-        Start-Sleep -Milliseconds 10
+        Start-Sleep -Milliseconds 20
 
         <#
         If errors occure in the consumption of the logging requests,
         forcefully shutdown function after some time.
         #>
         $difference = [datetime]::Now - $start
-        if ($difference.Minutes -gt 5) {
+        if ($difference.seconds -gt 30) {
             Write-Error -Message ("{0} :: Wait timeout." -f $MyInvocation.MyCommand) -ErrorAction SilentlyContinue
             break;
         }
