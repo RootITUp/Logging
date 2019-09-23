@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 4.2.11 (2019-09-23)
+
+
+- [FIX] Closed issue #66 where messages are lost on Powershell ISE
+- [MOD] Decreased `Wait-Logging` timeout from 5 minutes to 30 seconds
+
 ## 4.2.7 (2019-09-19)
 
 
@@ -133,6 +139,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
