@@ -86,6 +86,6 @@ function Start-LoggingManager {
     }
 
     $ExecutionContext.SessionState.Module.OnRemove += $OnRemoval
-    $Script:LoggingRunspace.EngineEvent = Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
+    Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
     #endregion Handle Module Removal
 }
