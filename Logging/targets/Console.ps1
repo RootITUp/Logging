@@ -21,7 +21,7 @@
             $Color = $Configuration.ColorMapping[$Level]
 
             if ($Color -notin ([System.Enum]::GetNames([System.ConsoleColor]))) {
-                [Console]::Error.WriteLine("ERROR: Cannot use custom color '$Color': not a valid [System.ConsoleColor] value")
+                $ParentHost.UI.WriteErrorLine("ERROR: Cannot use custom color '$Color': not a valid [System.ConsoleColor] value")
                 continue
             }
         }
@@ -39,12 +39,17 @@
                 $logText += "`n" + $Log.ExecInfo.InvocationInfo.PositionMessage
             }
 
-            #[Console] is thread safe
+            $mtx = New-Object System.Threading.Mutex($false, 'ConsoleMtx')
+            [void] $mtx.WaitOne()
+
             if ($Configuration.ColorMapping.ContainsKey($Log.Level)) {
-                [Console]::ForegroundColor = $Configuration.ColorMapping[$Log.Level]
+                $ParentHost.UI.WriteLine($Configuration.ColorMapping[$Log.Level], $ParentHost.UI.RawUI.BackgroundColor, $logText)
+            } else {
+                $ParentHost.UI.WriteLine($logText)
             }
-            [Console]::WriteLine($logText)
-            [Console]::ResetColor()
+
+            [void] $mtx.ReleaseMutex()
+            $mtx.Dispose()
         }
         catch {
             $ParentHost.UI.WriteErrorLine($_)
