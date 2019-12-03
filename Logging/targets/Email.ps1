@@ -10,6 +10,7 @@
         Level       = @{Required = $false;  Type = [string];        Default = $Logging.Level}
         Port        = @{Required = $false;  Type = [int];           Default = 25}
         UseSsl      = @{Required = $false;  Type = [bool];          Default = $false}
+        Format      = @{Required = $false;  Type = [string];        Default = $Logging.Format}
     }
     Logger = {
         param(
