@@ -1,7 +1,6 @@
 function Initialize-LoggingTarget {
     param()
 
-    [System.Threading.Monitor]::Enter($LoggingRunspace.syncRoot)
     $ParentHost.NotifyBeginApplication()
 
     $targets = @()
@@ -23,5 +22,4 @@ function Initialize-LoggingTarget {
     }
 
     $ParentHost.NotifyEndApplication()
-    [System.Threading.Monitor]::Exit($LoggingRunspace.syncRoot)
 }
