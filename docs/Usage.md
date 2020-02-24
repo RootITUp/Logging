@@ -148,6 +148,7 @@ Keys of the hashtable depends on the target you are configuring. The module ship
 * [Slack](#Slack)
 * [Teams](#Teams)
 * [WinEventLog](#WinEventLog)
+* [AzureLogAnalytics](#AzureLogAnalytics)
 
 #### Console
 
@@ -377,6 +378,23 @@ ElasticSearch                  {Configuration, ParamsRequired, Logger}
 File                           {Configuration, ParamsRequired, Logger}
 Slack                          {Configuration, ParamsRequired, Logger}
 MyCustomTarget                 {Configuration, ParamsRequired, Logger}
+```
+
+#### AzureLogAnalytics
+
+Log directly to a Azure Log Analytics Workspace from your script
+
+```powershell
+> Import-Module Logging
+Add-LoggingTarget -Name AzureLogAnalytics -Configuration @{
+    WorkspaceId = <NOTSET>          # <Required> Id of the Azure Log Analytics Workspace
+    SharedKey   = <NOTSET>          # <Required> Primary or Secondary Key to acces the Azure Log Analytics Workspace
+    LogType     = "Logging"         # <Not required> Creates a custom LogType in Log Analytics Workspace
+}
+
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
+Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
+Write-Log -Level 'WARNING' -Message 'Hello, Powershell!' -Body { Computer = $env:COMPUTERNAME }
 ```
 
 ## Contributing
