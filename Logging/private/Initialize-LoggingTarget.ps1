@@ -1,9 +1,7 @@
 function Initialize-LoggingTarget {
     param()
 
-    [System.Threading.Monitor]::Enter($LoggingRunspace.syncRoot)
     $ParentHost.NotifyBeginApplication()
-    Write-Verbose 'Initializing targets'
 
     $targets = @()
     $targets += Get-ChildItem "$ScriptRoot\targets" -Filter '*.ps1'
@@ -12,10 +10,7 @@ function Initialize-LoggingTarget {
         $targets += Get-ChildItem -Path $Script:Logging.CustomTargets -Filter '*.ps1'
     }
 
-    Write-Verbose ('{0} targets found' -f $targets.Length)
-
     foreach ($target in $targets) {
-        Write-Verbose ('Init target: {0}' -f $target.FullName)
         $module = . $target.FullName
         $Script:Logging.Targets[$module.Name] = @{
             Init           = $module.Init
@@ -27,5 +22,4 @@ function Initialize-LoggingTarget {
     }
 
     $ParentHost.NotifyEndApplication()
-    [System.Threading.Monitor]::Exit($LoggingRunspace.syncRoot)
 }

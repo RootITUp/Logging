@@ -5,7 +5,7 @@ function Set-LoggingVariables {
         return
     }
 
-    Write-Verbose -Message 'Initial variable setup.'
+    Write-Verbose -Message 'Setting up vars'
 
     $Script:NOTSET = 0
     $Script:DEBUG = 10

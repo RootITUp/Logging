@@ -5,10 +5,10 @@ function Start-LoggingManager {
     New-Variable -Name LoggingEventQueue    -Scope Script -Value ([System.Collections.Concurrent.BlockingCollection[hashtable]]::new(100))
     New-Variable -Name LoggingRunspace      -Scope Script -Option ReadOnly -Value ([hashtable]::Synchronized(@{ }))
 
-    $InitialSessionState = [initialsessionstate]::CreateDefault()
+    $Script:InitialSessionState = [initialsessionstate]::CreateDefault()
 
-    if ($InitialSessionState.psobject.Properties['ApartmentState']) {
-        $InitialSessionState.ApartmentState = [System.Threading.ApartmentState]::MTA
+    if ($Script:InitialSessionState.psobject.Properties['ApartmentState']) {
+        $Script:InitialSessionState.ApartmentState = [System.Threading.ApartmentState]::MTA
     }
 
     # Importing variables into runspace
@@ -16,7 +16,7 @@ function Start-LoggingManager {
         $Value = Get-Variable -Name $sessionVariable -ErrorAction Continue -ValueOnly
         Write-Verbose "Importing variable $sessionVariable`: $Value into runspace"
         $v = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList $sessionVariable, $Value, '', ([System.Management.Automation.ScopedItemOptions]::AllScope)
-        $InitialSessionState.Variables.Add($v)
+        $Script:InitialSessionState.Variables.Add($v)
     }
 
     # Importing functions into runspace
@@ -24,28 +24,27 @@ function Start-LoggingManager {
         Write-Verbose "Importing function $($Function) into runspace"
         $Body = Get-Content Function:\$Function
         $f = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList $Function, $Body
-        $InitialSessionState.Commands.Add($f)
+        $Script:InitialSessionState.Commands.Add($f)
     }
 
     #Setup runspace
-    $LoggingRunspace.Runspace = [runspacefactory]::CreateRunspace($InitialSessionState)
-    $LoggingRunspace.Runspace.Name = 'LoggingQueueConsumer'
-    $LoggingRunspace.Runspace.Open()
-    $LoggingRunspace.Runspace.SessionStateProxy.SetVariable('ParentHost', $Host)
-    $LoggingRunspace.Runspace.SessionStateProxy.SetVariable('VerbosePreference', $VerbosePreference)
+    $Script:LoggingRunspace.Runspace = [runspacefactory]::CreateRunspace($Script:InitialSessionState)
+    $Script:LoggingRunspace.Runspace.Name = 'LoggingQueueConsumer'
+    $Script:LoggingRunspace.Runspace.Open()
+    $Script:LoggingRunspace.Runspace.SessionStateProxy.SetVariable('ParentHost', $Host)
+    $Script:LoggingRunspace.Runspace.SessionStateProxy.SetVariable('VerbosePreference', $VerbosePreference)
 
     # Spawn Logging Consumer
     $Consumer = {
         Initialize-LoggingTarget
 
-        Write-Verbose 'Spinning up consumer runspace'
-        foreach ($Log in $LoggingEventQueue.GetConsumingEnumerable()) {
-            if ($Logging.EnabledTargets) {
+        foreach ($Log in $Script:LoggingEventQueue.GetConsumingEnumerable()) {
+            if ($Script:Logging.EnabledTargets) {
                 $ParentHost.NotifyBeginApplication()
 
                 try {
                     #Enumerating through a collection is intrinsically not a thread-safe procedure
-                    for ($targetEnum = $Logging.EnabledTargets.GetEnumerator(); $targetEnum.MoveNext(); ) {
+                    for ($targetEnum = $Script:Logging.EnabledTargets.GetEnumerator(); $targetEnum.MoveNext(); ) {
                         [string] $LoggingTarget = $targetEnum.Current.key
                         [hashtable] $TargetConfiguration = $targetEnum.Current.Value
                         $Logger = [scriptblock] $Script:Logging.Targets[$LoggingTarget].Logger
@@ -63,22 +62,19 @@ function Start-LoggingManager {
                 }
             }
         }
-
-        Write-Verbose 'Killing consumer runspace'
     }
 
-    $LoggingRunspace.Powershell = [Powershell]::Create().AddScript($Consumer, $true)
-    $LoggingRunspace.Powershell.Runspace = $LoggingRunspace.Runspace
-    $LoggingRunspace.Handle = $LoggingRunspace.Powershell.BeginInvoke()
+    $Script:LoggingRunspace.Powershell = [Powershell]::Create().AddScript($Consumer, $true)
+    $Script:LoggingRunspace.Powershell.Runspace = $Script:LoggingRunspace.Runspace
+    $Script:LoggingRunspace.Handle = $Script:LoggingRunspace.Powershell.BeginInvoke()
 
     #region Handle Module Removal
     $OnRemoval = {
         $Script:LoggingEventQueue.CompleteAdding()
         $Script:LoggingEventQueue.Dispose()
 
-        Write-Verbose -Message ('Stopping: {0}' -f $LoggingRunspace.Powershell.InstanceId)
-        [void] $LoggingRunspace.Powershell.EndInvoke($LoggingRunspace.Handle)
-        [void] $LoggingRunspace.Powershell.Dispose()
+        [void] $Script:LoggingRunspace.Powershell.EndInvoke($LoggingRunspace.Handle)
+        [void] $Script:LoggingRunspace.Powershell.Dispose()
 
         Remove-Variable Logging -Scope Script -Force
         Remove-Variable Defaults -Scope Script -Force
@@ -90,6 +86,6 @@ function Start-LoggingManager {
     }
 
     $ExecutionContext.SessionState.Module.OnRemove += $OnRemoval
-    $Script:LoggingRunspace.EngineEvent = Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
+    Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
     #endregion Handle Module Removal
 }
