@@ -1,5 +1,5 @@
 @{
-    Name = 'Webex Teams'
+    Name = 'WebexTeams'
     Configuration = @{
         BotToken = @{Required = $true; Type = [string]; Default = $null }
         RoomID = @{Required = $true; Type = [string]; Default = $null }
