@@ -70,22 +70,21 @@ function Start-LoggingManager {
 
     #region Handle Module Removal
     $OnRemoval = {
-        $Script:LoggingEventQueue.CompleteAdding()
-        $Script:LoggingEventQueue.Dispose()
-
-        [void] $Script:LoggingRunspace.Powershell.EndInvoke($LoggingRunspace.Handle)
-        [void] $Script:LoggingRunspace.Powershell.Dispose()
-
-        Remove-Variable Logging -Scope Script -Force
-        Remove-Variable Defaults -Scope Script -Force
-        Remove-Variable LevelNames -Scope Script -Force
-        Remove-Variable LoggingRunspace -Scope Script -Force
-        Remove-Variable LoggingEventQueue -Scope Script -Force
+        # Invoke cleanup scriptblock in the context of a module thus gaining access to internal variables and functions
+        # It is needed because `Register-EngineEvent` (or `Register-ObjectEvent` for that matter) would run this
+        # scriptblock in global scope but we need access to internal variables to properly clean up
+        (Get-Module Logging).Invoke( {
+                Wait-Logging
+                Stop-LoggingManager
+            })
 
         [System.GC]::Collect()
     }
 
+    # This scriptblock would be called within the module scope
     $ExecutionContext.SessionState.Module.OnRemove += $OnRemoval
-    Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
+
+    # This scriptblock would be called within the global scope and wouldn't have access to internal module variables and functions that we need
+    $Script:LoggingRunspace.EngineEvent = Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
     #endregion Handle Module Removal
 }
