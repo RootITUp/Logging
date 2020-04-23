@@ -17,7 +17,7 @@ function Initialize-LoggingTarget {
             Logger         = $module.Logger
             Description    = $module.Description
             Defaults       = $module.Configuration
-            ParamsRequired = $module.Configuration.GetEnumerator() | Where-Object {$_.Value.Required -eq $true} | Select-Object -ExpandProperty Name
+            ParamsRequired = $module.Configuration.GetEnumerator() | Where-Object {$_.Value.Required -eq $true} | Select-Object -ExpandProperty Name | Sort-Object
         }
     }
 
