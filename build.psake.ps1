@@ -82,6 +82,8 @@ Task CodeAnalisys -Depends Init {
 }
 
 Task Tests -Depends CodeAnalisys {
+    Get-Module $env:BHProjectName | Remove-Module -Force
+
     $TestResults = Invoke-Pester -Path $TestsFolder -PassThru -OutputFormat NUnitXml -OutputFile $TestsFile
 
     switch ($env:BHBuildSystem) {
