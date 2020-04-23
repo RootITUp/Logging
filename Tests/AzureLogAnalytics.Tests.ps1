@@ -14,11 +14,11 @@ Describe -Tags Targets, TargetAzureLogAnalytics 'AzureLogAnalytics target' {
 
     It 'should have two required parameters' {
         $Targets = Get-LoggingAvailableTarget
-        $Targets.AzureLogAnalytics.ParamsRequired | Should Be @('WorkspaceId','SharedKey')
+        $Targets.AzureLogAnalytics.ParamsRequired | Should Be @('SharedKey', 'WorkspaceId')
     }
 
     It 'should call Invoke-WebRequest' {
-        
+
         Mock Invoke-WebRequest -Verifiable
 
         $Module = . $TargetImplementationPath
