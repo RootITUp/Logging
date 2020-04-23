@@ -6,6 +6,7 @@ image:
 branches:
   only:
     - master
+    - dev
 
 skip_commits:
   message: /\[skip ci\]/
