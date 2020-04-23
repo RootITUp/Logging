@@ -45,9 +45,6 @@ Properties {
 
     Import-Module $env:BHPSModuleManifest -Global
     $ExportedFunctions = Get-Command -Module $env:BHProjectName | select -ExpandProperty Name
-    if (Get-Module $env:BHProjectName) {
-        Remove-Module $env:BHPSModuleManifest -Force
-    }
 }
 
 FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
