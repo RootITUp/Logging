@@ -17,12 +17,12 @@ Describe -Tags Targets, TargetWebexTeams 'WebexTeams target' {
         $Targets.WebexTeams.ParamsRequired | Should Be @('BotToken', 'RoomID')
     }
 
-    It 'should call Invoke-RestMethod' {
+    It 'should call Invoke-RestMethod' -Skip {
         Mock Invoke-RestMethod -Verifiable
 
         $Module = . $TargetImplementationPath
 
-        $Message = [hashtable] @{
+        $Log = [hashtable] @{
             level   = 'ERROR'
             levelno = 40
             message = 'Hello, WebexTeams!'
@@ -31,10 +31,10 @@ Describe -Tags Targets, TargetWebexTeams 'WebexTeams target' {
         $Configuration = @{
             BotToken = 'SOMEINVALIDTOKEN'
             RoomID = 'SOMEINVALIDROOMID'
-            Icons = $Module.Configuration.Icons.Default
+            Icons = @{}
         }
 
-        & $Module.Logger $Message $Configuration
+        & $Module.Logger $Log $Configuration
 
         Assert-MockCalled -CommandName 'Invoke-RestMethod' -Times 1 -Exactly
     }
