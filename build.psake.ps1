@@ -74,12 +74,6 @@ Task Init {
     if ($null -ne $PendingChanges) {
         throw 'You have pending changes, aborting release'
     }
-
-    # Write-Host 'Git: Fetchin origin'
-    # Exec {git fetch origin}
-
-    # Write-Host "Git: Merging origin/$BranchName"
-    # Exec {git merge origin/$BranchName --ff-only}
 }
 
 Task CodeAnalisys -Depends Init {
