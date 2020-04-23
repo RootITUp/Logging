@@ -72,10 +72,14 @@ function Start-LoggingManager {
 
     #region Handle Module Removal
     $OnRemoval = {
-        (Get-Module Logging).Invoke({
+        $Module = Get-Module Logging
+
+        if ($Module) {
+            $Module.Invoke({
                 Wait-Logging
                 Stop-LoggingManager
             })
+        }
 
         [System.GC]::Collect()
     }

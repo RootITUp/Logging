@@ -1,4 +1,7 @@
-Get-Module Logging | Remove-Module -Force
+if (Get-Module Logging) {
+    Remove-Module Logging -Force -ErrorAction SilentlyContinue
+}
+
 $moduleManifestPath = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
 Import-Module -Name $moduleManifestPath -Force
 Set-StrictMode -Version Latest
