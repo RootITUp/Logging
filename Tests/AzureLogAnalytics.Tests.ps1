@@ -1,6 +1,4 @@
-﻿if (Get-Module Logging) {
-    Remove-Module Logging -Force -ErrorAction SilentlyContinue
-}
+﻿Get-Module Logging | Remove-Module Logging -Force -ErrorAction SilentlyContinue
 
 $ModuleManifestPath = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
 Import-Module $ModuleManifestPath -Force
