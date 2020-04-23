@@ -54,6 +54,10 @@ Task Default -Depends Tests, Build, PublishModule
 Task Init {
     Set-Location $env:BHProjectPath
 
+    if (Test-Path $env:BHBuildOutput) {
+        Remove-Item $env:BHBuildOutput -Force -Recurse
+    }
+
     New-Item -Path $env:BHBuildOutput -ItemType Directory | Out-Null
 
     Write-Host ('Working folder: {0}' -f $PWD)
