@@ -45,8 +45,8 @@ Properties {
 
     Import-Module $env:BHPSModuleManifest -Global
     $ExportedFunctions = Get-Command -Module $env:BHProjectName | select -ExpandProperty Name
-    if (Get-Module $env:BHProjectName) {
-        Remove-Module $env:BHProjectName -Force
+    if (Get-Module $env:BHPSModuleManifest) {
+        Remove-Module $env:BHPSModuleManifest -Force
     }
 }
 
