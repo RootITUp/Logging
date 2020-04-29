@@ -24,7 +24,7 @@
             To = $Configuration.To.Split(',').Trim()
             Port = $Configuration.Port
             UseSsl = $Configuration.UseSsl
-            Subject = Replace-Token -String '[%{level:-7}] %{message}' -Source $Log
+            Subject = Replace-Token -String $Configuration.Subject -Source $Log
             Body = Replace-Token -String $Configuration.Format -Source $Log
         }
 
