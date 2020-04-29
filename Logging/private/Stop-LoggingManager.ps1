@@ -8,7 +8,8 @@ function Stop-LoggingManager {
     [void] $Script:LoggingRunspace.Powershell.Dispose()
 
     $ExecutionContext.SessionState.Module.OnRemove = $null
-    if( $Script:LoggingRunspace.EngineEvent.id -ne $null){
+    #Only remove the event, if it exists
+    if( Get-EventSubscriber -Force | Where-Object{$_.SubscriptionId -eq $Script:LoggingRunspace.EngineEvent.id}){
         Unregister-Event -SubscriptionId $Script:LoggingRunspace.EngineEvent.id
     }
 
