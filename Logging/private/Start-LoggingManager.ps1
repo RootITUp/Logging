@@ -88,6 +88,6 @@ function Start-LoggingManager {
     $ExecutionContext.SessionState.Module.OnRemove += $OnRemoval
 
     # This scriptblock would be called within the global scope and wouldn't have access to internal module variables and functions that we need
-    $Script:LoggingRunspace.EngineEvent = Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
+    $Script:LoggingRunspace.EngineEventJob = Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
     #endregion Handle Module Removal
 }
