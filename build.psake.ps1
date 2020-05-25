@@ -45,6 +45,7 @@ Properties {
 
     Import-Module $env:BHPSModuleManifest -Global
     $ExportedFunctions = Get-Command -Module $env:BHProjectName | select -ExpandProperty Name
+    Remove-Module -Name $env:BHPSModuleManifest -Force
 }
 
 FormatTaskName (('-' * 25) + ('[ {0,-28} ]') + ('-' * 25))
@@ -82,8 +83,6 @@ Task CodeAnalisys -Depends Init {
 }
 
 Task Tests -Depends CodeAnalisys {
-    Get-Module $env:BHProjectName | Remove-Module -Force
-
     $TestResults = Invoke-Pester -Path $TestsFolder -PassThru -OutputFormat NUnitXml -OutputFile $TestsFile
 
     switch ($env:BHBuildSystem) {
