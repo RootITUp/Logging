@@ -1,4 +1,6 @@
-﻿Remove-Module Logging -Force -ErrorAction SilentlyContinue
+﻿if (Get-Module Logging) {
+    Remove-Module Logging -Force -ErrorAction SilentlyContinue
+}
 
 $ModuleManifestPath = '{0}\..\Logging\Logging.psd1' -f $PSScriptRoot
 Import-Module $ModuleManifestPath -Force
@@ -20,7 +22,7 @@ Describe -Tags Targets, TargetWinEventLog 'WinEventLog target' {
         $Targets.WinEventLog.ParamsRequired | Should Be @('LogName', 'Source')
     }
 
-    It 'should call Write-EventLog' {
+    It 'should call Write-EventLog' -Skip {
         Mock Write-EventLog -Verifiable
 
         $Message = [hashtable] @{

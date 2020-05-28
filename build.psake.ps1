@@ -55,6 +55,10 @@ Task Default -Depends Tests, Build, PublishModule
 Task Init {
     Set-Location $env:BHProjectPath
 
+    if (Test-Path $env:BHBuildOutput) {
+        Remove-Item $env:BHBuildOutput -Force -Recurse
+    }
+
     New-Item -Path $env:BHBuildOutput -ItemType Directory | Out-Null
 
     Write-Host ('Working folder: {0}' -f $PWD)
@@ -71,12 +75,6 @@ Task Init {
     if ($null -ne $PendingChanges) {
         throw 'You have pending changes, aborting release'
     }
-
-    # Write-Host 'Git: Fetchin origin'
-    # Exec {git fetch origin}
-
-    # Write-Host "Git: Merging origin/$BranchName"
-    # Exec {git merge origin/$BranchName --ff-only}
 }
 
 Task CodeAnalisys -Depends Init {
