@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 4.3.1 (2020-05-28)
+
+
+- [NEW] added target for Azure Log Analytics Workspace (thx to @manualbashing)
+- [NEW] added target for Webex Teams (thx to @itshorty)
+- [FIX] fixed module autoload (thx to @Tadas)
+- [FIX] module don't hang shell exit (thx to @Tadas) #82
+
 ## 4.2.13 (2020-02-25)
 
 
@@ -147,6 +155,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
