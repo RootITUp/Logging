@@ -20,6 +20,3 @@ Export-ModuleMember -Function $PublicFunctions.BaseName
 Set-LoggingVariables
 
 Start-LoggingManager
-
-# Let the runspace spinup and generate all the available targets
-Start-Sleep -Milliseconds 500

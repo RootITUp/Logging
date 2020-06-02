@@ -1,9 +1,12 @@
 function Start-LoggingManager {
     [CmdletBinding()]
-    param()
+    param(
+        [TimeSpan]$ConsumerStartupTimeout = "00:00:10"
+    )
 
     New-Variable -Name LoggingEventQueue    -Scope Script -Value ([System.Collections.Concurrent.BlockingCollection[hashtable]]::new(100))
     New-Variable -Name LoggingRunspace      -Scope Script -Option ReadOnly -Value ([hashtable]::Synchronized(@{ }))
+    New-Variable -Name TargetsInitSync      -Scope Script -Option ReadOnly -Value ([System.Threading.ManualResetEventSlim]::new($false))
 
     $Script:InitialSessionState = [initialsessionstate]::CreateDefault()
 
@@ -12,7 +15,7 @@ function Start-LoggingManager {
     }
 
     # Importing variables into runspace
-    foreach ($sessionVariable in 'ScriptRoot', 'LevelNames', 'Logging', 'LoggingEventQueue') {
+    foreach ($sessionVariable in 'ScriptRoot', 'LevelNames', 'Logging', 'LoggingEventQueue', 'TargetsInitSync') {
         $Value = Get-Variable -Name $sessionVariable -ErrorAction Continue -ValueOnly
         Write-Verbose "Importing variable $sessionVariable`: $Value into runspace"
         $v = New-Object System.Management.Automation.Runspaces.SessionStateVariableEntry -ArgumentList $sessionVariable, $Value, '', ([System.Management.Automation.ScopedItemOptions]::AllScope)
@@ -37,6 +40,8 @@ function Start-LoggingManager {
     # Spawn Logging Consumer
     $Consumer = {
         Initialize-LoggingTarget
+
+        $TargetsInitSync.Set(); # Signal to the parent runspace that logging targets have been loaded
 
         foreach ($Log in $Script:LoggingEventQueue.GetConsumingEnumerable()) {
             if ($Script:Logging.EnabledTargets) {
@@ -90,4 +95,8 @@ function Start-LoggingManager {
     # This scriptblock would be called within the global scope and wouldn't have access to internal module variables and functions that we need
     $Script:LoggingRunspace.EngineEventJob = Register-EngineEvent -SourceIdentifier ([System.Management.Automation.PsEngineEvent]::Exiting) -Action $OnRemoval
     #endregion Handle Module Removal
+
+    if(-not $TargetsInitSync.Wait($ConsumerStartupTimeout)){
+        throw 'Timed out while waiting for logging consumer to start up'
+    }
 }

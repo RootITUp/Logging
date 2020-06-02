@@ -15,4 +15,5 @@ function Stop-LoggingManager {
 
     Remove-Variable -Scope Script -Force -Name LoggingEventQueue
     Remove-Variable -Scope Script -Force -Name LoggingRunspace
+    Remove-Variable -Scope Script -Force -Name TargetsInitSync
 }
