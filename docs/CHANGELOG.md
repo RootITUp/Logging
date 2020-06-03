@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 4.3.2 (2020-05-28)
+
+
+- [FIX] SEQ: fix url when ApiKey is used (#96) (@gahujipo)
+
 ## 4.3.1 (2020-05-28)
 
 
@@ -155,6 +160,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
