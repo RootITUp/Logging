@@ -80,7 +80,7 @@
         $Log.timestamputc = $Log.timestamputc | Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
 
         # See if a Body was provided, that needs to be expanded.
-        if ($Log.ContainsKey('Body')) {
+        if ($Log.Body) {
             $Log = $Log + $Log.Body
             $Log.Remove('Body')
         }
