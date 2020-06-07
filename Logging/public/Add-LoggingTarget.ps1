@@ -38,7 +38,7 @@ function Add-LoggingTarget {
         # This can't be done in the Init scriptblock of the logging target because that scriptblock gets created in the
         # log consumer runspace and doesn't inherit the current SessionState. That means that the scriptblock doesn't know the
         # current working directory at the time when `Add-LoggingTarget` is being called and can't accurately resolve the relative path.
-        if(($PSBoundParameters.Name -eq 'File') -and (-not [System.IO.Path]::IsPathFullyQualified($Configuration.Path))){
+        if($PSBoundParameters.Name -eq 'File'){
             $Script:Logging.EnabledTargets[$PSBoundParameters.Name].Path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Configuration.Path)
         }
 
