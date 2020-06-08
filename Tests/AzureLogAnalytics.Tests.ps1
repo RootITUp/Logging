@@ -24,9 +24,18 @@ Describe -Tags Targets, TargetAzureLogAnalytics 'AzureLogAnalytics target' {
         $Module = . $TargetImplementationPath
 
         $Log = [hashtable] @{
-            level   = 'INFO'
-            essage = 'Hello, Azure!'
+            timestamp    = Get-Date -UFormat '%Y-%m-%dT%T%Z'
             timestamputc = '2020-02-24T22:35:23.000Z'
+            level        = 'INFO'
+            levelno      = 20
+            lineno       = 1
+            pathname     = 'c:\Scripts\Script.ps1'
+            filename     = 'TestScript.ps1'
+            caller       = 'TestScript.ps1'
+            message      = 'Hello, Azure!'
+            body         = $null
+            execinfo     = $null
+            pid          = $PID
         }
 
         $Configuration = @{
@@ -35,7 +44,7 @@ Describe -Tags Targets, TargetAzureLogAnalytics 'AzureLogAnalytics target' {
             LogType = 'TestLog'
         }
 
-        & $Module.Logger $Log $Configuration
+        { & $Module.Logger $Log $Configuration } | Should -Not -Throw
 
         Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1 -Exactly
     }
