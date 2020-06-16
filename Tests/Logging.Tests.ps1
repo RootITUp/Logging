@@ -174,6 +174,11 @@ InModuleScope Logging {
             # $AvailableTargets | Should Be []
             $AvailableTargets.Count | Should Be $Targets.Count
         }
+
+        It 'is case-insensitive' {
+            $AvailableTargets = Get-LoggingAvailableTarget
+            $AvailableTargets[$AvailableTargets.Keys[0].ToLower()] | Should Not BeNullOrEmpty
+        }
     }
 
     Describe -Tags Build 'Logging Format' {
