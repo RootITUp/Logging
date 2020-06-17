@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 4.4.0 (2020-06-17)
+
+- [FIX] NotifyBeginApplication/NotifyEndApplication calls not needed (#99)
+- [FIX] Fix startup race condition (#100) (@Tadas)
+- [FIX] Fixed an issue in AzureLogAnalytics target (#102) (@Glober777)
+- [FIX] Resolve relative Path in File target (#103) (@Tadas)
+- [FIX] Target name is case insensitive (#106) (@Tadas)
+
 ## 4.3.2 (2020-05-28)
 
 
@@ -160,6 +168,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
