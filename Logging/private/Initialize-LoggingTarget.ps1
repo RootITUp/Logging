@@ -1,8 +1,6 @@
 function Initialize-LoggingTarget {
     param()
 
-    $ParentHost.NotifyBeginApplication()
-
     $targets = @()
     $targets += Get-ChildItem "$ScriptRoot\targets" -Filter '*.ps1'
 
@@ -20,6 +18,4 @@ function Initialize-LoggingTarget {
             ParamsRequired = $module.Configuration.GetEnumerator() | Where-Object {$_.Value.Required -eq $true} | Select-Object -ExpandProperty Name | Sort-Object
         }
     }
-
-    $ParentHost.NotifyEndApplication()
 }

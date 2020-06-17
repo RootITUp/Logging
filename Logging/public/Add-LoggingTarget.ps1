@@ -34,8 +34,16 @@ function Add-LoggingTarget {
     End {
         $Script:Logging.EnabledTargets[$PSBoundParameters.Name] = Merge-DefaultConfig -Target $PSBoundParameters.Name -Configuration $Configuration
 
-        if ($Script:Logging.EnabledTargets[$PSBoundParameters.Name].Init -is [scriptblock]) {
-            & $Script:Logging.EnabledTargets[$PSBoundParameters.Name].Init $Configuration
+        # Special case hack - resolve target file path if it's a relative path
+        # This can't be done in the Init scriptblock of the logging target because that scriptblock gets created in the
+        # log consumer runspace and doesn't inherit the current SessionState. That means that the scriptblock doesn't know the
+        # current working directory at the time when `Add-LoggingTarget` is being called and can't accurately resolve the relative path.
+        if($PSBoundParameters.Name -eq 'File'){
+            $Script:Logging.EnabledTargets[$PSBoundParameters.Name].Path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Configuration.Path)
+        }
+
+        if ($Script:Logging.Targets[$PSBoundParameters.Name].Init -is [scriptblock]) {
+            & $Script:Logging.Targets[$PSBoundParameters.Name].Init $Configuration
         }
     }
 }
