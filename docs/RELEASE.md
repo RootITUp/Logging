@@ -1,2 +1,5 @@
-- [FIX] Fix startup race condition (#100) (@Tadas)
 - [FIX] NotifyBeginApplication/NotifyEndApplication calls not needed (#99)
+- [FIX] Fix startup race condition (#100) (@Tadas)
+- [FIX] Fixed an issue in AzureLogAnalytics target (#102) (@Glober777)
+- [FIX] Resolve relative Path in File target (#103) (@Tadas)
+- [FIX] Target name is case insensitive (#106) (@Tadas)
