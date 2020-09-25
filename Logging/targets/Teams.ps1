@@ -40,9 +40,17 @@
                 if ($Log.Body.Facts -is [array]) {
                     $body.facts         = $Log.Body.Facts
                 } elseif ($Log.Body.Facts -is [hashtable]) {
-                    $body.facts         = $Log.Body.Facts.Keys |%{ @{ name = $_; value = $Log.Body.Facts[$_]; } }
+                    $body.facts         = $Log.Body.Facts.Keys | %{
+                                                @{
+                                                    name = $_
+                                                    value = $Log.Body.Facts[$_]
+                                                }
+                                            }
                 } else {
-                    $body.facts         = @{ name='fact'; value = $($Log.Body.Facts | ConvertTo-Json -Depth 3 -Compress); }
+                    $body.facts         = @{
+                            name='fact'
+                            value = $($Log.Body.Facts | ConvertTo-Json -Depth 3 -Compress)
+                        }
                 }
             } elseif ($Log.Body -is [string]) {
                 $body.activityTitle     = 'Body'
