@@ -29,9 +29,29 @@
         $sections = @()
 
         if ($Log.Body) {
-            $body = [ordered] @{}
-            $body.activitySubtitle = 'Body'
-            $body.text = $Log.Body | ConvertTo-Json -Depth 3 -Compress
+            $body = [ordered]@{};
+
+            if ($Log.Body.Activity) {
+                $body.activityTitle     = @('Body', $Log.Body.Activity.title)[[bool]$Log.Body.Activity.title]
+                $body.activitySubTitle  = $Log.Body.Activity.subtitle
+                $body.text              = $Log.Body.Activity.text
+            } elseif ($Log.Body.Facts) {
+                $body.title             = 'Facts'
+                if ($Log.Body.Facts -is [array]) {
+                    $body.facts         = $Log.Body.Facts
+                } elseif ($Log.Body.Facts -is [hashtable]) {
+                    $body.facts         = $Log.Body.Facts.Keys |%{ @{ name = $_; value = $Log.Body.Facts[$_]; } }
+                } else {
+                    $body.facts         = @{ name='fact'; value = $($Log.Body.Facts | ConvertTo-Json -Depth 3 -Compress); }
+                }
+            } elseif ($Log.Body -is [string]) {
+                $body.activityTitle     = 'Body'
+                $body.text              = $Log.Body
+            } else {
+                $body.activityTitle     = 'Body'
+                $body.text              = $Log.Body | ConvertTo-Json -Depth 3 -Compress
+            }
+
             $sections += $body
         }
 
