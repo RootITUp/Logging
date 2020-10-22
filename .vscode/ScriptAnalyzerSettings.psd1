@@ -5,6 +5,7 @@
         'PSAvoidUsingWriteHost',
         'PSMissingModuleManifestField',
         'PSUseDeclaredVarsMoreThanAssignments',
-        'PSUseShouldProcessForStateChangingFunctions'
+        'PSUseShouldProcessForStateChangingFunctions',
+        'PSAvoidOverwritingBuiltInCmdlets'
     )
 }

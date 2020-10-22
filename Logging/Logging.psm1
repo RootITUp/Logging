@@ -3,8 +3,8 @@ $PSModule = $ExecutionContext.SessionState.Module
 $PSModuleRoot = $PSModule.ModuleBase
 
 # Dot source public/private functions
-$PublicFunctions = @(Get-ChildItem -Path "$SCriptPath\public" -Filter *.ps1 -Recurse -ErrorAction SilentlyContinue)
-$PrivateFunctions = @(Get-ChildItem -Path "$SCriptPath\private" -Filter *.ps1 -Recurse -ErrorAction SilentlyContinue)
+$PublicFunctions = @(Get-ChildItem -Path "$ScriptPath\public" -Filter *.ps1 -Recurse -ErrorAction SilentlyContinue)
+$PrivateFunctions = @(Get-ChildItem -Path "$ScriptPath\private" -Filter *.ps1 -Recurse -ErrorAction SilentlyContinue)
 
 $AllFunctions = $PublicFunctions + $PrivateFunctions
 foreach ($Function in $AllFunctions) {

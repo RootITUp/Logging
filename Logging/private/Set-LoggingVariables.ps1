@@ -31,7 +31,7 @@ function Set-LoggingVariables {
         Level       = $LevelNames[$LevelNames['NOTSET']]
         LevelNo     = $LevelNames['NOTSET']
         Format      = '[%{timestamp:+%Y-%m-%d %T%Z}] [%{level:-7}] %{message}'
-        Timestamp   = '%Y-%m-%dT%T%Z'
+        Timestamp   = '%Y-%m-%d %T%Z'
         CallerScope = 1
     }
 
