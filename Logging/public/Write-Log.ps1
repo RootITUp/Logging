@@ -82,8 +82,8 @@ Function Write-Log {
         }
 
         $logMessage = [hashtable] @{
-            timestamp    = Get-Date -UFormat $Defaults.Timestamp
-            timestamputc = Get-Date ([datetime]::UtcNow) -UFormat $Defaults.Timestamp
+            timestamp    = [datetime]::now
+            timestamputc = [datetime]::UtcNow
             level        = Get-LevelName -Level $levelNumber
             levelno      = $levelNumber
             lineno       = $invocationInfo.ScriptLineNumber
