@@ -170,10 +170,11 @@ The mutex name to acquire is `ConsoleMtx`
 
 ```powershell
 > Add-LoggingTarget -Name Console -Configuration @{
-    Level        = <NOTSET>         # <Not required> Sets the logging level for this target
-    Format       = <NOTSET>         # <Not required> Sets the logging format for this target
-    ColorMapping = <NOTSET>         # <Not required> Overrides the level:color mappings with a [hashtable].
-                                    #                Only need to specify the levels you wish to override
+    Level           = <NOTSET>          # <Not required> Sets the logging level for this target
+    Format          = <NOTSET>          # <Not required> Sets the logging format for this target
+    PrintException  = $true             # <Not required> Prints stacktrace
+    ColorMapping    = <NOTSET>          # <Not required> Overrides the level:color mappings with a [hashtable].
+                                        #                Only need to specify the levels you wish to override
 }
 ```
 
