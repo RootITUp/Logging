@@ -1,3 +1,4 @@
 .gitconfig
 BuildOutput/
 *.xml
+debug.log
