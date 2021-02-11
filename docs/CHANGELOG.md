@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 4.7.1 (2021-02-11)
+
+
+- [ADD] Teams target now support additional body types for adaptive cards (@jangins101)
+- [FIX] Refactored Teams target (@jangins101)
+- [FIX] Removed formatting timestamp on log event creation, this caused lost of milliseconds later on
+
 ## 4.5.0 (2020-10-22)
 
 
@@ -162,4 +169,5 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
