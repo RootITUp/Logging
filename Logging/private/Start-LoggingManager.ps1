@@ -57,7 +57,7 @@ function Start-LoggingManager {
                         $targetLevelNo = Get-LevelNumber -Level $TargetConfiguration.Level
 
                         if ($Log.LevelNo -ge $targetLevelNo) {
-                            Invoke-Command -ScriptBlock $Logger -ArgumentList @($Log, $TargetConfiguration)
+                            Invoke-Command -ScriptBlock $Logger -ArgumentList @($Log.PSObject.Copy(), $TargetConfiguration)
                         }
                     }
                 }
