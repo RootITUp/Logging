@@ -2,14 +2,14 @@
 
 The following section describe how to configure the Logging module.
 
-* Level
-* Format
-* Targets
-* CustomTargets
+- Level
+- Format
+- Targets
+- CustomTargets
 
 ### Level
 
-The *Level* property defines the default logging level.
+The _Level_ property defines the default logging level.
 Valid values are:
 
 ```powershell
@@ -32,26 +32,26 @@ ERROR
 
 ### Format
 
-The *Format* property defines how the message is rendered.
+The _Format_ property defines how the message is rendered.
 
 The default value is: `[%{timestamp}] [%{level:-7}] %{message}`
 
 The Log object has a number of attributes that are replaced in the format string to produce the message:
 
-| Format         | Description |
-| -------------- | ----------- |
-| `%{timestamp}` | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 14:22:45+02*). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
-| `%{timestamputc}` | UTC Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (*2016-04-20 12:22:45+02*). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available `[DateTimeFormatInfo]` |
-| `%{level}`     | Text logging level for the message (*DEBUG*, *INFO*, *WARNING*, *ERROR*) |
-| `%{levelno}`   | Number logging level for the message (*10*, *20*, *30*, *40*) |
-| `%{lineno}`    | The line number on wich the write occured |
-| `%{pathname}`  | The path of the caller |
-| `%{filename}`  | The file name part of the caller |
-| `%{caller}`    | The caller function name |
-| `%{message}`   | The logged message |
-| `%{body}`      | The logged body (json format not pretty printed) |
-| `%{execinfo}`  | The ErrorRecord catched in a try/catch statement |
-| `%{pid}`       | The process id of the currently running powershellprocess ($PID) |
+| Format            | Description                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `%{timestamp}`    | Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (_2016-04-20 14:22:45+02_). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](<https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx>) for available `[DateTimeFormatInfo]`     |
+| `%{timestamputc}` | UTC Time when the log message was created. Defaults to `%Y-%m-%d %T%Z` (_2016-04-20 12:22:45+02_). Take a look at this [Technet article](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) about the UFormat parameter, and this [Technet article](<https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx>) for available `[DateTimeFormatInfo]` |
+| `%{level}`        | Text logging level for the message (_DEBUG_, _INFO_, _WARNING_, _ERROR_)                                                                                                                                                                                                                                                                                                            |
+| `%{levelno}`      | Number logging level for the message (_10_, _20_, _30_, _40_)                                                                                                                                                                                                                                                                                                                       |
+| `%{lineno}`       | The line number on wich the write occured                                                                                                                                                                                                                                                                                                                                           |
+| `%{pathname}`     | The path of the caller                                                                                                                                                                                                                                                                                                                                                              |
+| `%{filename}`     | The file name part of the caller                                                                                                                                                                                                                                                                                                                                                    |
+| `%{caller}`       | The caller function name                                                                                                                                                                                                                                                                                                                                                            |
+| `%{message}`      | The logged message                                                                                                                                                                                                                                                                                                                                                                  |
+| `%{body}`         | The logged body (json format not pretty printed)                                                                                                                                                                                                                                                                                                                                    |
+| `%{execinfo}`     | The ErrorRecord catched in a try/catch statement                                                                                                                                                                                                                                                                                                                                    |
+| `%{pid}`          | The process id of the currently running powershellprocess ($PID)                                                                                                                                                                                                                                                                                                                    |
 
 After the placeholder name you can pass a padding or a date format string separated by a colon (`:`):
 
@@ -79,7 +79,7 @@ If the padding value is positive, the field will be right aligned and padded wit
 
 #### Date format string
 
-The date format string starts with a plus sign (`+`) followed by **UFormat** OR **Format** (`[DateTimeFormatInfo]`) parameters. See [here](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) for available **UFormat**s, and [here](https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx) for available **Format**s.
+The date format string starts with a plus sign (`+`) followed by **UFormat** OR **Format** (`[DateTimeFormatInfo]`) parameters. See [here](https://technet.microsoft.com/en-us/library/hh849887.aspx#sectionSection7) for available **UFormat**s, and [here](<https://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.85).aspx>) for available **Format**s.
 
 ```powershell
 > Set-LoggingDefaultFormat -Format '%{timestamp}'
@@ -136,24 +136,37 @@ Invoke-CallerFunctionWithCustomLog
 
 ### Targets
 
-The *Targets* property stores the used logging targets, it's where you define where to route your messages.
+The _Targets_ property stores the used logging targets, it's where you define where to route your messages.
 
 Keys of the hashtable depends on the target you are configuring. The module ships with 7 targets but you can write your own for specific usage.
 
-* [Console](#Console)
-* [ElasticSearch](#ElasticSearch)
-* [Email](#Email)
-* [File](#File)
-* [Seq](#Seq)
-* [Slack](#Slack)
-* [Teams](#Teams)
-* [WinEventLog](#WinEventLog)
-* [AzureLogAnalytics](#AzureLogAnalytics)
+- [Configuration](#configuration)
+  - [Level](#level)
+  - [Format](#format)
+    - [Padding](#padding)
+    - [Date format string](#date-format-string)
+    - [Caller](#caller)
+  - [Targets](#targets)
+    - [Console](#console)
+      - [Colors](#colors)
+    - [File](#file)
+    - [ElasticSearch](#elasticsearch)
+      - [NoFlatten](#noflatten)
+      - [Flatten](#flatten)
+    - [Slack](#slack)
+    - [Email](#email)
+    - [Seq](#seq)
+    - [WinEventLog](#wineventlog)
+    - [Teams](#teams)
+  - [CustomTargets](#customtargets)
+    - [AzureLogAnalytics](#azureloganalytics)
+- [Contributing](#contributing)
+- [Notes](#notes)
 
 #### Console
 
 From version 2.3.3 it supports acquiring lock for issues with git prompt that sometimes gets splitted during output.
-The mutex name to acquire is ```ConsoleMtx```
+The mutex name to acquire is `ConsoleMtx`
 
 ```powershell
 > Add-LoggingTarget -Name Console -Configuration @{
@@ -192,13 +205,14 @@ Add-LoggingTarget -Name Console -Configuration @{
 
 ```powershell
 > Add-LoggingTarget -Name File -Configuration @{
-    Path        = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log')
-                                    #            It supports templating like $Logging.Format
-    PrintBody   = $false            # <Not required> Prints body message too
-    Append      = $true             # <Not required> Append to log file
-    Encoding    = 'ascii'           # <Not required> Sets the log file encoding
-    Level       = <NOTSET>          # <Not required> Sets the logging level for this target
-    Format      = <NOTSET>          # <Not required> Sets the logging format for this target
+    Path            = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log')
+                                        #            It supports templating like $Logging.Format
+    PrintBody       = $false            # <Not required> Prints body message too
+    PrintException  = $false            # <Not required> Prints stacktrace
+    Append          = $true             # <Not required> Append to log file
+    Encoding        = 'ascii'           # <Not required> Sets the log file encoding
+    Level           = <NOTSET>          # <Not required> Sets the logging level for this target
+    Format          = <NOTSET>          # <Not required> Sets the logging format for this target
 }
 
 Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
@@ -229,47 +243,47 @@ Write-Log -Level 'WARNING' -Message 'Hello, Powershell!' -Body $Body
 ##### NoFlatten
 
 ```json
-      {
-        "_index": "powershell-2018-05-10",
-        "_type": "doc",
-        "_id": "6BfJXWMB8moSvzgSbZgo",
-        "_score": 1,
-        "_source": {
-          "body": {
-            "host": "bastion.constoso.com",
-            "_metadata": {
-              "server_farm": "WestEurope",
-              "ip": "10.10.10.10"
-            },
-            "source": "Logging"
-          },
-          "levelno": 30,
-          "timestamp": "2018-05-14T10:34:31+02",
-          "level": "WARNING",
-          "message": "Hello, Powershell, No Flatten"
-        }
-      }
+{
+  "_index": "powershell-2018-05-10",
+  "_type": "doc",
+  "_id": "6BfJXWMB8moSvzgSbZgo",
+  "_score": 1,
+  "_source": {
+    "body": {
+      "host": "bastion.constoso.com",
+      "_metadata": {
+        "server_farm": "WestEurope",
+        "ip": "10.10.10.10"
+      },
+      "source": "Logging"
+    },
+    "levelno": 30,
+    "timestamp": "2018-05-14T10:34:31+02",
+    "level": "WARNING",
+    "message": "Hello, Powershell, No Flatten"
+  }
+}
 ```
 
 ##### Flatten
 
 ```json
-      {
-        "_index": "powershell-2018-05-10",
-        "_type": "doc",
-        "_id": "6RfJXWMB8moSvzgSeJj_",
-        "_score": 1,
-        "_source": {
-          "source": "Logging",
-          "server_farm": "WestEurope",
-          "ip": "10.10.10.10",
-          "levelno": 30,
-          "level": "WARNING",
-          "host": "bastion.constoso.com",
-          "message": "Hello, Powershell, Flatten",
-          "timestamp": "2018-05-14T10:34:34+02"
-        }
-      }
+{
+  "_index": "powershell-2018-05-10",
+  "_type": "doc",
+  "_id": "6RfJXWMB8moSvzgSeJj_",
+  "_score": 1,
+  "_source": {
+    "source": "Logging",
+    "server_farm": "WestEurope",
+    "ip": "10.10.10.10",
+    "levelno": 30,
+    "level": "WARNING",
+    "host": "bastion.constoso.com",
+    "message": "Hello, Powershell, Flatten",
+    "timestamp": "2018-05-14T10:34:34+02"
+  }
+}
 ```
 
 #### Slack
@@ -405,5 +419,5 @@ For more information, see [CONTRIBUTING](CONTRIBUTING.md)
 
 ## Notes
 
-* The dispatcher thread starts the first time a `Write-Log` command is executed and keeps running in the background to dispatch new messages until the module is removed.
-* The runspace code is inspired by the work and research of Boe Prox (@proxb).
+- The dispatcher thread starts the first time a `Write-Log` command is executed and keeps running in the background to dispatch new messages until the module is removed.
+- The runspace code is inspired by the work and research of Boe Prox (@proxb).
