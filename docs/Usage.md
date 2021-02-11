@@ -307,15 +307,16 @@ Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body 
 
 ```powershell
 > Add-LoggingTarget -Name Email -Configuration @{
-    SMTPServer  = <NOTSET>          # <Required> SMTP server FQDN
-    From        = <NOTSET>          # <Required> From address
-    To          = <NOTSET>          # <Required> A string of recipients delimited by comma (,) (eg. 'test@contoso.com, robin@hood.eu')
-    Subject     = '[%{level:-7}] %{message}'    # <Not required> Email subject. Supports formatting and expansion
-    Attachments = <NOTSET>          # <Not required> Path to the desired file to attach
-    Credential  = <NOTSET>          # <Not required> If your server uses authentication
-    Level       = <NOTSET>          # <Not required> Sets the logging format for this target
-    Port        = <NOTSET>          # <Not required> Set the SMTP server's port
-    UseSsl      = $false            # <Not required> Use encrypted transport to SMTP server
+    SMTPServer      = <NOTSET>                      # <Required> SMTP server FQDN
+    From            = <NOTSET>                      # <Required> From address
+    To              = <NOTSET>                      # <Required> A string of recipients delimited by comma (,) (eg. 'test@contoso.com, robin@hood.eu')
+    Subject         = '[%{level:-7}] %{message}'    # <Not required> Email subject. Supports formatting and expansion
+    Attachments     = <NOTSET>                      # <Not required> Path to the desired file to attach
+    Credential      = <NOTSET>                      # <Not required> If your server uses authentication
+    Level           = <NOTSET>                      # <Not required> Sets the logging format for this target
+    Port            = <NOTSET>                      # <Not required> Set the SMTP server's port
+    UseSsl          = $false                        # <Not required> Use encrypted transport to SMTP server
+    PrintException  = $false                        # <Not required> Print stacktrace in the body
 }
 
 Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
