@@ -34,7 +34,7 @@
         )
 
         try {
-            $logText = Replace-Token -String $Configuration.Format -Source $Log
+            $logText = Format-Pattern -Pattern $Configuration.Format -Source $Log
 
             if (![String]::IsNullOrWhiteSpace($Log.ExecInfo) -and $Configuration.PrintException) {
                 $logText += "`n{0}" -f $Log.ExecInfo.Exception.Message

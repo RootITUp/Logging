@@ -41,7 +41,7 @@
             $httpType = "http"
         }
 
-        $Index = Replace-Token -String $Configuration.Index -Source $Log
+        $Index = Format-Pattern -Pattern $Configuration.Index -Source $Log
         $Uri = '{0}://{1}:{2}/{3}/{4}' -f  $httpType, $Configuration.ServerName, $Configuration.ServerPort, $Index, $Configuration.Type
 
         if ($Configuration.Flatten) {

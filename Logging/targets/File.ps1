@@ -8,19 +8,148 @@
         Encoding       = @{Required = $false; Type = [string]; Default = 'ascii' }
         Level          = @{Required = $false; Type = [string]; Default = $Logging.Level }
         Format         = @{Required = $false; Type = [string]; Default = $Logging.Format }
+        # Rotation
+        ## Rotate after the directory contains the given amount of files. A value that is less than or equal to 0 is treated as not configured.
+        RotateAfterAmount   = @{Required = $false; Type = [int]; Default = -1}
+        ## Amount of files to be rotated, when RotateAfterAmount is used.
+        ## In general max(|Files| - RotateAfterAmount, RotateAmount) files are rotated.
+        RotateAmount        = @{Required = $false; Type = [int]; Default = -1}
+        ## Rotate after the difference between the current datetime and the datetime of the file(s) are greater then the given timespan. A value of 0 is treated as not configured.
+        RotateAfterDate     = @{Required = $false; Type = [timespan]; Default = [timespan]::Zero}
+        ## Rotate after the file(s) are greater than the given size in BYTES. A value that is less than or equal to 0 is treated as not configured.
+        RotateAfterSize     = @{Required = $false; Type = [int]; Default = -1}
+        ## Optionally all rotated files can be compressed. Uses patterns, however only datetimes are allows
+        CompressionPath     = @{Required = $false; Type = [string]; Default = [String]::Empty}
     }
     Init          = {
         param(
             [hashtable] $Configuration
         )
 
-        [String] $directoryPath = [System.IO.Path]::GetDirectoryName($Configuration.Path)
+        [string] $directoryPath = [System.IO.Path]::GetDirectoryName($Configuration.Path)
+        [string] $wildcardBasePath = Format-Pattern -Pattern ([System.IO.Path]::GetFileName($Configuration.Path)) -Wildcard
+
+        $ParentHost.UI.WriteLine($wildcardBasePath)
 
         # We (try to) create the directory if it is not yet given
         if (-not [System.IO.Directory]::Exists($directoryPath)){
             # "Creates all directories and subdirectories in the specified path unless they already exist."
             # https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.createdirectory?view=net-5.0#System_IO_Directory_CreateDirectory_System_String_
             [System.IO.Directory]::CreateDirectory($directoryPath) | Out-Null
+        }
+
+        # Allow for the rolling of log files
+        $mtx = New-Object System.Threading.Mutex($false, 'FileMtx')
+        [void] $mtx.WaitOne()
+        try{
+            # Get existing files
+            if (-not [System.IO.Directory]::Exists($directoryPath)){
+                return
+            }
+
+            $ParentHost.UI.WriteLine((ConvertTo-Json -InputObject ($Configuration)))
+
+            $rotationDate = $Configuration.RotateAfterDate.Duration()
+            $currentDateUtc = [datetime]::UtcNow
+
+            $toBeRolled = @()
+            $givenFiles = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
+
+            foreach ($file in [System.IO.Directory]::EnumerateFiles($directoryPath, $wildcardBasePath)){
+                $fileInfo = [System.IO.FileInfo]::new($file)
+                $ParentHost.UI.WriteLine(($currentDateUtc - $fileInfo.CreationTimeUtc).TotalSeconds)
+                $ParentHost.UI.WriteLine($rotationDate.TotalSeconds)
+                # 1. Based on file size
+                if ($Configuration.RotateAfterSize -gt 0 -and $fileInfo.Length -gt $Configuration.RotateAfterSize){
+                    $ParentHost.UI.WriteLine(("Rotating {0} as its size exceeds rotation size.") -f $fileInfo.Name)
+                    $toBeRolled += $fileInfo
+                }
+                # 2. Based on date
+                elseif ($rotationDate.TotalSeconds -gt 0 -and ($currentDateUtc - $fileInfo.CreationTimeUtc).TotalSeconds -gt $rotationDate.TotalSeconds){
+                    $ParentHost.UI.WriteLine(("Rotating {0} as its creation date exceeds rotation date difference.") -f $fileInfo.Name)
+                    $toBeRolled += $fileInfo
+                }
+                # 3. Based on number
+                else{
+                    $givenFiles.Add($fileInfo)
+                }
+            }
+
+            # 3. Based on number
+            if ($Configuration.RotateAfterAmount -gt 0 -and $givenFiles.Count -gt $Configuration.RotateAfterAmount){
+                $ParentHost.UI.WriteLine("Rotating as number of files exceeds rotation amount.")
+
+                if ($Configuration.RotateAmount -le 0){
+                    $Configuration.RotateAmount = $Configuration.RotateAfterAmount / 2
+                }
+
+                $givenFiles.Sort(
+                    {
+                        param(
+                            [Parameter(Mandatory)][System.IO.FileInfo]$t1,
+                            [Parameter(Mandatory)][System.IO.FileInfo]$t2
+                        )
+                        # If t1 is earlier than t2, a value less than zero is returned, this entry is then sorted before t2
+                        $t1.CreationTimeUtc.CompareTo($t2.CreationTimeUtc)
+                    }
+                )
+
+                # Rotate
+                # a) until givenFiles = RotateAfterAmount
+                # b) until RotateAmount files are rotated
+                for ([int] $i = 0; ($i -lt ($givenFiles.Count - $Configuration.RotateAfterAmount)) -or ($i -le $Configuration.RotateAmount); $i++){
+                    $toBeRolled += $givenFiles[$i]
+                }
+            }
+
+            [string[]] $paths = @()
+            foreach ($fileInfo in $toBeRolled){
+                $paths += $fileInfo.FullName
+            }
+
+            if ($paths.Count -eq 0){
+                return
+            }
+
+            # (opt) compress old files
+            if (-not [string]::IsNullOrWhiteSpace($Configuration.CompressionPath)){
+                try{
+                    Add-Type -As System.IO.Compression.FileSystem
+                }catch{
+                    $ParentHost.UI.WriteErrorLine("ERROR: You need atleast .Net 4.5 for the compression feature.")
+                    return
+                }
+
+                [string] $compressionDirectory = [System.IO.Path]::GetDirectoryName($Configuration.CompressionPath)
+                [string] $compressionFile = Format-Pattern -Pattern $Configuration.CompressionPath -Source @{
+                    timestamp    = [datetime]::now
+                    timestamputc = [datetime]::UtcNow
+                    pid          = $PID
+                }
+
+                # We (try to) create the directory if it is not yet given
+                if (-not [System.IO.Directory]::Exists($compressionDirectory)){
+                   [System.IO.Directory]::CreateDirectory($compressionDirectory) | Out-Null
+                }
+
+                # Compress-Archive not supported for PS < 5
+                [string] $temporary = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath ([guid]::NewGuid().ToString())
+                [System.IO.DirectoryInfo] $tempDir = [System.IO.Directory]::CreateDirectory($temporary)
+
+                if ([System.IO.File]::Exists($compressionFile)){
+                    [IO.Compression.ZipFile]::ExtractToDirectory($compressionFile, $tempDir.FullName)
+                    Remove-Item -Path $compressionFile -Force
+                }
+
+                Move-Item -Path $paths -Destination $tempDir.FullName -Force
+                [IO.Compression.ZipFile]::CreateFromDirectory($tempDir.FullName, $compressionFile, [System.IO.Compression.CompressionLevel]::Fastest, $false)
+                Remove-Item -Path $tempDir.FullName -Recurse -Force
+            }else{
+                Remove-Item -Path $paths -Force
+            }
+        }finally{
+            [void] $mtx.ReleaseMutex()
+            $mtx.Dispose()
         }
     }
     Logger        = {
@@ -36,7 +165,7 @@
             $Log.Remove('Body')
         }
 
-        $Text = Replace-Token -String $Configuration.Format -Source $Log
+        $Text = Format-Pattern -Pattern $Configuration.Format -Source $Log
 
         if (![String]::IsNullOrWhiteSpace($Log.ExecInfo) -and $Configuration.PrintException) {
             $Text += "`n{0}" -f $Log.ExecInfo.Exception.Message
@@ -45,10 +174,17 @@
 
         $Params = @{
             Append   = $Configuration.Append
-            FilePath = Replace-Token -String $Configuration.Path -Source $Log
+            FilePath = Format-Pattern -Pattern $Configuration.Path -Source $Log
             Encoding = $Configuration.Encoding
         }
 
-        $Text | Out-File @Params
+        $mtx = New-Object System.Threading.Mutex($false, 'FileMtx')
+        [void] $mtx.WaitOne()
+        try{
+            $Text | Out-File @Params
+        }finally{
+            [void] $mtx.ReleaseMutex()
+            $mtx.Dispose()
+        }
     }
 }
