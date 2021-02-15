@@ -206,20 +206,42 @@ Add-LoggingTarget -Name Console -Configuration @{
 
 ```powershell
 > Add-LoggingTarget -Name File -Configuration @{
-    Path            = <NOTSET>          # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log')
-                                        #            It supports templating like $Logging.Format
-    PrintBody       = $false            # <Not required> Prints body message too
-    PrintException  = $false            # <Not required> Prints stacktrace
-    Append          = $true             # <Not required> Append to log file
-    Encoding        = 'ascii'           # <Not required> Sets the log file encoding
-    Level           = <NOTSET>          # <Not required> Sets the logging level for this target
-    Format          = <NOTSET>          # <Not required> Sets the logging format for this target
+    Path            = <NOTSET>            # <Required> Sets the file destination (eg. 'C:\Temp\%{+%Y%m%d}.log')
+                                          #            It supports templating like $Logging.Format
+    PrintBody       = $false              # <Not required> Prints body message too
+    PrintException  = $false              # <Not required> Prints stacktrace
+    Append          = $true               # <Not required> Append to log file
+    Encoding        = 'ascii'             # <Not required> Sets the log file encoding
+    Level           = <NOTSET>            # <Not required> Sets the logging level for this target
+    Format          = <NOTSET>            # <Not required> Sets the logging format for this target
+    ############Rotating###################
+    RotateAfterAmount = <NOTSET>          # <Not required> Sets the amount of files after which rotation is triggered
+    RotateAmount      = <NOTSET>          # <Not required> Amount of files to be rotated, when RotateAfterAmount is used
+    RotateAfterDate   = <NOTSET>          # <Not required> Rotate after the difference between the current datetime and the datetime of the file(s) are greater then the given timespan
+    RotateAfterSize   = <NOTSET>          # <Not required> Rotate after the file(s) are greater than the given size in BYTES
+    CompressionPath   = <NOTSET>          # <Not required> Path of archive (*.zip) to create for the rotated files
 }
 
 Write-Log -Level 'WARNING' -Message 'Hello, Powershell!'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell'
 Write-Log -Level 'WARNING' -Message 'Hello, {0}!' -Arguments 'Powershell' -Body @{source = 'Logging'}
 ```
+
+##### Rotation
+This module provides the functionality for the file target to rotate log files.
+To make full use of this functionality, variable data used inside the log path should be encoded, using the previously described format system.
+
+When the file target is initialized, **all files** are retrieved, which **expand** the given log path.
+All internally known **placeholders** are therefore substituted with **wildcard** characters.
+Based upon this list of files a file is rotated, if
+- the difference between it's creation and the current data is greater then the specified **RotateAfterDate**
+- it's size in bytes exceeds **RotateAfterSize**
+- more than **RotateAfterAmount** files are present and this file belongs to the oldest max(|Files| - RotateAfterAmount, RotateAmount) files.
+
+The default behavior is to remove all rotated log files. It is however possible, to use the **CompressionPath** to define an archive for the rotated log files. **This requires >= NET4.5** The following placeholders are supported
+- `%{timestamp}`
+- `%{timestamputc}`
+If an archive should already be present, the data is **merged**.
 
 #### ElasticSearch
 
