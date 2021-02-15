@@ -9,7 +9,20 @@
         Level          = @{Required = $false; Type = [string]; Default = $Logging.Level }
         Format         = @{Required = $false; Type = [string]; Default = $Logging.Format }
     }
+    Init          = {
+        param(
+            [hashtable] $Configuration
+        )
 
+        [String] $directoryPath = [System.IO.Path]::GetDirectoryName($Configuration.Path)
+
+        # We (try to) create the directory if it is not yet given
+        if (-not [System.IO.Directory]::Exists($directoryPath)){
+            # "Creates all directories and subdirectories in the specified path unless they already exist."
+            # https://docs.microsoft.com/en-us/dotnet/api/system.io.directory.createdirectory?view=net-5.0#System_IO_Directory_CreateDirectory_System_String_
+            [System.IO.Directory]::CreateDirectory($directoryPath) | Out-Null
+        }
+    }
     Logger        = {
         param(
             [hashtable] $Log,
