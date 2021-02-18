@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 4.8.1 (2021-02-18)
+
+
+
 ## 4.8.0 (2021-02-11)
 
 
@@ -173,6 +177,7 @@ It should improve logging performance to a new level thanks to the amazing work 
 - Moved to psake build tool
 - Moved to platyps doc generation tool
 - Major folder structure change
+
 
 
 
