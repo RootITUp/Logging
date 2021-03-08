@@ -29,8 +29,6 @@
         [string] $directoryPath = [System.IO.Path]::GetDirectoryName($Configuration.Path)
         [string] $wildcardBasePath = Format-Pattern -Pattern ([System.IO.Path]::GetFileName($Configuration.Path)) -Wildcard
 
-        $ParentHost.UI.WriteLine($wildcardBasePath)
-
         # We (try to) create the directory if it is not yet given
         if (-not [System.IO.Directory]::Exists($directoryPath)){
             # "Creates all directories and subdirectories in the specified path unless they already exist."
@@ -47,58 +45,43 @@
                 return
             }
 
-            $ParentHost.UI.WriteLine((ConvertTo-Json -InputObject ($Configuration)))
-
             $rotationDate = $Configuration.RotateAfterDate.Duration()
             $currentDateUtc = [datetime]::UtcNow
 
+            [string[]] $logFiles = [System.IO.Directory]::GetFiles($directoryPath, $wildcardBasePath)
             $toBeRolled = @()
-            $givenFiles = [System.Collections.Generic.List[System.IO.FileInfo]]::new()
+            $givenFiles = [System.IO.FileInfo[]]::new($logFiles.Count)
 
-            foreach ($file in [System.IO.Directory]::EnumerateFiles($directoryPath, $wildcardBasePath)){
-                $fileInfo = [System.IO.FileInfo]::new($file)
-                $ParentHost.UI.WriteLine(($currentDateUtc - $fileInfo.CreationTimeUtc).TotalSeconds)
-                $ParentHost.UI.WriteLine($rotationDate.TotalSeconds)
+            for ([int] $i = 0; $i -lt $logFiles.Count; $i++){
+                $fileInfo = [System.IO.FileInfo]::new($logFiles[$i])
+
                 # 1. Based on file size
                 if ($Configuration.RotateAfterSize -gt 0 -and $fileInfo.Length -gt $Configuration.RotateAfterSize){
-                    $ParentHost.UI.WriteLine(("Rotating {0} as its size exceeds rotation size.") -f $fileInfo.Name)
                     $toBeRolled += $fileInfo
                 }
                 # 2. Based on date
                 elseif ($rotationDate.TotalSeconds -gt 0 -and ($currentDateUtc - $fileInfo.CreationTimeUtc).TotalSeconds -gt $rotationDate.TotalSeconds){
-                    $ParentHost.UI.WriteLine(("Rotating {0} as its creation date exceeds rotation date difference.") -f $fileInfo.Name)
                     $toBeRolled += $fileInfo
                 }
                 # 3. Based on number
                 else{
-                    $givenFiles.Add($fileInfo)
+                    $givenFiles[$i] = $fileInfo
                 }
             }
 
             # 3. Based on number
             if ($Configuration.RotateAfterAmount -gt 0 -and $givenFiles.Count -gt $Configuration.RotateAfterAmount){
-                $ParentHost.UI.WriteLine("Rotating as number of files exceeds rotation amount.")
-
                 if ($Configuration.RotateAmount -le 0){
                     $Configuration.RotateAmount = $Configuration.RotateAfterAmount / 2
                 }
 
-                $givenFiles.Sort(
-                    {
-                        param(
-                            [Parameter(Mandatory)][System.IO.FileInfo]$t1,
-                            [Parameter(Mandatory)][System.IO.FileInfo]$t2
-                        )
-                        # If t1 is earlier than t2, a value less than zero is returned, this entry is then sorted before t2
-                        $t1.CreationTimeUtc.CompareTo($t2.CreationTimeUtc)
-                    }
-                )
+                $sortedFiles = $givenFiles | Sort-Object -Property CreationTimeUtc
 
                 # Rotate
-                # a) until givenFiles = RotateAfterAmount
+                # a) until sortedFiles = RotateAfterAmount
                 # b) until RotateAmount files are rotated
-                for ([int] $i = 0; ($i -lt ($givenFiles.Count - $Configuration.RotateAfterAmount)) -or ($i -le $Configuration.RotateAmount); $i++){
-                    $toBeRolled += $givenFiles[$i]
+                for ([int] $i = 0; ($i -lt ($sortedFiles.Count - $Configuration.RotateAfterAmount)) -or ($i -le $Configuration.RotateAmount); $i++){
+                    $toBeRolled += $sortedFiles[$i]
                 }
             }
 
