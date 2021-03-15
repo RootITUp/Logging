@@ -21,7 +21,7 @@
         )
 
         $Text = @{
-            text = Replace-Token -String $Configuration.Format -Source $Log
+            text = Format-Pattern -Pattern $Configuration.Format -Source $Log
         }
 
         if ($Configuration.BotName) { $Text['username'] = $Configuration.BotName }

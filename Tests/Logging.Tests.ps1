@@ -51,56 +51,56 @@ InModuleScope Logging {
         }
 
         It 'should return a string with token replaced' {
-            Replace-Token -String '%{message}' -Source $Object | Should Be 'Test'
+            Format-Pattern -Pattern '%{message}' -Source $Object | Should Be 'Test'
         }
 
         It 'should return a string with token replaced and padded' {
-            Replace-Token -String '%{message:7}' -Source $Object | Should Be '   Test'
-            Replace-Token -String '%{message:-7}' -Source $Object | Should Be 'Test   '
+            Format-Pattern -Pattern '%{message:7}' -Source $Object | Should Be '   Test'
+            Format-Pattern -Pattern '%{message:-7}' -Source $Object | Should Be 'Test   '
         }
 
         It 'should return a string with a timestamp, no formatter' {
-            Replace-Token -String '%{timestamp}' -Source $Object | Should Be $TimeStamp
+            Format-Pattern -Pattern '%{timestamp}' -Source $Object | Should Be $TimeStamp
         }
 
         It 'should return a string using a custom Unix format with token' {
-            Replace-Token -String '%{timestamp:+%Y%m%d}' -Source $Object | Should Be $(Get-Date $TimeStamp -UFormat '%Y%m%d')
+            Format-Pattern -Pattern '%{timestamp:+%Y%m%d}' -Source $Object | Should Be $(Get-Date $TimeStamp -UFormat '%Y%m%d')
         }
 
         It 'should return a string using a custom Unix format without token' {
-            Replace-Token -String '%{+%Y%m%d}' -Source $Object | Should Be $(Get-Date -UFormat '%Y%m%d')
+            Format-Pattern -Pattern '%{+%Y%m%d}' -Source $Object | Should Be $(Get-Date -UFormat '%Y%m%d')
         }
 
         It 'should return a string using a custom Unix format with a full day name, with token' {
-            Replace-Token -String '%{timestamp:+%A, %B %d, %Y}' -Source $Object | Should Be $(Get-Date $TimeStamp -UFormat '%A, %B %d, %Y')
+            Format-Pattern -Pattern '%{timestamp:+%A, %B %d, %Y}' -Source $Object | Should Be $(Get-Date $TimeStamp -UFormat '%A, %B %d, %Y')
         }
 
         It 'should return a string using a custom Unix format with a full day name, without token' {
-            Replace-Token -String '%{+%A, %B %d, %Y}' -Source $Object | Should Be $(Get-Date -UFormat '%A, %B %d, %Y')
+            Format-Pattern -Pattern '%{+%A, %B %d, %Y}' -Source $Object | Should Be $(Get-Date -UFormat '%A, %B %d, %Y')
         }
 
         It 'should return a string using a custom Unix format with token, with padding' {
-            Replace-Token -String '%{timestamp:+%Y%m:12}' -Source $Object | Should Be $("      {0}" -f (Get-Date $TimeStamp -UFormat '%Y%m'))
+            Format-Pattern -Pattern '%{timestamp:+%Y%m:12}' -Source $Object | Should Be $("      {0}" -f (Get-Date $TimeStamp -UFormat '%Y%m'))
         }
 
         It 'should return a string using a custom Unix format without token, with padding' {
-            Replace-Token -String '%{+%Y%m:12}' -Source $Object | Should Be $("      {0}" -f (Get-Date -UFormat '%Y%m'))
+            Format-Pattern -Pattern '%{+%Y%m:12}' -Source $Object | Should Be $("      {0}" -f (Get-Date -UFormat '%Y%m'))
         }
 
         It 'should return a string using a custom [DateTimeFormatInfo] string with token' {
-            Replace-Token -String '%{timestamp:+yyyy/MM/dd HH:mm:ss.fff}' -Source $Object | Should Be $(Get-Date $TimeStamp -Format 'yyyy/MM/dd HH:mm:ss.fff')
+            Format-Pattern -Pattern '%{timestamp:+yyyy/MM/dd HH:mm:ss.fff}' -Source $Object | Should Be $(Get-Date $TimeStamp -Format 'yyyy/MM/dd HH:mm:ss.fff')
         }
 
         It 'should return a string using a custom [DateTimeFormatInfo] string without token' {
-            Replace-Token -String '%{+yyyy/MM/dd HH}' -Source $Object | Should Be $(Get-Date -Format 'yyyy/MM/dd HH')
+            Format-Pattern -Pattern '%{+yyyy/MM/dd HH}' -Source $Object | Should Be $(Get-Date -Format 'yyyy/MM/dd HH')
         }
 
         It 'should return a string using a custom [DateTimeFormatInfo] string with token, with padding' {
-            Replace-Token -String '%{timestamp:+HH:mm:ss.fff:15}' -Source $Object | Should Be $("   {0}" -f (Get-Date $TimeStamp -Format 'HH:mm:ss.fff'))
+            Format-Pattern -Pattern '%{timestamp:+HH:mm:ss.fff:15}' -Source $Object | Should Be $("   {0}" -f (Get-Date $TimeStamp -Format 'HH:mm:ss.fff'))
         }
 
         It 'should return a string using a custom [DateTimeFormatInfo] string without token, with padding' {
-            Replace-Token -String '%{+yyyy/MM/dd HH:15}' -Source $Object | Should Be $("  {0}" -f (Get-Date -Format 'yyyy/MM/dd HH'))
+            Format-Pattern -Pattern '%{+yyyy/MM/dd HH:15}' -Source $Object | Should Be $("  {0}" -f (Get-Date -Format 'yyyy/MM/dd HH'))
         }
     }
 

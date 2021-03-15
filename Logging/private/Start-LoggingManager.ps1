@@ -23,7 +23,7 @@ function Start-LoggingManager {
     }
 
     # Importing functions into runspace
-    foreach ($Function in 'Replace-Token', 'Initialize-LoggingTarget', 'Get-LevelNumber') {
+    foreach ($Function in 'Format-Pattern', 'Initialize-LoggingTarget', 'Get-LevelNumber') {
         Write-Verbose "Importing function $($Function) into runspace"
         $Body = Get-Content Function:\$Function
         $f = New-Object System.Management.Automation.Runspaces.SessionStateFunctionEntry -ArgumentList $Function, $Body

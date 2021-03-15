@@ -43,7 +43,7 @@ function Add-LoggingTarget {
         }
 
         if ($Script:Logging.Targets[$PSBoundParameters.Name].Init -is [scriptblock]) {
-            & $Script:Logging.Targets[$PSBoundParameters.Name].Init $Configuration
+            & $Script:Logging.Targets[$PSBoundParameters.Name].Init $Script:Logging.EnabledTargets[$PSBoundParameters.Name]
         }
     }
 }

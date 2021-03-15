@@ -21,7 +21,7 @@
         # Build the Message body
         $body = @{
             roomId = $Configuration.RoomId
-            text   = $Configuration.Icons[$Log.Level] + " " + $(Replace-Token -String $Configuration.Format -Source $Log)
+            text   = $Configuration.Icons[$Log.Level] + " " + $(Format-Pattern -Pattern $Configuration.Format -Source $Log)
         }
 
         # Convert to JSON

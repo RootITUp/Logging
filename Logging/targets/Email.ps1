@@ -34,7 +34,7 @@
             To         = $Configuration.To.Split(',').Trim()
             Port       = $Configuration.Port
             UseSsl     = $Configuration.UseSsl
-            Subject    = Replace-Token -String $Configuration.Subject -Source $Log
+            Subject    = Format-Pattern -Pattern $Configuration.Subject -Source $Log
             Body       = $Body
             BodyAsHtml = $true
         }
