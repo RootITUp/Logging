@@ -15,7 +15,7 @@
 
         $Body = @{
             "@t"       = $Log.TimestampUtc
-            "@l"       = $Configuration.Level
+            "@l"       = $Log.Level.substring(0,1).toupper()+$Log.Level.substring(1).tolower()
             "@m"       = $Log.Message
             "@mt"      = $Log.RawMessage
         }
