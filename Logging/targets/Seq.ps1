@@ -26,6 +26,11 @@
 
         $Body += $Log
 
+        if($null -ne $Configuration.Properties)
+        {
+            $Body += $Configuration.Properties
+        }
+
         if ($Configuration.ApiKey) {
             $Url = '{0}/api/events/raw?clef&apiKey={1}' -f $Configuration.Url, $Configuration.ApiKey
         }
