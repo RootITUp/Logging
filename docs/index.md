@@ -29,7 +29,7 @@
 #### Download Repo
 
 * Download [the zip](https://github.com/EsOsO/Logging/releases/latest)
-* Ublock the zip file (`Unblock-File -Path <path_to_zip>`)
+* Unblock the zip file (`Unblock-File -Path <path_to_zip>`)
 * Unzip the content of "Logging-master" to:
   * C:\Program Files\WindowsPowerShell\Modules\Logging **[System wide]**
   * D:\Users\\{username}\Documents\WindowsPowerShell\Modules\Logging **[User only]**
@@ -56,4 +56,4 @@ Wait-Logging        # See Note
 
 ### NOTE
 
-When used in *unattended* scripts (scheduled tasks, spawned process) you need to call Wait-Logging to avoid losing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you'll lose it)
+When used in *unattended* scripts (scheduled tasks, spawned process) you need to call `Wait-Logging` to avoid losing messages. If you run your main script in an interactive shell that stays open at the end of the execution you could avoid using it (keep in mind that if there are messeages in the queue when you close the shell, you'll lose them)
