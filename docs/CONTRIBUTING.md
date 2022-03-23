@@ -4,7 +4,7 @@ Contributions are welcome!
 
 ## Submitting changes
 
-Please send a [GitHub Pull Request](https://github.com/EsOsO/Logging/pull/new/dev) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). When you send a pull request, I will love you forever if you include Pester tests. Please follow mine coding conventions (below) and make sure all of your commits are atomic (one feature per commit).
+Please send a [GitHub Pull Request](https://github.com/EsOsO/Logging/pull/new/dev) with a clear list of what you've done (read more about [pull requests](http://help.github.com/pull-requests/)). When you send a pull request, I will love you forever if you include Pester tests. Please follow my coding conventions (below) and make sure all of your commits are atomic (one feature per commit).
 
 Always write a clear log message for your commits. One-line messages are fine for small changes, but bigger changes should look like this:
 
