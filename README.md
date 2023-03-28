@@ -1,3 +1,5 @@
+<h1>This repository is archived as I'm unable to work on the code anymore. If someone would like to become the new owner please contact me.</h1>
+
 <h3 align="center">Powershell Logging Module</h3>
 <p align="center">
   <a href="https://www.powershellgallery.com/packages/logging" target="_blank" rel="noopener noreferrer">
